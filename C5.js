@@ -3,13 +3,15 @@ function stringManipulation(kata) {
     let vokal = ['a', 'i', 'u', 'e', 'o'];
 
     if (vokal.includes(hurufPertama)) {
-        // Jika huruf pertama vokal, kembalikan kata apa adanya
-        return kata;
+        
+        console.log(kata);
     } else {
-        // Jika huruf pertama konsonan
-        let sisaKata = kata.slice(1); // ambil dari huruf kedua sampai akhir
-        return sisaKata + hurufPertama + 'nyo';
+        
+        let sisaKata = kata.slice(1);
+        let hasil = sisaKata + hurufPertama + 'nyo';
+        console.log(hasil);
     }
 }
+
 stringManipulation('ayam');
 stringManipulation('bebek');
