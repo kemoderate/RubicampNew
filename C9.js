@@ -1,6 +1,8 @@
 function spiral(param1) {
-    
+
+    // matriks
     let matriks = []
+    
     let counter = 0;
 
     for (let i = 0; i < param1 ; i++) { // Outer loop
@@ -11,8 +13,34 @@ function spiral(param1) {
   }
   matriks.push(row);
 }
+console.log("Matriks")
 console.log(matriks)
 
+    // transversal
+    let result = [];
+    let top = 0
+    let bottom = param1 - 1;
+    let left = 0;
+    let right = param1 -1;
+
+    while (result.length < param1 * param1 ) {
+        for (let i = left; i <= right; i++) {
+            result.push(matriks[top][i])
+        }
+        top++;
+        for (let i = top; i <= bottom; i++) {
+            result.push(matriks[i][right])
+        }
+        right--;
+        for (let i = right; i => left; i++) {
+            result.push(matriks[i][bottom])
+        }
+        bottom--;
+        
+
+    }
+
+return result;
 }
 
 spiral(5)
