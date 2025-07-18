@@ -11,12 +11,6 @@ function spiral(param1) {
         matriks.push(row);
     }
 
-    // Cetak isi matriks
-    
-    for (let i = 0; i < param1; i++) {
-        console.log(matriks[i].join(','));
-    }
-
     // Spiral traversal
     let result = [];
     let top = 0;
