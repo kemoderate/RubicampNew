@@ -34,48 +34,11 @@ function spellingWord(word) {
 
 
 
-// code asli ada di bawah di atas hanyalah testing
 
-
-// function spellingWord(word){
-//     const dictionary = ['pro','gram','merit','program','it','programmer']
-//     console.log(dictionary)
-
-// }
 
 spellingWord('program')
 spellingWord('programit')
 spellingWord('programmerit')
 spellingWord('programlala')
 spellingWord('proletarian')
-
-
-// output
-// =================================================
-// Sample input:
-// program 
-
-// Sample output
-//prog,gram
-// program,it
-// ====================================================
-// sample input:
-// programmerit
-
-// sample output:
-// // pro,gram,merit
-// // program,it
-// ========================================================
-
-// sample input:
-// programlala
-
-// sample output:
-// no way
-// =============================================================
-// sample input:
-// proletarian
-
-// sample output:
-// no way
 
