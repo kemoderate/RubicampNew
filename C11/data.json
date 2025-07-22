@@ -1,10 +1,14 @@
 [
   {
     "Pertanyaan": "Siapakah presiden kita saat ini?",
-    "Jawaban": "Jokowi"
+    "Jawaban": "jokowi"
   },
   {
-    "question": "Tahun berapa Indonesia merdeka?", 
+    "Pertanyaan": "Tahun berapa Indonesia merdeka?", 
     "Jawaban": "1945"
+  },
+  { "Pertanyaan":"Sebutkan kota yang memiliki julukan kota Intan",
+    "Jawaban":"garut"
+    
   }
 ]
