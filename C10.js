@@ -1,4 +1,10 @@
 const readline = require('readline');
+
+readline.emitKeypressEvents(process.stdin);
+if (process.stdin.isTTY) {
+  process.stdin.setRawMode(true);
+}
+
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
@@ -33,7 +39,17 @@ rl.on('line', (input) => {
   if (input.toLowerCase() === 'exit') {
     console.log('Good bye!');
     rl.close();
+    process.exit(0);
   } else {
     sentenceManipulation(input);
+  }
+});
+
+
+process.stdin.on('keypress', (str, key) => {
+  if (key.ctrl && key.name === 'c') {
+    console.log('\nGood bye!');
+    rl.close();
+    process.exit(0);
   }
 });
