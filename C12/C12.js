@@ -26,29 +26,37 @@ rl.on('line', (jawaban) => {
         console.log("Selamat Anda Benar");
         current++;
         benar++;
-       
-    }  else if(userJawaban === 'skip'){
-            skippedQuestion.push(quizData[current]);
-            console.log(`jawaban dilewati`)
-            current++
-        }
+
+    } else if (userJawaban === 'skip') {
+        skippedQuestion.push(quizData[current]);
+        console.log(`jawaban dilewati`)
+        current++
+    }
     else {
         salah++;
         console.log(`Wkwkwkwk, Anda Kurang Beruntung ! anda ${salah} kali , silahkan coba lagi`);
+        return rl.prompt();
     }
 
-    if(skippedQuestion.length > 0){
-        quizData = skippedQuestion;
-        skippedQuestion = [];
-        current = 0;
-        rl.prompt();
-    }
-    else if (current < quizData.length) {
-        console.log(`\nSoal ${current + 1}: ${quizData[current].Pertanyaan}`);
-        rl.prompt();
-    } 
-    else {
+    if (benar >= 3) {
         console.log("\nHore anda menang!");
         rl.close();
     }
-})
+
+    if (current < quizData.length) {
+        console.log(`\nSoal ${current + 1}: ${quizData[current].Pertanyaan}`);
+        rl.prompt();
+    }
+
+    else if (skippedQuestion.length > 0) {
+        quizData = skippedQuestion;
+        skippedQuestion = [];
+        current = 0;
+        console.log(`${current + 1}: ${quizData[current].Pertanyaan}`)
+        rl.prompt();
+    }
+    else {
+        rl.close();
+    }
+}
+)
