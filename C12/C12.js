@@ -7,7 +7,7 @@ const rl = readline.createInterface({
     prompt: 'Tebakan :'
 });
 
-const quizData = JSON.parse(fs.readFileSync('data.json', 'utf-8'));
+let quizData = JSON.parse(fs.readFileSync('data.json', 'utf-8'));
 let skippedQuestion = [];
 let current = 0;
 let salah = 0;
@@ -25,25 +25,29 @@ rl.on('line', (jawaban) => {
     if (userJawaban === correctJawaban) {
         console.log("Selamat Anda Benar");
         current++;
+        benar++;
        
     }  else if(userJawaban === 'skip'){
+            skippedQuestion.push(quizData[current]);
+            console.log(`jawaban dilewati`)
             current++
         }
     else {
-        console.log("Wkwkwkwk, Anda Kurang Beruntung !");
         salah++;
+        console.log(`Wkwkwkwk, Anda Kurang Beruntung ! anda ${salah} kali , silahkan coba lagi`);
     }
 
     if(skippedQuestion.length > 0){
         quizData = skippedQuestion;
         skippedQuestion = [];
         current = 0;
+        rl.prompt();
     }
-
-    if (current < quizData.length) {
+    else if (current < quizData.length) {
         console.log(`\nSoal ${current + 1}: ${quizData[current].Pertanyaan}`);
         rl.prompt();
-    } else {
+    } 
+    else {
         console.log("\nHore anda menang!");
         rl.close();
     }
