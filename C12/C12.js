@@ -15,7 +15,7 @@ let benar = 0;
 
 console.log("Selamat datang di permainan Tebak Kata, silahkan isi dengan jawaban yang benar ya!")
 console.log("Gunakan skip untuk menangguhkan pertanyaannya, dan di akhir pertanyaan akan di tanyakan lagi")
-console.log(`${current + 1}: ${quizData[current].Pertanyaan}`)
+console.log(`Pertanyaan : ${quizData[current].Pertanyaan}`)
 rl.prompt();
 
 rl.on('line', (jawaban) => {
@@ -23,7 +23,7 @@ rl.on('line', (jawaban) => {
     const userJawaban = jawaban.trim().toLowerCase();
 
     if (userJawaban === correctJawaban) {
-        console.log("Selamat Anda Benar");
+        console.log(" Anda Beruntung !");
         current++;
         benar++;
 
@@ -42,9 +42,8 @@ rl.on('line', (jawaban) => {
         console.log("\nHore anda menang!");
         rl.close();
     }
-
-    if (current < quizData.length) {
-        console.log(`\nSoal ${current + 1}: ${quizData[current].Pertanyaan}`);
+    else if (current < quizData.length) {
+        console.log(`\nPertanyaan : ${quizData[current].Pertanyaan}`);
         rl.prompt();
     }
 
@@ -52,10 +51,11 @@ rl.on('line', (jawaban) => {
         quizData = skippedQuestion;
         skippedQuestion = [];
         current = 0;
-        console.log(`${current + 1}: ${quizData[current].Pertanyaan}`)
+        console.log(`Pertanyaan : ${quizData[current].Pertanyaan}`)
         rl.prompt();
     }
     else {
+        console.log("\nAnda beruntung !")
         rl.close();
     }
 }
