@@ -1,13 +1,22 @@
 const fs = require('fs');
 const readline = require('readline');
-
+ 
 const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
     prompt: 'Tebakan :'
 });
+// argumen 
 
-let quizData = JSON.parse(fs.readFileSync('data.json', 'utf-8'));
+if (process.argv[2] !== 'data.json') {
+    console.log(`tolong sertakan nama file sebagai inputan soal misalnya 'node solution.js data.json'`);
+    process.exit();
+} else {
+    const data = fs.readFileSync('data.json');
+    const quizData = JSON.parse(data);
+}
+
+let quiz = JSON.parse(fs.readFileSync('data.json', 'utf-8'));
 let skippedQuestion = [];
 let current = 0;
 let salah = 0;
@@ -15,21 +24,24 @@ let benar = 0;
 
 console.log("Selamat datang di permainan Tebak Kata, silahkan isi dengan jawaban yang benar ya!")
 console.log("Gunakan skip untuk menangguhkan pertanyaannya, dan di akhir pertanyaan akan di tanyakan lagi")
-console.log(`Pertanyaan : ${quizData[current].Pertanyaan}`)
+console.log(`Pertanyaan : ${quiz[current].Pertanyaan}`)
 rl.prompt();
 
 rl.on('line', (jawaban) => {
-    const correctJawaban = quizData[current].Jawaban.toLowerCase();
+    const correctJawaban = quiz[current].Jawaban.toLowerCase();
     const userJawaban = jawaban.trim().toLowerCase();
 
     if (userJawaban === correctJawaban) {
         console.log(" Anda Beruntung !");
+        salah = 0;
         current++;
         benar++;
+        
 
     } else if (userJawaban === 'skip') {
-        skippedQuestion.push(quizData[current]);
-        console.log(`jawaban dilewati`)
+        skippedQuestion.push(quiz[current]);
+        console.log(`\njawaban dilewati`)
+        salah = 0;
         current++
     }
     else {
@@ -42,16 +54,16 @@ rl.on('line', (jawaban) => {
         console.log("\nHore anda menang!");
         rl.close();
     }
-    else if (current < quizData.length) {
-        console.log(`\nPertanyaan : ${quizData[current].Pertanyaan}`);
+    else if (current < quiz.length) {
+        console.log(`\nPertanyaan : ${quiz[current].Pertanyaan}`);
         rl.prompt();
     }
 
     else if (skippedQuestion.length > 0) {
-        quizData = skippedQuestion;
+        quiz = skippedQuestion;
         skippedQuestion = [];
         current = 0;
-        console.log(`Pertanyaan : ${quizData[current].Pertanyaan}`)
+        console.log(`Pertanyaan : ${quiz[current].Pertanyaan}`)
         rl.prompt();
     }
     else {
