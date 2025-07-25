@@ -24,10 +24,10 @@ SELECT mahasiswa.nim, mahasiswa.nama
 FROM mahasiswa
 JOIN kontrakmk ON mahasiswa.nim = kontrakmk.nim
 JOIN matakuliah ON kontrakmk.kode_mk = matakuliah.kode_mk
-WHERE matakuliah.nama = 'data mining';
+WHERE matakuliah.nama LIKE '%data mining%';
 
 -- 6. Tampilkan jumlah mahasiswa untuk setiap dosen
-SELECT dosen.nama, COUNT(mahasiswa.nim) as jumlah_mahasiswa
+SELECT dosen.nama, COUNT(DISTINCT mahasiswa.nim) AS jumlah_mahasiswa
 FROM dosen
 JOIN kontrakmk ON dosen.id = kontrakmk.id_dosen
 JOIN mahasiswa ON kontrakmk.nim = mahasiswa.nim
