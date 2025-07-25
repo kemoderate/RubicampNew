@@ -45,3 +45,38 @@ JOIN jurusan ON mahasiswa.jurusan = jurusan.id
 JOIN dosen ON kontrakmk.id_dosen = dosen.id
 JOIN matakuliah ON kontrakmk.kode_mk = matakuliah.kode_mk
 WHERE kontrakmk.nilai IN ('D', 'E');
+
+
+-- Jurusan
+INSERT INTO jurusan (id, namajurusan) VALUES
+(1, 'Teknik Informatika'),
+(2, 'Sistem Informasi'),
+(3, 'Data Science');
+
+-- Mahasiswa
+INSERT INTO mahasiswa (nim, nama, alamat, tgl_lahir, jurusan) VALUES
+('M001', 'Andi', 'Jakarta', '2005-05-10', 1),
+('M002', 'Budi', 'Bandung', '2002-08-15', 2),
+('M003', 'Citra', 'Surabaya', '2004-03-20', 3),
+('M004', 'Dewi', 'Depok', '2001-12-05', 1);
+
+-- Dosen
+INSERT INTO dosen (id, nama) VALUES
+(1, 'Dr. Rudi'),
+(2, 'Prof. Sari');
+
+-- Mata Kuliah
+INSERT INTO matakuliah (kode_mk, nama, sks) VALUES
+('MK001', 'Pemrograman', 4),
+('MK002', 'Basis Data', 3),
+('MK003', 'Data Mining', 4),
+('MK004', 'Statistik', 3);
+
+-- KontrakMK
+INSERT INTO kontrakmk (nim, kode_mk, id_dosen, nilai) VALUES
+('M001', 'MK001', 1, 'A'),
+('M001', 'MK002', 2, 'B'),
+('M002', 'MK003', 1, 'D'),
+('M003', 'MK001', 2, 'E'),
+('M003', 'MK003', 1, 'B'),
+('M004', 'MK004', 2, 'A');
