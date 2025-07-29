@@ -41,7 +41,7 @@
       <td><%= item.weight %></td>
       <td><%= item.birthdate %></td>
       <td><%= item.married ? 'Yes' : 'No' %></td>
-      <td><a href="/update">Update</a> <a href="/delete">Delete</a> </td>
+      <td><a href="/edit/<%= index + 1 %>">Update</a> <a href="/delete/<%= index + 1 %>">Delete</a> </td>
     </tr>
   <% }) %>
 </table>
