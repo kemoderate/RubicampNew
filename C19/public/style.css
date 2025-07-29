@@ -1,0 +1,107 @@
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #f4f4f4;
+}
+
+h1{
+    text-align: center;
+    color:#333
+
+}
+
+table {
+    width: 80%;
+    margin: 20px auto;
+    border-collapse: collapse ;
+    background: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+table th, table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+}
+
+/* table th{
+    background-color: #007BFF;
+    color:white
+} */
+
+a, button {
+    text-decoration: none;
+    padding: 5px 100px;
+    color: white;
+    background: #007BFF;
+    border-radius: 4px;
+}
+a:hover,button:hover{
+    background: #0056b3;
+}
+
+form {
+    width: 400px;
+    margin: 20px auto;
+    background: #fff;
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+input {
+    width: 100px;
+    padding: 0px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+
+}
+
+button {
+    border: none;
+    cursor: pointer;
+}
+
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 20px;
+  font-family: Arial, sans-serif;
+}
+
+th, td {
+  text-align: left;
+  padding: 8px;
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  background-color: white;
+  color: black;
+}
+
+tr:nth-child(even) {
+  background-color: #D6EEEE;
+}
+
+tr:hover {
+  background-color: #f1f1f1;
+}
+
+
+.btn-create {
+  display: inline-block;
+  margin-bottom: 15px;
+  padding: 8px 12px;
+  background-color: #0056b3;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.btn-create:hover {
+  background-color: #45a049;
+}
