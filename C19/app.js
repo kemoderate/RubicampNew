@@ -48,19 +48,20 @@ app.post('/add', (req, res) => {
 // UPDATE (Form)
 app.get('/edit/:index', (req, res) => {
     const data = loadData();
-    const index = parseInt(req.params.index) - 1;
-    const person = data[index];
+    const index = parseInt(req.params.index);       // index asli (1-based)
+    const person = data[index - 1];                 // ambil dari array (0-based)
     res.render('form', {
         formTitle: 'Edit',
-        formAction: `/edit/${index}`,
+        formAction: `/edit/${index}`,               // kirim index asli ke form
         item: person,
         index
     });
 });
 
+
 app.post('/edit/:index', (req, res) => {
     const data = loadData();
-    const index = parseInt(req.params.index) - 1;
+    const index = parseInt(req.params.index) - 1;   // jadi 0-based
     data[index] = {
         name : req.body.name,
         height : parseInt(req.body.height),
@@ -72,16 +73,15 @@ app.post('/edit/:index', (req, res) => {
     res.redirect('/');
 });
 
+
 // DELETE
 app.get('/delete/:index', (req, res) => {
     const data = loadData();
-    const index = parseInt(req.params.index) - 1;
-   if (index >= 0 && index < data.length){
+    const index = parseInt(req.params.index) - 1; // konversi ke 0-based
     data.splice(index, 1);
     saveData(data);
-   }
-
     res.redirect('/');
 });
+
 
 app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
