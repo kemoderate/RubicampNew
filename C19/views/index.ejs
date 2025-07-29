@@ -1,28 +1,5 @@
-<!-- <h1>JSON CRUD ( Create, Read , Update , Delete )</h1>
-<table border="1" cellpadding="5">
-  <tr>
-    <th>No</th>
-    <th>Name</th>
-    <th>Height</th>
-    <th>Weight</th>
-    <th>Birthdate</th>
-    <th>Married</th>
-  </tr>
-  <% data.forEach((item, index) => { %>
-    <tr>
-      <td><%= index + 1 %></td>
-      <td><%= item.name %></td>
-      <td><%= item.height %></td>
-      <td><%= item.weight %></td>
-      <td><%= item.birthdate %></td>
-      <td><%= item.married ? 'Yes' : 'No' %></td>
-    </tr>
-  <% }) %>
-</table> -->
-
-
 <h1>JSON CRUD ( Create, Read , Update , Delete )</h1>
-<a href="/add" class="btn-create">Create </a>
+<a href="/add" class="btn-create">Create</a>
 <table>
   <tr>
     <th>No</th>
@@ -41,7 +18,19 @@
       <td><%= item.weight %></td>
       <td><%= item.birthdate %></td>
       <td><%= item.married ? 'Yes' : 'No' %></td>
-      <td><a href="/edit/<%= index + 1 %>">Update</a> <a href="/delete/<%= index + 1 %>">Delete</a> </td>
+      <td>
+        <a href="/edit/<%= index + 1 %>">Update</a> 
+        <a href="#" onclick="return confirmDelete(<%= index + 1 %>, '<%= item.name %>')">Delete</a>
+      </td>
     </tr>
   <% }) %>
 </table>
+
+<script>
+function confirmDelete(index, name) {
+  if (confirm(`Apakah kamu yakin akan menghapus data '${name}'?`)) {
+    window.location.href = `/delete/${index}`;
+  }
+  return false; 
+}
+</script>

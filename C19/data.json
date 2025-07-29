@@ -19,12 +19,5 @@
     "weight": 57.5,
     "birthdate": "1996-05-13",
     "married": false
-  },
-  {
-    "name": "willy",
-    "height": 175,
-    "weight": 100,
-    "birthdate": "2002-02-02",
-    "married": false
   }
 ]
