@@ -36,7 +36,7 @@ app.post('/add', (req, res) => {
     const newItem = {
         name: req.body.name,
         height: parseInt(req.body.height),
-        weight: parseInt(req.body.weight),
+        weight: parseFloat(req.body.weight),
         birthdate: req.body.birthdate,
         married: req.body.married === 'true'
     }
@@ -63,11 +63,10 @@ app.post('/edit/:index', (req, res) => {
     const index = parseInt(req.params.index) - 1;
     data[index] = {
         name : req.body.name,
-        height : parseInt (req.body.height),
-        weight : parseInt (req.body.weight),
+        height : parseInt(req.body.height),
+        weight : parseFloat(req.body.weight),
         birthdate : req.body.birthdate,
         married : req.body.married == 'true'
-
     };
     saveData(data);
     res.redirect('/');
