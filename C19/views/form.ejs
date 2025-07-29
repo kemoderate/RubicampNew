@@ -1,0 +1,10 @@
+<% content = `
+<form action="${action}" method="POST">
+    <label>Nama:</label>
+    <input type="text" name="nama" value="${data.nama || ''}" required>
+    <label>Alamat:</label>
+    <input type="text" name="alamat" value="${data.alamat || ''}" required>
+    <button type="submit">Simpan</button>
+</form>
+` %>
+<%- include('layout', { content: content }) %>

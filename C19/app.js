@@ -3,9 +3,14 @@ const fs = require('fs');
 const bodyParser = require('body-parser');
 const app = express();
 const PORT = 3000;
+const expressLayouts = require('express-ejs-layouts');
 
 app.set('view engine', 'ejs');
+app.use(expressLayouts);
+app.set('layout', 'layout');
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.static('public'));
+
 
 // Helper untuk baca/tulis file
 function loadData() {
