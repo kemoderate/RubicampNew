@@ -31,6 +31,7 @@
     <th>Weight</th>
     <th>Birthdate</th>
     <th>Married</th>
+    <th>Actions</th>
   </tr>
   <% data.forEach((item, index) => { %>
     <tr>
@@ -40,6 +41,7 @@
       <td><%= item.weight %></td>
       <td><%= item.birthdate %></td>
       <td><%= item.married ? 'Yes' : 'No' %></td>
+      <td><a href="/update">Update</a> <a href="/delete">Delete</a> </td>
     </tr>
   <% }) %>
 </table>
