@@ -28,11 +28,19 @@ app.get('/', (req, res) => {
 
 // CREATE (Form)
 app.get('/add', (req, res) => {
-  res.render('form', { item: null, index: null });
+  res.render('form', { formTitle: '', formAction: '/add', item: null });
 });
+
 app.post('/add', (req, res) => {
   const data = loadData();
-  data.push(req.body);
+  const newItem = {
+    name:  req.body.name,
+    height: parseInt(req.body.height),
+    weight: parseInt(req.body.weight),
+    birthdate: req.body.birthdate,
+    married: req.body.married === 'true'
+  }
+  data.push(newItem);
   saveData(data);
   res.redirect('/');
 });

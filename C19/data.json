@@ -13,11 +13,32 @@
     "birthdate": "1996-11-03",
     "married": true
   },
-   {
+  {
     "name": "Azis",
     "height": 167,
     "weight": 57.5,
     "birthdate": "1996-05-13",
     "married": false
+  },
+  {
+    "name": "fahmi",
+    "height": "180",
+    "weight": "98",
+    "birthdate": "1995-09-23",
+    "married": "false"
+  },
+  {
+    "name": "rizki",
+    "height": "179",
+    "weight": "100",
+    "birthdate": "2000-02-20",
+    "married": "false"
+  },
+  {
+    "name": "asd",
+    "height": "123",
+    "weight": "123",
+    "birthdate": "2000-12-12",
+    "married": "true"
   }
 ]

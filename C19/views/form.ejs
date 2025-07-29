@@ -1,10 +1,30 @@
-<% content = `
-<form action="${action}" method="POST">
-    <label>Nama:</label>
-    <input type="text" name="nama" value="${data.nama || ''}" required>
-    <label>Alamat:</label>
-    <input type="text" name="alamat" value="${data.alamat || ''}" required>
-    <button type="submit">Simpan</button>
-</form>
-` %>
-<%- include('layout', { content: content }) %>
+<h1><%= formTitle %></h1>
+<div class="form-container">
+  <form action="<%= formAction %>" method="POST">
+    <div class="form-group">
+      <label>Name</label>
+      <input type="text" name="name" value="<%= item ? item.name : '' %>" placeholder="Insert your name" required>
+    </div>
+    <div class="form-group">
+      <label>Height</label>
+      <input type="number" name="height" value="<%= item ? item.height : '' %>" placeholder="Insert your height" required>
+    </div>
+    <div class="form-group">
+      <label>Weight</label>
+      <input type="number" step="0.1" name="weight" value="<%= item ? item.weight : '' %>" placeholder="Insert your weight" required>
+    </div>
+    <div class="form-group">
+      <label>Birthdate</label>
+      <input type="date" name="birthdate" value="<%= item ? item.birthdate : '' %>" required>
+    </div>
+    <div class="form-group">
+      <label>Married</label>
+      <select name="married">
+        <option value="false" <%= item && !item.married ? 'selected' : '' %>>No</option>
+        <option value="true" <%= item && item.married ? 'selected' : '' %>>Yes</option>
+      </select>
+    </div>
+    <button type="submit" class="btn btn-save">Save</button>
+    <a href="/" class="btn btn-cancel">Cancel</a>
+  </form>
+</div>
