@@ -7,6 +7,220 @@ body {
 
 h1 {
   text-align: left;
+  padding: 15px;
+  margin: 0;
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+}
+
+/* Tombol Create di index */
+.btn-create {
+  display: block;
+  width: 100%;
+  padding: 15px;
+  margin: 0;
+  text-align: center;
+  background-color: #0056b3;
+  color: white;
+  font-size: 20px;
+  font-weight: bold;
+  text-decoration: none;
+  border: none;
+  border-radius: 0;
+  box-sizing: border-box;
+}
+.btn-create:hover {
+  background-color: #45a049;
+}
+
+/* Tabel */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  background: white;
+}
+th, td {
+  text-align: left;
+  padding: 10px;
+}
+tr:nth-child(odd) {
+  background-color: #f2f2f2;
+}
+th {
+  background-color: white;
+  color: black;
+  border-bottom: 2px solid #ddd;
+}
+
+.action-links a {
+  margin-right: 10px;
+  text-decoration: none;
+  color: #0066cc;
+}
+
+/* FORM CONTAINER FULLBAR */
+.form-container {
+  background: white;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+  box-sizing: border-box;
+}
+
+/* Input + Select */
+.form-group {
+  margin: 0;
+  border-bottom: 1px solid #ccc;
+}
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  font-size: 18px;
+  box-sizing: border-box;
+  display: block;
+  border-radius: 0;
+}
+
+/* Tombol Save & Cancel Fullbar */
+.btn {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 20px;
+  font-size: 20px;
+  text-decoration: none;
+  color: white;
+  border: none;
+  cursor: pointer;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+.btn-save {
+  background-color: green;
+}
+
+.btn-cancel {
+  background-color: blue;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f9f9f9;
+}
+
+h1 {
+  text-align: left;
+  padding: 15px;
+  margin: 0;
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+}
+
+/* FORM */
+.form-container {
+  background: white;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Input & Select: Full width, rata, tanpa jarak antar baris */
+.form-group {
+  margin: 0;
+  padding: 0;
+  border-bottom: 1px solid #ddd;
+}
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 18px;
+  font-size: 18px;
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+  border-radius: 0;
+}
+.form-group input:focus,
+.form-group select:focus {
+  background: #f0f8ff;
+}
+
+/* Tombol */
+.btn {
+  display: block;
+  width: 100%;
+  padding: 18px;
+  margin: 0;
+  font-size: 18px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  box-sizing: border-box;
+  color: white;
+  text-transform: uppercase;
+  border-radius: 0;
+}
+.btn-save {
+  background-color: #00a859;
+}
+.btn-cancel {
+  background-color: #2e3bff;
+}
+
+/* Create button di index */
+.btn-create {
+  display: block;
+  width: 100%;
+  padding: 16px;
+  margin: 0;
+  background-color: #0056b3;
+  color: white;
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+  border: none;
+  border-radius: 0;
+}
+.btn-create:hover {
+  background-color: #45a049;
+}
+
+/* Tabel */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  background: white;
+}
+th, td {
+  text-align: left;
+  padding: 12px;
+}
+tr:nth-child(odd) {
+  background-color: #f2f2f2;
+}
+th {
+  background-color: white;
+  border-bottom: 2px solid #ddd;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f9f9f9;
+}
+
+h1 {
+  text-align: left;
   margin: 20px;
   font-size: 22px;
 }
