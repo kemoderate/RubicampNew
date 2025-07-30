@@ -1,102 +1,67 @@
 body {
   font-family: Arial, sans-serif;
-  margin: 20px auto;
+  margin: 0;
+  padding: 0;
   background-color: #f9f9f9;
 }
 
 h1 {
   text-align: left;
-  margin-bottom: 20px;
+  margin: 20px;
+  font-size: 22px;
 }
 
-.btn-create {
-  display: block;
-  width: 100%;
-  padding: 15px;
-  margin-bottom: 20px;
-  text-align: center;
-  background-color: #0056b3;
-  color: white;
-  font-size: 20px;
-  font-weight: bold;
-  text-decoration: none;
-  border-radius: 6px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  transition: background-color 0.3s ease;
-}
-.btn-create:hover {
-  background-color: #45a049;
-}
-
-table {
-  border-collapse: collapse;
-  width: 100%;
-  background: white;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-th, td {
-  text-align: left;
-  padding: 10px;
-}
-tr:nth-child(odd) {
-  background-color: #f2f2f2;
-}
-th {
-  background-color: white;
-  color: black;
-}
-
-.action-links a {
-  margin-right: 10px;
-  text-decoration: none;
-  color: #0066cc;
-}
-
-/* FORM */
 .form-container {
   background: white;
-  width: 100%;           /* Full width */
-  margin: 0;             /* Hilangkan margin */
+  max-width: 2300px;
+  margin: 20px auto;
   padding: 20px;
-  border-radius: 0;      /* Biar flat (no rounded) */
-  box-shadow: none;      /* Hilangkan shadow */
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .form-group {
   margin-bottom: 15px;
 }
+
 .form-group input,
 .form-group select {
   width: 100%;
-  padding: 12px;
+  padding: 10px 12px;
   border: 1px solid #ccc;
-  border-radius: 5px;
+  border-radius: 4px;
   font-size: 16px;
+  box-sizing: border-box;
 }
 
 .btn {
   display: block;
   width: 100%;
   text-align: center;
-  padding: 12px;
+  padding: 14px;
   margin-top: 10px;
-  font-size: 18px;
-  border-radius: 5px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 4px;
   text-decoration: none;
   color: white;
   border: none;
   cursor: pointer;
+  box-sizing: border-box;
 }
-.btn-save, .btn-cancel {
-  border-radius: 0;
-  width: 100%;
-  font-size: 20px;
-  padding: 15px;
-}
+
 .btn-save {
-  background-color: green;
-  margin-bottom: 10px;
+  background-color: #009879;
 }
+
+.btn-save:hover {
+  background-color: #007a61;
+}
+
 .btn-cancel {
-  background-color: blue;
+  background-color: #3a36d5;
+}
+
+.btn-cancel:hover {
+  background-color: #2b28a6;
 }
