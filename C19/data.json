@@ -18,13 +18,6 @@
     "height": 167,
     "weight": 57.5,
     "birthdate": "1996-05-13",
-    "married": false
-  },
-  {
-    "name": "Niwa",
-    "height": 187,
-    "weight": 99.5556,
-    "birthdate": "2003-02-03",
-    "married": false
+    "married": true
   }
 ]
