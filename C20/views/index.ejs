@@ -9,43 +9,34 @@
 </head>
 
 <body>
-  <h1>BREAD (Browse, Read, Edit, Add, Delete)</h1>
-
-  <h2>Filter</h2>
+  <h1>SQlite BREAD (Browse, Read, Edit, Add, Delete) and Pagination</h1>
 
   <form action="" method="GET" class="inline-form">
     <input type="hidden" name="page" value="1">
   
     <div class="form-group">
-   
-  
       <div class="checkbox-group">
         <div class="filter-group">
-          <input type="checkbox" id="idCheckbox" name="idCheckbox" <% if (query.id) { %>checked<% } %>>
           <label for="idCheckbox">ID:</label>
           <input type="text" id="id" name="id" placeholder="ID" value="<%= query.id %>">
         </div>
   
         <div class="filter-group">
-          <input type="checkbox" id="stringCheckbox" name="stringCheckbox" <% if (query.string) { %>checked<% } %>>
           <label for="stringCheckbox">String:</label>
           <input type="text" id="string" name="string" placeholder="String" value="<%= query.string %>">
         </div>
   
         <div class="filter-group">
-          <input type="checkbox" id="integerCheckbox" name="integerCheckbox" <% if (query.integer) { %>checked<% } %>>
           <label for="integerCheckbox">Integer:</label>
           <input type="number" id="integer" name="integer" placeholder="Integer" value="<%= query.integer %>">
         </div>
   
         <div class="filter-group">
-          <input type="checkbox" id="floatCheckbox" name="floatCheckbox" <% if (query.float) { %>checked<% } %>>
           <label for="floatCheckbox">Float:</label>
           <input type="number" id="float" name="float" step="any" placeholder="Float" value="<%= query.float %>">
         </div>
   
         <div class="filter-group">
-          <input type="checkbox" id="startDateCheckbox" name="startDateCheckbox" <% if (query.startDate) { %>checked<% } %>>
           <label for="startDateCheckbox">Date:</label>
           <input type="date" id="startDate" name="startDate" placeholder="Start Date" value="<%= query.startDate %>">
           <label>to</label>
@@ -53,7 +44,6 @@
         </div>
   
         <div class="filter-group">
-          <input type="checkbox" id="booleanCheckbox" name="booleanCheckbox" <% if (query.boolean) { %>checked<% } %>>
           <label for="booleanCheckbox">Boolean:</label>
           <select id="boolean" name="boolean">
             <option value="">Choose the boolean...</option>
@@ -86,19 +76,19 @@
             <%= entry.id %>
           </td>
           <td>
-            <%= entry.string %>
+            <%= entry.name %>
           </td>
           <td>
-            <%= entry.integer %>
+            <%= entry.height %>
           </td>
           <td>
-            <%= entry.float %>
+            <%= entry.weight %>
           </td>
           <td>
-            <%= entry.date %>
+            <%= entry.birthdate %>
           </td>
           <td>
-            <%= entry.boolean === 'false' ? 'false' : 'true' %>
+            <%= entry.married === 'false' ? 'false' : 'true' %>
           </td>
           <td>
             <form action="/edit/<%= entry.id %>" method="GET" class="inline-form">
