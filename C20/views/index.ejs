@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>SQLite CRUD & Pagination</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <h1>SQLite Bread(Browse,Read,Edit,Add,Delete) and Pagination</h1>
+
+  <!-- FILTER FORM -->
+  <form method="GET" action="/" class="filter-form">
+    <input type="number" name="id" placeholder="ID" value="<%= query.id || '' %>">
+    <input type="text" name="string" placeholder="Name" value="<%= query.string || '' %>">
+    <input type="number" name="integer" placeholder="Height" value="<%= query.integer || '' %>">
+    <input type="number" step="any" name="float" placeholder="Weight" value="<%= query.float || '' %>">
+    <input type="date" name="startdate" value="<%= query.startdate || '' %>">
+    <input type="date" name="enddate" value="<%= query.enddate || '' %>">
+    <select name="boolean">
+      <option value="">Married?</option>
+      <option value="true" <%= query.boolean === 'true' ? 'selected' : '' %>>Yes</option>
+      <option value="false" <%= query.boolean === 'false' ? 'selected' : '' %>>No</option>
+    </select>
+    <button type="submit">Filter</button>
+  </form>
+
+  
+
+  <!-- TABLE -->
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Height</th>
+        <th>Weight</th>
+        <th>Birthdate</th>
+        <th>Married</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if (data.length === 0) { %>
+        <tr><td colspan="7" style="text-align:center;">No data found</td></tr>
+      <% } else { %>
+        <% data.forEach(row => { %>
+          <tr>
+            <td><%= row.id %></td>
+            <td><%= row.name %></td>
+            <td><%= row.height %></td>
+            <td><%= row.weight %></td>
+            <td><%= row.birthdate %></td>
+            <td><%= row.married ? 'Yes' : 'No' %></td>
+            <td class="action-links">
+              <a href="/edit/<%= row.id %>">Edit</a>
+              <a href="/delete/<%= row.id %>" onclick="return confirm('Delete this record?')">Delete</a>
+            </td>
+          </tr>
+        <% }) %>
+      <% } %>
+    </tbody>
+  </table>
+  
+  <a href="/add" class="btn-create">Add</a>
+
+  <!-- PAGINATION -->
+  <div class="pagination">
+    <% for (let i = 1; i <= totalPages; i++) { %>
+      <% if (i === page) { %>
+        <strong><%= i %></strong>
+      <% } else { %>
+        <a href="?page=<%= i %>"><%= i %></a>
+      <% } %>
+    <% } %>
+  </div>
+
+</body>
+</html>
