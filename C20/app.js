@@ -37,13 +37,16 @@ app.get('/', (req, res) => {
     db.get(countQuery, params, (err, countResult) => {
         let totalRows = countResult.count;
         let totalPages = Math.ceil(totalRows / limit);
+        const url = req.url == '/' ? '/?page=1' : req.url
 
         db.all(dataQuery, [...params, limit, offset], (err,rows) => {
             res.render('index', {
+                title : 'SQLite BREAD (Browse,Read,Edit,Add,Delete) and Pagination',
                 data: rows,
                 query: req.query,
                 page,
-                totalPages
+                totalPages,
+                url
             })
         });
 
