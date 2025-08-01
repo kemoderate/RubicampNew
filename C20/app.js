@@ -5,11 +5,14 @@ const path = require('path');
 const { countReset } = require('console');
 const app = express();
 const db = new sqlite3.Database('./database.db');
+const PORT = 3000;
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-app.set(express.static(path.join(__dirname, 'public')));
-app.set(bodyParser.urlencoded({ extended: false }));
+
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(bodyParser.urlencoded({ extended: false }));
+
 
 app.get('/', (req, res) => {
     let { id, string, integer, float, startdate, enddate, boolean, page } = req.query;
@@ -21,15 +24,15 @@ app.get('/', (req, res) => {
     let params = [];
 
     if (id) { filters.push('id = ?'); params.push(id); }
-    if (string) { filters.push('string Like ?'); params.push(`%${string}%`); }
-    if (integer) { filters.push('integer = ?'); params.push(integer); }
-    if (float) { filters.push('float = ?'); params.push(float); }
-    if (startdate && enddate) { filters.push('date BETWEEN ? AND ?'); params.push(startdate, enddate); }
-    if (boolean) { filters.push('boolean = ?'); params.push(boolean); }
+    if (string) { filters.push('name Like ?'); params.push(`%${string}%`); }
+    if (integer) { filters.push('height = ?'); params.push(integer); }
+    if (float) { filters.push('weight = ?'); params.push(float); }
+    if (startdate && enddate) { filters.push('birthdate BETWEEN ? AND ?'); params.push(startdate, enddate); }
+    if (boolean) { filters.push('married = ?'); params.push(boolean); }
 
-    let where = filters.length ? `WHERE ${filters('AND')}` : '';
-    let countQuery = `SELECT COUNT (*) as count FROM bread ${where}`;
-    let dataQuery = `SELECT * FROM bread ${where} LIMIT ? OFFSET ?`;
+    let where = filters.length ? `WHERE ${filters.join('AND')}` : '';
+    let countQuery = `SELECT COUNT (*) as count FROM data ${where}`;
+    let dataQuery = `SELECT * FROM data ${where} LIMIT ? OFFSET ?`;
 
     db.get(countQuery, params, (err, countResult) => {
         let totalRows = countResult.count;
@@ -47,3 +50,21 @@ app.get('/', (req, res) => {
     })
 });
 
+app.get('/add', (req, res) => {
+    res.render('form', { formTitle: '', formAction: '/add', item: null, index: null });
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
