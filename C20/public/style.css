@@ -10,7 +10,7 @@ h1 {
 }
 
 /* FILTER FORM */
-.filter-form {
+.form.group {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 10px;
