@@ -30,8 +30,8 @@ app.get('/', (req, res) => {
     if (startdate && enddate) { filters.push('birthdate BETWEEN ? AND ?'); params.push(startdate, enddate); }
     if (boolean) { filters.push('married = ?'); params.push(boolean); }
 
-    let where = filters.length ? `WHERE ${filters.join('AND')}` : '';
-    let countQuery = `SELECT COUNT (*) as count FROM data ${where}`;
+    let where = filters.length ? `WHERE ${filters.join(' AND ')}` : '';
+    let countQuery = `SELECT COUNT(*) as count FROM data ${where}`;
     let dataQuery = `SELECT * FROM data ${where} LIMIT ? OFFSET ?`;
 
     db.get(countQuery, params, (err, countResult) => {
