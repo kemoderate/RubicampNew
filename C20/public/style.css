@@ -146,6 +146,7 @@ form.inline-form {
   color: black;
   font-size: 14px;
   cursor: pointer;
+  
   text-decoration: none;
 }
 
@@ -159,7 +160,7 @@ form.inline-form {
   text-decoration: none;
 }
 
-.btn.info { background: cyan; }
+.btn.info { background: #5bc0de; }
 .btn.info:hover { background: blueviolet; }
 
 .btn.failure { background: red; }
