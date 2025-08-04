@@ -54,7 +54,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/add', (req, res) => {
-    res.render('form', { formTitle: '', formAction: '/add', item: null, index: null });
+    res.render('form', { formTitle: 'Adding Data', formAction: '/add', item: null, index: null });
 });
 
 
