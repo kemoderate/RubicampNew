@@ -1,26 +1,47 @@
-<h1><%= formTitle %></h1>
-<div class="form-container">
-  <form action="<%= formAction %>" method="POST">
-    <div class="form-group">
-      <input type="text" name="name" value="<%= item ? item.name : '' %>" placeholder="Insert your name" required>
-    </div>
-    <div class="form-group">
-      <input type="number" name="height" value="<%= item ? item.height : '' %>" placeholder="Insert your height" required>
-    </div>
-    <div class="form-group">
-      <input type="number" step="any" name="weight" value="<%= item ? item.weight : '' %>" placeholder="Insert your weight" required>
-    </div>
-    <div class="form-group">
-      <input type="date" name="birthdate" value="<%= item ? item.birthdate : '' %>" required>
-    </div>
-    <div class="form-group">
-      <select name="married" required>
-        <option value="" disabled <%= !item ? 'selected' : '' %>>Have you married?</option>
-        <option value="false" <%= item && !item.married ? 'selected' : '' %>>No</option>
-        <option value="true" <%= item && item.married ? 'selected' : '' %>>Yes</option>
-      </select>
-    </div>
-    <button type="submit" class="btn btn-save">Save</button>
-    <a href="/" class="btn btn-cancel">Cancel</a>
-  </form>
-</div>
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= formTitle %></title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1><%= formTitle %></h1>
+    <form action="<%= formAction %>" method="POST" class="data-form">
+      <div class="form-group">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" value="<%= item ? item.name : '' %>" required>
+      </div>
+
+      <div class="form-group">
+        <label for="height">Height:</label>
+        <input type="number" id="height" name="height" value="<%= item ? item.height : '' %>" required>
+      </div>
+
+      <div class="form-group">
+        <label for="weight">Weight:</label>
+        <input type="number" id="weight" name="weight" step="any" value="<%= item ? item.weight : '' %>" required>
+      </div>
+
+      <div class="form-group">
+        <label for="birthdate">Birth Date:</label>
+        <input type="date" id="birthdate" name="birthdate" value="<%= item ? item.birthdate : '' %>" required>
+      </div>
+
+      <div class="form-group">
+        <label for="married">Is Married:</label>
+        <select id="married" name="married" required>
+          <option value="">-select married-</option>
+          <option value="true" <%= item && item.married === 'true' ? 'selected' : '' %>>Yes</option>
+          <option value="false" <%= item && item.married === 'false' ? 'selected' : '' %>>Not Yet</option>
+        </select>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn save">Save</button>
+        <a href="/" class="btn cancel">Cancel</a>
+      </div>
+    </form>
+  </div>
+</body>
+</html>

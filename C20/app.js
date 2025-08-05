@@ -39,9 +39,9 @@ app.get('/', (req, res) => {
         let totalPages = Math.ceil(totalRows / limit);
         const url = req.url == '/' ? '/?page=1' : req.url
 
-        db.all(dataQuery, [...params, limit, offset], (err,rows) => {
+        db.all(dataQuery, [...params, limit, offset], (err, rows) => {
             res.render('index', {
-                title : 'SQLite BREAD (Browse,Read,Edit,Add,Delete) and Pagination',
+                title: 'SQLite BREAD (Browse,Read,Edit,Add,Delete) and Pagination',
                 data: rows,
                 query: req.query,
                 page,
@@ -57,9 +57,65 @@ app.get('/add', (req, res) => {
     res.render('form', { formTitle: 'Adding Data', formAction: '/add', item: null, index: null });
 });
 
+// / ==================== ADD DATA ====================
+app.post('/add', (req, res) => {
+    const { name, height, weight, birthdate, married } = req.body;
+    const query = `INSERT INTO data (name, height, weight, birthdate, married) VALUES (?, ?, ?, ?, ?)`;
+    db.run(query, [name, height, weight, birthdate, married], function (err) {
+        if (err) {
+            console.error(err);
+            return res.send('Error adding data');
+        }
+        res.redirect('/');
+    });
+});
 
+// ==================== EDIT DATA ====================
+// Tampilkan form edit
+app.get('/edit/:id', (req, res) => {
+    const id = req.params.id;
+    const query = `SELECT * FROM data WHERE id = ?`;
+    db.get(query, [id], (err, row) => {
+        if (err) {
+            console.error(err);
+            return res.send('Error loading data');
+        }
+        res.render('form', {
+            formTitle: 'Edit Data',
+            formAction: `/edit/${id}`,
+            item: row
+        });
+    });
+});
 
+// Update data setelah form submit
+app.post('/edit/:id', (req, res) => {
+    const id = req.params.id;
+    const { name, height, weight, birthdate, married } = req.body;
+    const query = `UPDATE data SET name=?, height=?, weight=?, birthdate=?, married=? WHERE id=?`;
+    db.run(query, [name, height, weight, birthdate, married, id], function (err) {
+        if (err) {
+            console.error(err);
+            return res.send('Error updating data');
+        }
+        res.redirect('/');
+    });
+});
 
+// ===================== DELETE DATA ================
+
+app.post('delete/:id', (req, res) => {
+    const id = req.params.id;
+    const name = req.body;
+    const query = `DELETE FROM data WHERE id = ?`;
+    db.run(query, [id,name], function (err) {
+        if (err) {
+            console.error(err);
+            return res.send('ERROR deleting data')
+        }
+        res.redirect('/');
+    })
+})
 
 
 
