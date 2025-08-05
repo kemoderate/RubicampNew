@@ -1,7 +1,7 @@
-/* GENERAL */
+/* General Layout */
 body {
   font-family: Arial, sans-serif;
-  background: #f7f7f7;
+  background: #f0f2f5;
   margin: 0;
   padding: 0;
 }
@@ -9,164 +9,200 @@ body {
 .container {
   max-width: 1200px;
   margin: 30px auto;
-  padding: 20px;
   background: #fff;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  padding: 20px;
   border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
 h1 {
   text-align: center;
-  font-size: 22px;
   margin-bottom: 20px;
+  color: #333;
 }
 
-/* FILTER FORM */
+/* Grid layout: filter di kiri, tabel di kanan */
+.grid-layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 20px;
+}
+
+/* Filter Panel */
+.filter-panel {
+  background: #fafafa;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 0 5px rgba(0,0,0,0.05);
+}
+
 .filter-form {
   display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin-bottom: 15px;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .filter-form input,
 .filter-form select {
-  padding: 6px 10px;
+  padding: 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 14px;
 }
 
-.operation {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 14px;
-}
-
 .btn.search {
   background: #007bff;
-  color: #fff;
-  padding: 6px 12px;
+  color: white;
   border: none;
+  padding: 10px;
   border-radius: 4px;
   cursor: pointer;
+}
+
+.btn.reset {
+  background: #6c757d;
+  color: white;
+  padding: 10px;
+  text-align: center;
+  border-radius: 4px;
+  text-decoration: none;
+  display: inline-block;
 }
 
 .btn.search:hover {
   background: #0056b3;
 }
 
-.btn.reset {
-  background: orange;
-  color: white;
-  padding: 6px 12px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
 .btn.reset:hover {
-  background: darkorange;
+  background: #5a6268;
 }
 
-/* TABLE */
+/* Table Panel */
+.table-panel {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 0 5px rgba(0,0,0,0.05);
+}
+
 .table-panel table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
 }
 
-.table-panel th,
-.table-panel td {
+.table-panel th, .table-panel td {
   border: 1px solid #ddd;
-  padding: 8px;
+  padding: 10px;
   text-align: center;
 }
 
 .table-panel th {
-  background: #f1f1f1;
-  font-weight: bold;
+  background: #007bff;
+  color: white;
 }
 
 .table-panel tr:nth-child(even) {
-  background: #fafafa;
+  background: #f9f9f9;
 }
 
-/* ACTION BUTTONS */
+/* Buttons in table */
 .btn.update {
   background: #28a745;
   color: white;
-  padding: 6px 12px;
   border: none;
+  padding: 8px 12px;
   border-radius: 4px;
   cursor: pointer;
-  margin-bottom: 5px;
-  display: block;
-  width: 80px;
-}
-
-.btn.update:hover {
-  background: #1e7e34;
+  margin-right: 5px;
 }
 
 .btn.delete {
   background: #dc3545;
   color: white;
-  padding: 6px 12px;
   border: none;
+  padding: 8px 12px;
   border-radius: 4px;
   cursor: pointer;
-  width: 80px;
+}
+
+.btn.update:hover {
+  background: #218838;
 }
 
 .btn.delete:hover {
-  background: #b02a37;
+  background: #c82333;
 }
 
-/* ADD BUTTON */
+/* Add Button */
 .add-btn-container {
+  text-align: right;
   margin-top: 15px;
 }
 
 .btn.add {
-  background: #007bff;
+  background: #17a2b8;
   color: white;
-  padding: 8px 18px;
-  border: none;
+  padding: 10px 16px;
   border-radius: 4px;
-  font-size: 14px;
   text-decoration: none;
 }
 
 .btn.add:hover {
-  background: #0056b3;
+  background: #138496;
 }
 
-/* PAGINATION */
+/* Pagination */
 .pagination {
-  margin-top: 15px;
+  margin-top: 20px;
   text-align: center;
 }
 
 .pagination a {
   display: inline-block;
-  padding: 5px 10px;
+  padding: 8px 12px;
   margin: 0 3px;
-  border: 1px solid #ddd;
+  border: 1px solid #ccc;
   border-radius: 4px;
   text-decoration: none;
   color: #007bff;
-  font-size: 14px;
+  background: white;
 }
 
 .pagination a.active {
   background: #007bff;
   color: white;
+  border-color: #007bff;
 }
 
 .pagination a:hover {
   background: #0056b3;
   color: white;
 }
+
+.filter-form-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 15px;
+  align-items: center;
+}
+.filter-form-inline input,
+.filter-form-inline select {
+  padding: 5px;
+  font-size: 14px;
+}
+.btn-search {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+.btn-reset {
+  background: #ffc107;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  text-decoration: none;
+}
+
