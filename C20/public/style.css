@@ -210,3 +210,88 @@ h1 {
 .pagination {
   text-align: right;
 }
+
+/* === FORM PAGE (SCOPED) === */
+.form-page {
+  max-width: 600px;
+  margin: 40px auto;
+}
+
+.form-page .form-container {
+  background: #fff;
+  padding: 25px;
+  box-sizing: border-box;
+  max-width: 2000px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.form-page h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 20px;
+  color: #333;
+}
+
+.form-page .form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
+
+.form-page .form-group label {
+  font-weight: bold;
+  margin-bottom: 6px;
+  color: #444;
+}
+
+.form-page .form-group input,
+.form-page .form-group select {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.form-page .form-group input:focus,
+.form-page .form-group select:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 5px rgba(0,123,255,0.3);
+}
+
+.form-page .form-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.form-page .btn-submit {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.form-page .btn-cancel {
+  background: #ffc107;
+  color: white;
+  text-decoration: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.form-page .btn-submit:hover {
+  background: #218838;
+}
+
+.form-page .btn-cancel:hover {
+  background: #5a6268;
+}
+

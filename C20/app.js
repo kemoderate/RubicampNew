@@ -15,10 +15,11 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 
 app.get('/', (req, res) => {
-    let { id, string, integer, float, startdate, enddate, boolean, page } = req.query;
+    let { id, string, integer, float, startdate, enddate, boolean, page ,op} = req.query;
     page = parseInt(page) || 1;
     const limit = 5;
     const offset = (page - 1) * limit;
+    
 
     let filters = [];
     let params = [];
@@ -30,9 +31,12 @@ app.get('/', (req, res) => {
     if (startdate && enddate) { filters.push('birthdate BETWEEN ? AND ?'); params.push(startdate, enddate); }
     if (boolean) { filters.push('married = ?'); params.push(boolean); }
 
-    let where = filters.length ? `WHERE ${filters.join(' AND ')}` : '';
+    const operator = (op && (op === 'OR' || op === 'AND')) ? op : 'AND';
+    let where = filters.length ? `WHERE ${filters.join(` ${operator} `)}` : '';
+
     let countQuery = `SELECT COUNT(*) as count FROM data ${where}`;
     let dataQuery = `SELECT * FROM data ${where} LIMIT ? OFFSET ?`;
+    
 
     db.get(countQuery, params, (err, countResult) => {
         let totalRows = countResult.count;

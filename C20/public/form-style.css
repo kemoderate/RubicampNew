@@ -1,0 +1,98 @@
+/* Container */
+.form-container {
+    max-width: 1800px;
+    margin: 20px auto;
+    background: #fff;
+    padding: 50px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+.form-container h1 {
+    text-align: center;
+    font-size: 22px;
+    margin-bottom: 25px;
+    color: #333;
+}
+
+/* Form */
+.data-form .form-group {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    align-items: center;
+    margin-bottom: 15px;
+    gap: 15px;
+}
+
+.data-form label {
+    font-size: 14px;
+    color: #444;
+    text-align: right;
+}
+
+.data-form input,
+.data-form select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    width: 100%;
+}
+
+.radio-group {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+/* Actions */
+.form-actions {
+    margin-left: 125px;
+    display: flex;
+    justify-content: flex-start;
+    gap: 10px;
+    margin-top: 25px;
+}
+
+.btn.save {
+    background: #007bff;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn.back {
+    background: #ffc107;
+    color: black;
+    padding: 8px 16px;
+    text-decoration: none;
+    border-radius: 4px;
+    display: inline-block;
+    text-align: center;
+}
+
+.btn.save:hover {
+    background: #0056b3;
+}
+
+.btn.back:hover {
+    background: #e0a800;
+}
+
+.form-header {
+  background: #f0f0f0;       /* abu-abu muda */
+  padding: 15px 25px;        /* jarak dalam */
+  border-bottom: 1px solid #ddd;  /* garis bawah */
+  border-top-left-radius: 8px;    /* sudut atas biar bulat */
+  border-top-right-radius: 8px;
+}
+
+.form-header h1 {
+  margin: 0;
+  font-size: 20px;
+  color: #333;
+}
