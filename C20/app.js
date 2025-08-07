@@ -20,27 +20,53 @@ app.get('/', (req, res) => {
     const limit = 5;
     const offset = (page - 1) * limit;
 
-    
+
     let filters = [];
     let params = [];
 
-    if (id) { filters.push('id = ?'); params.push(id); }
-    if (string) { filters.push('name Like ?'); params.push(`%${string}%`); }
-    if (integer) { filters.push('height = ?'); params.push(integer); }
-    if (float) { filters.push('weight = ?'); params.push(float); }
-    if (startdate && enddate) { 
-        filters.push('birthdate BETWEEN ? AND ?'); 
-        params.push(startdate, enddate); 
-    } else if (startdate) { 
-        filters.push('birthdate >= ?'); 
-        params.push(startdate); 
-    } else if (enddate) { 
-        filters.push('birthdate <= ?'); 
-        params.push(enddate); 
+    if (id) {
+        filters.push('id = ?');
+        params.push(id);
     }
-    if (boolean) { filters.push('married = ?'); params.push(boolean); }
 
-    const operator = (op && (op === 'OR' || op === 'AND')) ? ` ${op} ` : ' AND ';
+    if (string) {
+        filters.push('name LIKE ?');
+        params.push(`%${string}%`);
+    }
+
+    if (integer) {
+        filters.push('height = ?');
+        params.push(integer);
+    }
+
+    if (float) {
+        filters.push('weight = ?');
+        params.push(float);
+    }
+
+    if (startdate && enddate) {
+        filters.push('birthdate BETWEEN ? AND ?');
+        params.push(startdate, enddate);
+    } else if (startdate) {
+        filters.push('birthdate >= ?');
+        params.push(startdate);
+    } else if (enddate) {
+        filters.push('birthdate <= ?');
+        params.push(enddate);
+    }
+
+    // Perbaikan: ubah string ke boolean numerik
+    if (boolean === 'true') {
+        filters.push('married = ?');
+        params.push(1);
+    } else if (boolean === 'false') {
+        filters.push('married = ?');
+        params.push(0);
+    }
+
+    // console.log(boolean,'ini boolean')
+
+    const operator = (op && (op === ' OR ' || op === ' AND ')) ? ` ${op} ` : ' AND ';
     let where = filters.length ? `WHERE ${filters.join(operator)}` : '';
 
     let countQuery = `SELECT COUNT(*) as count FROM data ${where}`;
@@ -48,25 +74,41 @@ app.get('/', (req, res) => {
 
 
     db.get(countQuery, params, (err, countResult) => {
+        if (err) {
+            console.error('Count Error:', err);
+            return res.status(500).send('Internal Server Error');
+        }
         let totalRows = countResult.count;
         let totalPages = Math.ceil(totalRows / limit);
+
+        const queryWithoutPage = { ...req.query };
+        delete queryWithoutPage.page;
+
+        // Buat URL base untuk pagination
+        const fullQuery = { ...req.query, page: undefined };
+        const queryString = new URLSearchParams(queryWithoutPage).toString();
+        const baseUrl = `/?${queryString}`;
+
         const url = req.url == '/' ? '/?page=1' : req.url
 
 
-
         db.all(dataQuery, [...params, limit, offset], (err, rows) => {
+            if (err) {
+                console.error('Data Fetch Error:', err);
+                return res.status(500).send('Internal Server Error');
+            }
             res.render('index', {
                 title: 'SQLite BREAD (Browse,Read,Edit,Add,Delete) and Pagination',
                 data: rows,
                 query: req.query,
                 page,
                 totalPages,
-                url
+                url: baseUrl,
             })
         });
-          });
+    });
 
-    })
+})
 
 
 app.get('/add', (req, res) => {
