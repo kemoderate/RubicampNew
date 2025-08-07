@@ -1,29 +1,38 @@
 /* Container */
 .form-container {
-    max-width: 1800px;
-    margin: 20px auto;
+    max-width: 1200px;
+    margin: 40px auto;
     background: #fff;
-    padding: 50px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     border: 1px solid #ccc;
-    box-sizing: border-box;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.form-container h1 {
-    text-align: center;
-    font-size: 22px;
-    margin-bottom: 25px;
+/* Header abu-abu  */
+.form-header {
+    background: #f0f0f0;
+    padding: 15px 25px;
+    border-bottom: 1px solid #ddd;
+}
+
+.form-header h1 {
+    margin: 0;
+    font-size: 20px;
     color: #333;
 }
 
-/* Form */
+/* Isi form */
+.data-form {
+    padding: 30px 50px;
+}
+
 .data-form .form-group {
     display: grid;
     grid-template-columns: 200px 1fr;
     align-items: center;
-    margin-bottom: 15px;
-    gap: 15px;
+    margin-bottom: 18px;
+    gap: 20px;
 }
 
 .data-form label {
@@ -40,20 +49,36 @@
     font-size: 14px;
     width: 100%;
 }
+/* Biar grup radio full sejajar */
+.data-form .form-group.full-width {
+    align-items: flex-start; 
+}
 
 .radio-group {
     display: flex;
-    gap: 20px;
-    align-items: center;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 5px;
+}
+.radio-group label {
+    font-size: 14px;
+    color: #333;
+    display: flex;
+    gap: 8px;
 }
 
-/* Actions */
+
+
+/* Tombol */
 .form-actions {
-    margin-left: 125px;
     display: flex;
     justify-content: flex-start;
-    gap: 10px;
-    margin-top: 25px;
+    /* Semua tombol di kiri */
+    gap: 12px;
+    padding: 20px 50px;
+    border-top: 1px solid #ddd;
+    background: #fafafa;
+    margin-left: 100px;
 }
 
 .btn.save {
@@ -65,34 +90,20 @@
     cursor: pointer;
 }
 
-.btn.back {
-    background: #ffc107;
-    color: black;
-    padding: 8px 16px;
-    text-decoration: none;
-    border-radius: 4px;
-    display: inline-block;
-    text-align: center;
-}
-
 .btn.save:hover {
     background: #0056b3;
 }
 
+.btn.back {
+    background: #ffc107;
+    color: black;
+    padding: 8px 16px;
+    border-radius: 4px;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+}
+
 .btn.back:hover {
     background: #e0a800;
-}
-
-.form-header {
-  background: #f0f0f0;       /* abu-abu muda */
-  padding: 15px 25px;        /* jarak dalam */
-  border-bottom: 1px solid #ddd;  /* garis bawah */
-  border-top-left-radius: 8px;    /* sudut atas biar bulat */
-  border-top-right-radius: 8px;
-}
-
-.form-header h1 {
-  margin: 0;
-  font-size: 20px;
-  color: #333;
 }

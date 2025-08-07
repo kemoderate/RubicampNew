@@ -15,12 +15,12 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 
 app.get('/', (req, res) => {
-    let { id, string, integer, float, startdate, enddate, boolean, page ,op} = req.query;
+    let { id, string, integer, float, startdate, enddate, boolean, page, op } = req.query;
     page = parseInt(page) || 1;
     const limit = 5;
     const offset = (page - 1) * limit;
-    
 
+    
     let filters = [];
     let params = [];
 
@@ -29,19 +29,29 @@ app.get('/', (req, res) => {
     if (integer) { filters.push('height = ?'); params.push(integer); }
     if (float) { filters.push('weight = ?'); params.push(float); }
     if (startdate && enddate) { filters.push('birthdate BETWEEN ? AND ?'); params.push(startdate, enddate); }
+    else if (startdate) {
+        filters.push('birthdate >= ?')
+        params.push(startdate);
+    }
+    else if (enddate) {
+        filters.push('birthdate <= ?')
+        params.push(enddate);
+    }
     if (boolean) { filters.push('married = ?'); params.push(boolean); }
 
-    const operator = (op && (op === 'OR' || op === 'AND')) ? op : 'AND';
-    let where = filters.length ? `WHERE ${filters.join(` ${operator} `)}` : '';
+    const operator = (op && (op === 'OR' || op === 'AND')) ? ` ${op} ` : ' AND ';
+    let where = filters.length ? `WHERE ${filters.join(operator)}` : '';
 
     let countQuery = `SELECT COUNT(*) as count FROM data ${where}`;
     let dataQuery = `SELECT * FROM data ${where} LIMIT ? OFFSET ?`;
-    
+
 
     db.get(countQuery, params, (err, countResult) => {
         let totalRows = countResult.count;
         let totalPages = Math.ceil(totalRows / limit);
         const url = req.url == '/' ? '/?page=1' : req.url
+
+
 
         db.all(dataQuery, [...params, limit, offset], (err, rows) => {
             res.render('index', {
@@ -53,9 +63,10 @@ app.get('/', (req, res) => {
                 url
             })
         });
+          });
 
     })
-});
+
 
 app.get('/add', (req, res) => {
     res.render('form', { formTitle: 'Adding Data', formAction: '/add', item: null, index: null });
@@ -108,11 +119,10 @@ app.post('/edit/:id', (req, res) => {
 
 // ===================== DELETE DATA ================
 
-app.post('delete/:id', (req, res) => {
+app.post('/delete/:id', (req, res) => {
     const id = req.params.id;
-    const name = req.body;
     const query = `DELETE FROM data WHERE id = ?`;
-    db.run(query, [id,name], function (err) {
+    db.run(query, [id], function (err) {
         if (err) {
             console.error(err);
             return res.send('ERROR deleting data')
