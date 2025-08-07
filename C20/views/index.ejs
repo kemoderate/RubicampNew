@@ -1,9 +1,13 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <title><%= title %></title>
+  <title>
+    <%= title %>
+  </title>
   <link rel="stylesheet" href="/style.css">
 </head>
+
 <body>
   <div class="container">
     <h1>SQLite Bread(Browse, Read, Edit, Add, Delete) and Pagination</h1>
@@ -11,7 +15,7 @@
     <!-- FILTER FORM -->
     <form action="/" method="GET" class="filter-form">
       <input type="hidden" name="page" value="1">
-      
+
       <div class="form-group">
         <label>Name</label>
         <input type="text" name="string" placeholder="insert your name" value="<%= query.string || '' %>">
@@ -40,16 +44,17 @@
         <label>Is Married</label>
         <select name="boolean">
           <option value="">-select married-</option>
-          <option value="true" <%= query.boolean === 'true' ? 'selected' : '' %>>Yes</option>
-          <option value="false" <%= query.boolean === 'false' ? 'selected' : '' %>>Not Yet</option>
+          <option value="true" <%=query.boolean==='true' ? 'selected' : '' %>>Yes</option>
+          <option value="false" <%=query.boolean==='false' ? 'selected' : '' %>>Not Yet</option>
         </select>
       </div>
 
       <div class="form-group">
         <label>Operation</label>
         <div class="radio-group">
-          <label><input type="radio" name="op" value="OR" <%= query.op === 'OR' ? 'checked' : '' %>> OR</label>
-          <label><input type="radio" name="op" value="AND" <%= query.op === 'AND' ? 'checked' : '' %>> AND</label>
+          <label><input type="radio" name="op" value="OR" <%=query.op==='OR' || !query.op ? 'checked' : '' %>>OR</label>
+          <label><input type="radio" name="op" value="AND" <%=query.op==='AND' ? 'checked' : '' %>> AND</label>
+
         </div>
       </div>
 
@@ -74,50 +79,66 @@
           </tr>
         </thead>
         <tbody>
-          <% data.forEach((entry, index) => { %>
+          <% data.forEach((entry, index)=> { %>
             <tr class="<%= index % 2 === 0 ? 'even' : 'odd' %>">
-              <td><%= entry.id %></td>
-              <td><%= entry.name %></td>
-              <td><%= entry.height %></td>
-              <td><%= entry.weight %></td>
-              <td><%= entry.birthdate %></td>
-              <td><%= entry.married === 'false' ? 'Not Yet' : 'Yes' %></td>
+              <td>
+                <%= entry.id %>
+              </td>
+              <td>
+                <%= entry.name %>
+              </td>
+              <td>
+                <%= entry.height %>
+              </td>
+              <td>
+                <%= entry.weight %>
+              </td>
+              <td>
+                <%= entry.birthdate %>
+              </td>
+              <td>
+                <%= entry.married==0 ? 'Not Yet' : 'Yes' %>
+              </td>
               <td class="actions">
                 <form action="/edit/<%= entry.id %>" method="GET" class="inline-form">
                   <button class="btn update">Update</button>
                 </form>
-                <form action="/delete/<%= entry.id %>" method="POST" class="inline-form" onsubmit="return confirmDelete('<%= entry.name %>')">
+                <form action="/delete/<%= entry.id %>" method="POST" class="inline-form"
+                  onsubmit="return confirmDelete('<%= entry.name %>')">
                   <button type="submit" class="btn delete">Delete</button>
                 </form>
               </td>
             </tr>
-          <% }) %>
+            <% }) %>
         </tbody>
       </table>
     </div>
 
-<!-- BOTTOM BAR (ADD + PAGINATION) -->
-<div class="bottom-bar">
-  <div class="add-btn-container">
-    <a href="/add" class="btn add">Add</a>
-  </div>
-  <div class="pagination">
-    <% if (page > 1) { %>
-      <a href="/?page=<%= parseInt(page) - 1 %>">&laquo;</a>
-    <% } %>
-    <% for (let i = 1; i <= totalPages; i++) { %>
-      <a href="<%= url.replace(`page=${page}`, `page=${i}`) %>" class="<%= page == i ? 'active' : '' %>"><%= i %></a>
-    <% } %>
-    <% if (page < totalPages) { %>
-      <a href="/?page=<%= parseInt(page) + 1 %>">&raquo;</a>
-    <% } %>
-  </div>
-</div>
+    <!-- BOTTOM BAR (ADD + PAGINATION) -->
+    <div class="bottom-bar">
+      <div class="add-btn-container">
+        <a href="/add" class="btn add">Add</a>
+      </div>
+      <div class="pagination">
+        <% if (page> 1) { %>
+          <a href="<%= url %>&page=<%= page - 1 %>">&laquo;</a>
+          <% } %>
+            <% for (let i=1; i <=totalPages; i++) { %>
+              <a href="<%= url %>&page=<%= i %>" class="<%= page == i ? 'active' : '' %>">
+                <%= i %>
+              </a>
+              <% } %>
+                <% if (page < totalPages) { %>
+                  <a href="<%= url %>&page=<%= page + 1 %>">&raquo;</a>
+                  <% } %>
+      </div>
+    </div>
 
-  <script>
-    function confirmDelete(name) {
-      return confirm(`Apakah kamu yakin akan menghapus data '${name}'?`);
-    }
-  </script>
+    <script>
+      function confirmDelete(name) {
+        return confirm(`Apakah kamu yakin akan menghapus data '${name}'?`);
+      }
+    </script>
 </body>
+
 </html>
