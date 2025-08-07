@@ -28,14 +28,15 @@ app.get('/', (req, res) => {
     if (string) { filters.push('name Like ?'); params.push(`%${string}%`); }
     if (integer) { filters.push('height = ?'); params.push(integer); }
     if (float) { filters.push('weight = ?'); params.push(float); }
-    if (startdate && enddate) { filters.push('birthdate BETWEEN ? AND ?'); params.push(startdate, enddate); }
-    else if (startdate) {
-        filters.push('birthdate >= ?')
-        params.push(startdate);
-    }
-    else if (enddate) {
-        filters.push('birthdate <= ?')
-        params.push(enddate);
+    if (startdate && enddate) { 
+        filters.push('birthdate BETWEEN ? AND ?'); 
+        params.push(startdate, enddate); 
+    } else if (startdate) { 
+        filters.push('birthdate >= ?'); 
+        params.push(startdate); 
+    } else if (enddate) { 
+        filters.push('birthdate <= ?'); 
+        params.push(enddate); 
     }
     if (boolean) { filters.push('married = ?'); params.push(boolean); }
 
