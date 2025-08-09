@@ -22,6 +22,9 @@ router.get('/register', function (req, res) {
 
 
 router.get('/login', function (req, res) {
+  const {username , password }= req.body
+  if ( username === 'user' && password === 'pass')
+    req.session.userid
   res.render('login', { title: 'Register User' })
 })
 
