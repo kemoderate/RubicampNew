@@ -5,6 +5,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const session = require('express-session');
 const flash = require('connect-flash');
+const pool = require('./db');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -21,6 +22,21 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(session({
+  secret: 'rubicamp',
+  resave: false,
+  saveUninitialized: true,
+}));
+app.use(flash());
+app.use(function(req, res, next) {
+  res.locals.success_msg = req.flash('success_msg');
+  res.locals.error_msg = req.flash('error_msg');
+  res.locals.error = req.flash('error');
+  res.locals.user = req.session.user || null;
+  next();
+});
+
+
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
@@ -40,5 +56,32 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+// init database
+async function initDb() {
+  try{
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+      id SERIAL PRIMARY KEY,
+      email VARCHAR(100) NOT NULL UNIQUE,
+      password VARCHAR(100) NOT NULL,
+      avatar TEXT
+      );
+      
+      CREATE TABLE IF NOT EXISTS todos (
+      id SERIAL PRIMARY KEY,
+      title VARCHAR(100) NOT NULL,
+      complete BOOLEAN DEFAULT FALSE,
+      deadline TIMESTAMP DEFAULT (CURRENT_TIMESTAMP + INTERVAL '1 day'),
+      userid INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE 
+      );`
+    );
+    console.log('tabel telah dibuat')
+  }catch (err){
+    console.error('error saat membuat database',err)
+  }
+  
+}
 
-module.exports = app;
+
+
+module.exports = {app, initDb };
