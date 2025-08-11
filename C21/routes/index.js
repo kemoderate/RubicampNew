@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 const bcrypt = require('bcrypt');
+const saltRounds = 10;
 
 
 
@@ -13,6 +14,32 @@ router.get('/', function (req, res, next) {
 router.get('/register', function (req, res) {
   res.render('register', { title: 'Register User' })
 })
+
+router.post('/register', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+    return res.status(400).json({ message: 'tolong masukan email dan password' })
+    }
+    const plainPassword = password;
+    const hash = await bcrypt.hash(plainPassword, saltRounds);
+
+
+    await db.query('INSERT INTO users (email, password) VALUES ($1, $2)', [email, hash]
+    );
+
+
+    console.log('menerima permintaan registrasi')
+
+    res.status(200).json({ message: ' telah berhasil registrasi ' })
+  }
+  catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'terjadi kesalahan' });
+  }
+});
+
+
 
 
 router.get('/login', function (req, res) {
@@ -35,14 +62,14 @@ router.post('/login', async (req, res) => {
     }
     const user = rows[0];
     const isMatch = await bcrypt.compare(password, user.password);
-    if(!isMatch){
-      return res.status(400).json ({message : 'invalid'})
+    if (!isMatch) {
+      return res.status(400).json({ message: 'invalid' })
     }
-    res.status(200).json ({message : 'login success', user: { id: user.id , email: user.email} });
-  
-  }catch (error){
+    res.status(200).json({ message: 'login success', user: { id: user.id, email: user.email } });
+
+  } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json ({message: 'Server Error'})
+    res.status(500).json({ message: 'Server Error' })
   }
 });
 
