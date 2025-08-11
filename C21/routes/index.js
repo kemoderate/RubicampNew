@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../db');
 const bcrypt = require('bcrypt');
+const pool = require('../db');
 const saltRounds = 10;
 
 
@@ -17,21 +17,26 @@ router.get('/register', function (req, res) {
 
 router.post('/register', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password , repassword} = req.body;
     if (!email || !password) {
     return res.status(400).json({ message: 'tolong masukan email dan password' })
+    }
+    if(repassword !== password){
+      return res.status(400).json({message: 'password tidak sama'})
     }
     const plainPassword = password;
     const hash = await bcrypt.hash(plainPassword, saltRounds);
 
 
-    await db.query('INSERT INTO users (email, password) VALUES ($1, $2)', [email, hash]
+    await pool.query('INSERT INTO users (email, password) VALUES ($1, $2)', [email, hash]
     );
 
 
     console.log('menerima permintaan registrasi')
+    console.log(req.body,'ini req body')
 
     res.status(200).json({ message: ' telah berhasil registrasi ' })
+    res.redirect('/login')
   }
   catch (err) {
     console.error(err);
