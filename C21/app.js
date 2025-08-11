@@ -10,7 +10,6 @@ const pool = require('./db');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
-const PORT = 3000;
 var app = express();
 
 // view engine setup
@@ -19,7 +18,7 @@ app.set('view engine', 'ejs');
 
 app.use(logger('dev'));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
@@ -65,16 +64,17 @@ async function initDb() {
       email VARCHAR(100) NOT NULL UNIQUE,
       password VARCHAR(100) NOT NULL,
       avatar TEXT
-      );
+      )
+      `);
       
-      CREATE TABLE IF NOT EXISTS todos (
+      await pool.query(`CREATE TABLE IF NOT EXISTS todos (
       id SERIAL PRIMARY KEY,
       title VARCHAR(100) NOT NULL,
       complete BOOLEAN DEFAULT FALSE,
       deadline TIMESTAMP DEFAULT (CURRENT_TIMESTAMP + INTERVAL '1 day'),
       userid INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE 
-      );`
-    );
+      );
+    `);
     console.log('tabel telah dibuat')
   }catch (err){
     console.error('error saat membuat database',err)
