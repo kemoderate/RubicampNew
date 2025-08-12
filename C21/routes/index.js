@@ -6,6 +6,7 @@ const saltRounds = 10;
 
 
 
+
 /* GET home page. */
 router.get('/', function (req, res, next) {
   res.render('index', { title: 'Express' });
@@ -17,12 +18,13 @@ router.get('/register', function (req, res) {
 
 router.post('/register', async (req, res) => {
   try {
-    const { email, password , repassword} = req.body;
+    const { email, password, repassword } = req.body;
     if (!email || !password) {
-    return res.status(400).json({ message: 'tolong masukan email dan password' })
+      req.flash('error_msg', 'Tolong masukan email dan password');
+      return res.redirect('/register');
     }
-    if(repassword !== password){
-      return res.status(400).json({message: 'password tidak sama'})
+    if (repassword !== password) {
+      return req.flash('error_msg', 'password tidak sama');
     }
     const plainPassword = password;
     const hash = await bcrypt.hash(plainPassword, saltRounds);
@@ -31,55 +33,56 @@ router.post('/register', async (req, res) => {
     await pool.query('INSERT INTO users (email, password) VALUES ($1, $2)', [email, hash]
     );
 
-
-    console.log('menerima permintaan registrasi')
-    console.log(req.body,'ini req body')
-
-    res.status(200).json({ message: ' telah berhasil registrasi ' })
     res.redirect('/login')
   }
   catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'terjadi kesalahan' });
+    req.flash('error_msg', 'terjadi kesalahan');
   }
 });
 
 
 
 
-router.get('/login', function (req, res) {
-  res.render('login', { title: 'Login' });
+router.get('/login', (req, res) => {
+  if (req.session.loggedIn) {
+    return res.redirect('/');
+  }
+  res.render('login', { title: 'Login User' });
 });
+
 
 router.post('/login', async (req, res) => {
   const { email, password } = req.body
 
   if (!email || !password) {
-    return res.status(400).json({ message: 'tolong masukan input' })
+    return req.flash('error_msg', 'tolong masukan input');
   }
   try {
-    const [rows] = await pool.query('SELECT * FROM users WHERE email = $1',
+    const result = await pool.query('SELECT * FROM users WHERE email = $1',
       [email]
     );
 
-    if (rows.length === 0) {
-      return res.status(400).json({ message: 'invalid' })
+    if (result.rows.length === 0) {
+      return req.flash('error_msg', 'invalid');
     }
-    const user = rows[0];
+    const user = result.rows[0];
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ message: 'invalid' })
+      return req.flash('error_msg', 'invalid');
+    } else {
+      req.session.userId = email;
+      req.session.loggedIn = true;
+      res.redirect('/')
     }
-    res.status(200).json({ message: 'login success', user: { id: user.id, email: user.email } });
-
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ message: 'Server Error' })
+    req.flash('error_msg', 'server error');
   }
 });
 
 
-router.get('/logout', function (req, res) {
+router.get('/logout', function (req, res, next) {
   req.session.destroy((err) => {
     if (err) {
       console.error('Error destroying session:', err);
