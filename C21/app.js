@@ -7,7 +7,7 @@ const session = require('express-session');
 const flash = require('connect-flash');
 const pool = require('./db');
 
-var indexRouter = require('./routes/index');
+const indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
 var app = express();
@@ -34,11 +34,29 @@ app.use(function(req, res, next) {
   res.locals.user = req.session.user || null;
   next();
 });
+function checkAuth(req, res, next) {
+  if (!req.session.user) {
+    req.session.error_msg = 'Silakan login dulu';
+    return res.redirect('/login')
+  }
+  next();
+}
+const publicRoutes =['/login','/register'];
+
+app.use ((req, res, next) => {
+  
+  if(publicRoutes.includes(req.path)){
+    return next();
+  }
+  checkAuth (req, res, next)
+})
 
 
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
