@@ -6,9 +6,8 @@ const saltRounds = 10;
 
 
 
-
 /* GET home page. */
-router.get('/', function (req, res, next) {
+router.get('/',function (req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
@@ -24,7 +23,8 @@ router.post('/register', async (req, res) => {
       return res.redirect('/register');
     }
     if (repassword !== password) {
-      return req.flash('error_msg', 'password tidak sama');
+     req.flash('error_msg', 'password tidak sama');
+      return res.redirect('/register');
     }
     const plainPassword = password;
     const hash = await bcrypt.hash(plainPassword, saltRounds);
@@ -38,6 +38,7 @@ router.post('/register', async (req, res) => {
   catch (err) {
     console.error(err);
     req.flash('error_msg', 'terjadi kesalahan');
+    return res.redirect('/register');
   }
 });
 
@@ -56,7 +57,8 @@ router.post('/login', async (req, res) => {
   const { email, password } = req.body
 
   if (!email || !password) {
-    return req.flash('error_msg', 'tolong masukan input');
+    req.flash('error_msg', 'tolong masukan input');
+    return res.redirect('/login');
   }
   try {
     const result = await pool.query('SELECT * FROM users WHERE email = $1',
@@ -64,12 +66,14 @@ router.post('/login', async (req, res) => {
     );
 
     if (result.rows.length === 0) {
-      return req.flash('error_msg', 'invalid');
+       req.flash('error_msg', 'invalid');
+       return res.redirect('/login');
     }
     const user = result.rows[0];
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return req.flash('error_msg', 'invalid');
+       req.flash('error_msg', 'invalid');
+       return res.redirect('/login');
     } else {
       req.session.userId = email;
       req.session.loggedIn = true;
@@ -78,6 +82,7 @@ router.post('/login', async (req, res) => {
   } catch (error) {
     console.error('Login error:', error);
     req.flash('error_msg', 'server error');
+    return res.redirect('/login');
   }
 });
 
