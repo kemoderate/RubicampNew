@@ -10,6 +10,8 @@ const saltRounds = 10;
 router.get('/', async (req, res, next) => {
   try {
     let { id, string, startdate, enddate, boolean, page, op } = req.query;
+   const user = req.session.user || null;
+
     page = parseInt(page) || 1;
     const limit = 5;
     const offset = (page - 1) * limit;
@@ -77,6 +79,7 @@ const dataResult =  await pool.query(dataQuery, [...params, limit, offset]);
           page,
           totalPages,
           url: baseUrl,
+          user
         });
       
     } catch (err) {
@@ -165,7 +168,7 @@ router.post('/login', async (req, res) => {
 });
 
 
-router.get('/logout', function (req, res, next) {
+router.post('/logout', function (req, res, next) {
   req.session.destroy((err) => {
     if (err) {
       console.error('Error destroying session:', err);
