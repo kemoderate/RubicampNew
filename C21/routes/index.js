@@ -24,44 +24,38 @@ router.get('/', async (req, res, next) => {
     }
 
     if (string) {
-      filters.push('title LIKE ?');
+      filters.push(`title ILIKE $${params.length + 1}`);
       params.push(`%${string}%`);
     }
     if (startdate && enddate) {
-      filters.push('deadline BETWEEN ? AND ?');
+      filters.push(`deadline BETWEEN  $${params.length + 1} AND $${params.length + 2}`);
       params.push(startdate, enddate);
     } else if (startdate) {
-      filters.push('deadline >= ?');
+      filters.push(`deadline >= $${params.length + 1}`);
       params.push(startdate);
     } else if (enddate) {
-      filters.push('deadline <= ?');
+      filters.push(`deadline <= $${params.length + 1}`);
       params.push(enddate);
     }
 
-    // Perbaikan: ubah string ke boolean numerik
     if (boolean === 'true') {
-      filters.push('complete = ?');
-      params.push(1);
+      filters.push(`complete = $${params.length + 1}`);
+      params.push(true);
     } else if (boolean === 'false') {
-      filters.push('complete = ?');
-      params.push(0);
+      filters.push(`complete = $${params.length + 1}`);
+      params.push(false);
     }
 
-    // console.log(boolean,'ini boolean')
-
-    const operator = (op && (op === ' OR ' || op === ' AND ')) ? ` ${op} ` : ' AND ';
+    const operator = (op && (op.toUpperCase() === 'OR' || op.toUpperCase() === 'AND')) ? ` ${op.toUpperCase()} ` : 'AND';
     let where = filters.length ? `WHERE ${filters.join(operator)}` : '';
 
     let countQuery = `SELECT COUNT(*) as count FROM todos ${where}`;
-    let dataQuery = `SELECT * FROM todos ${where} LIMIT = $1 OFFSET = $2`;
+    let dataQuery = `SELECT * FROM todos ${where} LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
 
 
-    pool.query(countQuery, params, (err, countResult) => {
-      if (err) {
-        console.error('Count Error:', err);
-        return res.status(500).send('Internal Server Error');
-      }
-      let totalRows = countResult.count;
+const countResult = await pool.query(countQuery, params,);
+
+      let totalRows = countResult.rows[0].count;
       let totalPages = Math.ceil(totalRows / limit);
 
       const queryWithoutPage = { ...req.query };
@@ -75,29 +69,22 @@ router.get('/', async (req, res, next) => {
       const url = req.url == '/' ? '/?page=1' : req.url
 
 
-      pool.query(dataQuery, [...params, limit, offset], (err, rows) => {
-        if (err) {
-          console.error('Data Fetch Error:', err);
-          return res.status(500).send('Internal Server Error');
-        }
+const dataResult =  await pool.query(dataQuery, [...params, limit, offset]);
         res.render('index', {
-          title: 'SQLite BREAD (Browse,Read,Edit,Add,Delete) and Pagination',
-          data: rows,
+          title: 'PostgreSQL BREADS (Browse,Read,Edit,Add,Delete,Sort) and Pagination',
+          data: dataResult.rows,
           query: req.query,
           page,
           totalPages,
           url: baseUrl,
-        })
-      });
-    });
-  } catch (err) {
+        });
+      
+    } catch (err) {
     console.error('Error:', err);
     res.status(500).send('Internal Server Error');
   }
-  });
-
+ });
   
-
 
 
 
