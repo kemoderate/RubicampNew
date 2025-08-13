@@ -134,7 +134,7 @@ router.post('/login', async (req, res) => {
   const { email, password } = req.body
 
   if (!email || !password) {
-    req.flash('error_msg', 'tolong masukan input');
+    req.flash('error_msg', ' masukan email atau password terlebih dahulu');
     return res.redirect('/login');
   }
   try {
