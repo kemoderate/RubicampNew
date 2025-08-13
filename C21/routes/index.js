@@ -168,6 +168,12 @@ router.post('/login', async (req, res) => {
 });
 
 
+router.get('/add', function (req, res){
+  res.render('add',{ title : 'ADD'})
+})
+
+
+
 router.post('/logout', function (req, res, next) {
   req.session.destroy((err) => {
     if (err) {

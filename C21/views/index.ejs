@@ -121,6 +121,26 @@
             </table>
           </div>
 
+          <div class="bottom-bar">
+      <div class="add-btn-container">
+        <a href="/add" class="btn add">Add</a>
+      </div>
+      <div class="pagination">
+        <% if (page> 1) { %>
+          <a href="<%= url %>&page=<%= page - 1 %>">&laquo;</a>
+          <% } %>
+            <% for (let i=1; i <=totalPages; i++) { %>
+              <a href="<%= url %>&page=<%= i %>" class="<%= page == i ? 'active' : '' %>">
+                <%= i %>
+              </a>
+              <% } %>
+                <% if (page < totalPages) { %>
+                  <a href="<%= url %>&page=<%= page + 1 %>">&raquo;</a>
+                  <% } %>
+      </div>
+    </div>
+
+
           <script>
             function confirmDelete(title) {
               return confirm(`Yakin mau hapus "${title}"?`);
