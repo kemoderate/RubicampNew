@@ -17,8 +17,53 @@
       <%= error_msg %>
     </div>
     <% } %>
-      <p>Welcome to <%= title %>
-      </p>
+     <div class="table-panel">
+      <table>
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>Title</th>
+            <th>Complete</th>
+            <th>Deadline</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% data.forEach((entry, index)=> { %>
+            <tr class="<%= index % 2 === 0 ? 'even' : 'odd' %>">
+              <td>
+                <%= entry.id %>
+              </td>
+              <td>
+                <%= entry.name %>
+              </td>
+              <td>
+                <%= entry.height %>
+              </td>
+              <td>
+                <%= entry.weight %>
+              </td>
+              <td>
+                <%= entry.birthdate %>
+              </td>
+              <td>
+                <%= entry.married==0 ? 'Not Yet' : 'Yes' %>
+              </td>
+              <td class="actions">
+                <form action="/edit/<%= entry.id %>" method="GET" class="inline-form">
+                  <button class="btn update">Update</button>
+                </form>
+                <form action="/delete/<%= entry.id %>" method="POST" class="inline-form"
+                  onsubmit="return confirmDelete('<%= entry.name %>')">
+                  <button type="submit" class="btn delete">Delete</button>
+                </form>
+              </td>
+            </tr>
+            <% }) %>
+        </tbody>
+      </table>
+    </div>
+
 </body>
 
 </html>
