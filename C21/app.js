@@ -3,6 +3,7 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+
 const session = require('express-session');
 const flash = require('connect-flash');
 const pool = require('./db');
@@ -21,12 +22,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
 app.use(session({
   secret: 'rubicamp',
   resave: false,
   saveUninitialized: true,
 }));
+
 app.use(flash());
+
 app.use(function(req, res, next) {
   res.locals.success_msg = req.flash('success_msg');
   res.locals.error_msg = req.flash('error_msg');
@@ -36,16 +40,16 @@ app.use(function(req, res, next) {
 });
 function checkAuth(req, res, next) {
   if (!req.session.user) {
-    req.session.error_msg = 'Silakan login dulu';
+    req.flash('error_msg' , 'Silakan login dulu');
     return res.redirect('/login')
   }
   next();
 }
+
 const publicRoutes =['/login','/register'];
 
-app.use ((req, res, next) => {
-  
-  if(publicRoutes.includes(req.path)){
+app.use ((req, res, next) => {  
+  if(publicRoutes.some(route => req.path.startsWith(route))){
     return next();
   }
   checkAuth (req, res, next)
