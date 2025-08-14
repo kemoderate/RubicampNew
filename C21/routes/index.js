@@ -117,7 +117,7 @@ const dataResult =  await pool.query(dataQuery, [...params, limit, offset]);
   }
   catch (err) {
     console.error(err);
-    req.flash('error_msg', 'terjadi kesalahan');
+    req.flash('error_msg', 'user sudah terdaftar. coba yang lain');
     return res.redirect('/register');
   }
 });
@@ -169,8 +169,83 @@ router.post('/login', async (req, res) => {
 
 
 router.get('/add', function (req, res){
-  res.render('add',{ title : 'ADD'})
+  res.render('add',{ title : 'Add list'})
 })
+
+
+router.post('/add', async (req, res) => {
+  const {title} = req.body
+  const userid =  req.session.user.id;
+
+  try{
+    await pool.query(`INSERT INTO todos (title , complete, deadline, userid) VALUES ($1, false, CURRENT_DATE + INTERVAL '1 day', $2)`,
+      [title, userid]
+    );
+    req.flash ('success_msg','List Baru Berhasil di tambahkan');
+    res.redirect ('/');
+  } catch (err){
+    console.error(err);
+    req.flash('error_msg', 'Gagal menambahkan List');
+    res.redirect('/add')
+  }
+})
+
+router.get('/edit/:id', async function (req,res){
+  userid = req.session.user.id;
+  const{ id } = req.params 
+try{
+  const { rows } = await pool.query(
+    `SELECT id , title, complete, deadline FROM todos WHERE id = $1 AND userid = $2`,
+    [id, userid]
+  );
+  if (rows.length === 0){
+    req.flash ('error_msg','List tidak ditemukan')
+    return res.redirect('/')
+  }
+  const todo = rows[0]
+  const deadlineDate = new Date(todo.deadline);
+  const deadlineYYYYMMDD = isNaN(deadlineDate)
+  ? ''
+  : deadlineDate.toISOString().slice(0,10) 
+   res.render('edit',{title : 'Edit list',
+    todo,
+    deadlineYYYYMMDD
+   });
+}catch (err){
+  console.error(err);
+  req.flash ('error_msg','Gagal mengambil data list')
+}
+ 
+})
+
+router.post('/edit/:id',async (req,res) =>{
+  const userid = req.session.user.id;
+  const { id } = req.params
+  const {title, complete, deadline} = req.body;
+
+  const completeValue = complete === 'on';
+
+  try{
+    const result = await pool.query(
+      `Update todos 
+      SET title = $1, complete = $2, deadline = $3
+      WHERE id = $4 AND userid = $5`,
+      [title,completeValue,deadline,id,userid]
+    );
+    if (result.rowCount === 0){
+      req.flash ('error_msg','list tidak ditemukan atau bukan milik anda')
+      return res.redirect('/');
+    }  
+    req.flash('success_msg','list berhasil diperbarui');
+    res.redirect ('/');
+  } catch (err){
+    console.error(err)
+    req.flash('error_msg','Gagal memperbarui list');
+    res.redirect(`/edit/${id}`);
+  }
+})
+
+
 
 
 
