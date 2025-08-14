@@ -11,7 +11,8 @@ router.get('/', async (req, res, next) => {
   try {
     let { id, string, startdate, enddate, boolean, page, op } = req.query;
    const user = req.session.user || null;
-
+   const { rows } = await pool.query('SELECT * FROM todos ORDER BY id ASC');
+   
     page = parseInt(page) || 1;
     const limit = 5;
     const offset = (page - 1) * limit;
@@ -72,6 +73,11 @@ const countResult = await pool.query(countQuery, params,);
 
 
 const dataResult =  await pool.query(dataQuery, [...params, limit, offset]);
+
+dataResult.rows.forEach((todo, index) => {
+    todo.nomor_urut = offset + index + 1;
+   });
+
         res.render('index', {
           title: 'PostgreSQL BREADS (Browse,Read,Edit,Add,Delete,Sort) and Pagination',
           data: dataResult.rows,
@@ -79,7 +85,8 @@ const dataResult =  await pool.query(dataQuery, [...params, limit, offset]);
           page,
           totalPages,
           url: baseUrl,
-          user
+          user,
+          todos: rows
         });
       
     } catch (err) {
@@ -245,6 +252,18 @@ router.post('/edit/:id',async (req,res) =>{
   }
 })
 
+router.post('/delete/:id', async (req, res) =>{ 
+  const id = req.params.id;
+
+  try{
+    await pool.query('DELETE FROM todos WHERE id = $1', [id]);
+    req.flash('success_msg','todo berhasil dihapus')
+    res.redirect ('/');
+  } catch (err){
+    req.flash('error','Gagal menghapus todo')
+    res.redirect ('/')
+  }
+});
 
 
 

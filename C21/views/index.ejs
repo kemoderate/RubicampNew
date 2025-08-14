@@ -94,7 +94,8 @@
               <tbody>
                 <% data.forEach((entry, index)=> { %>
                   <tr class="<%= index % 2 === 0 ? 'even' : 'odd' %>">
-                    <td>
+                     <td><%= entry.nomor_urut %></td>
+                    <td style="display:none;">
                       <%= entry.id %>
                     </td>
                     <td>
