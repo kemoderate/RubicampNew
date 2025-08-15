@@ -10,16 +10,22 @@ const saltRounds = 10;
 router.get('/', async (req, res, next) => {
   try {
     let { id, string, startdate, enddate, boolean, page, op } = req.query;
-   const user = req.session.user || null;
+   const userSession = req.session.user || null;
+   let user = null;
    const { rows } = await pool.query('SELECT * FROM todos ORDER BY id ASC');
    
     page = parseInt(page) || 1;
     const limit = 5;
     const offset = (page - 1) * limit;
 
+     
 
     let filters = [];
     let params = [];
+    if(userSession){
+      const {rows: userRows} = await pool.query('SELECT id, email, avatar FROM users WHERE id = $1', [userSession.id]);
+      user = userRows[0];
+    }
 
     if (id) {
       filters.push(`id = $${params.length + 1}`);
@@ -162,7 +168,7 @@ router.post('/login', async (req, res) => {
       req.flash('error_msg', 'password is invalid');
       return res.redirect('/login');
     } else {
-      req.session.user = { id: user.id, email: user.email };
+      req.session.user = { id: user.id, email: user.email , avatar: user.avatar };
       req.session.loggedIn = true;
       req.flash('success_msg', 'Login Berhasil')
       res.redirect('/')
