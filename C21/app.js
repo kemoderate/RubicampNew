@@ -3,6 +3,7 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const fileUpload = require('express-fileupload');
 
 const session = require('express-session');
 const flash = require('connect-flash');
@@ -29,6 +30,7 @@ app.use(session({
   saveUninitialized: true,
 }));
 
+app.use(fileUpload());
 app.use(flash());
 
 app.use(function(req, res, next) {

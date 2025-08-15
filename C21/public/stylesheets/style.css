@@ -1,8 +1,76 @@
+/* public/stylesheets/style.css */
 body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+    padding-top: 80px;
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    color: #333;
 }
 
-a {
-  color: #00B7FF;
+h1 {
+    margin-bottom: 20px;
+}
+
+.table-panel table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table-panel th, .table-panel td {
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+.table-panel tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.table-panel tr:hover {
+    background-color: #f1f1f1;
+}
+
+.btn {
+    padding: 5px 10px;
+    margin: 2px;
+    border-radius: 5px;
+}
+
+.btn.add {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.btn.update {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.btn.delete {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.filter-form .form-group {
+    margin-bottom: 15px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* jarak antar email & tombol */
+}
+
+.logout-form {
+  display: inline; /* supaya tombol tetap inline */
+}
+
+.avatar-img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
 }
