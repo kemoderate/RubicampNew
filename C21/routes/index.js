@@ -254,9 +254,10 @@ router.post('/edit/:id',async (req,res) =>{
 
 router.post('/delete/:id', async (req, res) =>{ 
   const id = req.params.id;
+  const userid = req.session.user.id
 
   try{
-    await pool.query('DELETE FROM todos WHERE id = $1', [id]);
+    await pool.query('DELETE FROM todos WHERE id = $1 AND userid = $2', [id,userid]);
     req.flash('success_msg','todo berhasil dihapus')
     res.redirect ('/');
   } catch (err){
