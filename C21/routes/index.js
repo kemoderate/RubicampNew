@@ -234,7 +234,9 @@ router.post('/add', async (req, res) => {
     await pool.query(`INSERT INTO todos (title, complete , deadline, userid) VALUES ($1, false, $2, $3)`,
       [title, now, userid]
     );
-    
+
+    console.log(new Date());
+
     req.flash('success_msg', 'List Baru Berhasil di tambahkan');
     res.redirect('/');
   } catch (err) {
