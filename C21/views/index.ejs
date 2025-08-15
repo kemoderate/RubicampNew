@@ -126,12 +126,12 @@
                       <%= entry.complete ? 'Yes' : 'No' %>
                     </td>
                     <td>
-                      <%= entry.deadline ? entry.deadline.toISOString().split('T')[0] : '' %>
+                      <%= entry.deadline_formatted%>
                     </td>
                     <td class="actions">
                       <form action="/edit/<%= entry.id %>" method="GET" class="inline-form">
                         <button class="btn update">Update</button>
-                      </form>
+                      </form> 
                       <form action="/delete/<%= entry.id %>" method="POST" class="inline-form"
                         onsubmit="return confirmDelete('<%= entry.title %>')">
                         <button type="submit" class="btn delete">Delete</button>
