@@ -24,13 +24,22 @@
     </div>
     <% } %>
 
-
       <% if (user) { %>
         <div class="d-flex justify-content-between align-items-center mb-2">
-          <h1 class="h3 m-0">
-            <%= title %>
-          </h1>
-          
+          <!-- avatar dan email -->
+          <div class="d-flex align-items-center">
+            <a href="/users/avatar" class="me-2">
+              <% if (user.avatar) { %>
+                <img src="/uploads/<%= user.avatar %>" alt="Avatar" class="rounded-circle" width="40" height="40">
+              <% } else { %>
+                <img src="/images/default-avatar.png" alt="Avatar" class="rounded-circle" width="40" height="40">
+              <% } %>
+            </a>
+          <span class="user-email">
+            <%= user.email %>
+          </span>
+        </div>
+
           <form action="/logout" method="POST" style="display:inline;">
             <button type="submit" class="btn btn-dark">
               <i class="fa fa-sign-out"></i> Sign Out
@@ -38,24 +47,12 @@
             </form>
         </div>
 
-        <div class="user-info">
-          <li class="nav-item me-2">
-            <a href="/users/avatar">
-              <% if (user.avatar) { %>
-                <img src="/uploads/<%= user.avatar %>" alt="Avatar" class="rounded-circle" width="40" height="40">
-              <% } else { %>
-                <img src="/images/default-avatar.png" alt="Avatar" class="rounded-circle" width="40" height="40">
-              <% } %>
-            </a>
-          </li>
-          <span class="user-email">
-            <%= user.email %>
-          </span>
-        </div>
+        
 
         <% } %>
-          </div>
-
+          <h1 class="h3 m-0">
+            <%= title %>
+          </h1>
 
           <form action="/" method="GET" class="filter-form">
             <input type="hidden" name="page" value="1">
@@ -103,11 +100,22 @@
             <table>
               <thead>
                 <tr>
-                  <th>No</th>
-                  <th>Title</th>
-                  <th>Complete</th>
-                  <th>Deadline</th>
-                  <th>Actions</th>
+                  <th><a href="<%= url %>&sort=id&order=<%= query.order === 'ASC' ? 'DESC' : 'ASC' %>">No
+                    <% if (query.sort === 'id') { %>
+                      <% if (query.order === 'ASC') { %>
+                        <i class="fa fa-sort-asc"></i>
+                     <% } else { %>
+                     <i class="fa fa-sort-desc"></i>
+                 <%  } %>
+                  <% } else { %>
+                    <i class="fa fa-sort"></i>
+                  <% } %>
+                  </a>
+                </th>
+                  <th><a href="<%= url %>&sort=id&order=<%= query.order === 'ASC' ? 'DESC' : 'ASC' %>">Title</a></th>
+                  <th><a href="<%= url %>&sort=id&order=<%= query.order === 'ASC' ? 'DESC' : 'ASC' %>">Complete</a></th>
+                  <th><a href="<%= url %>&sort=id&order=<%= query.order === 'ASC' ? 'DESC' : 'ASC' %>">Deadline</a></th>
+                  <th><a href="<%= url %>&sort=id&order=<%= query.order === 'ASC' ? 'DESC' : 'ASC' %>">Actions</a></th>
                 </tr>
               </thead>
               <tbody>
@@ -148,7 +156,7 @@
               <a href="/add" class="btn add">Add</a>
             </div>
             <div class="pagination">
-              <% if (page> 1) { %>
+              <% if (page > 1) { %>
                 <a href="<%= url %>&page=<%= page - 1 %>">&laquo;</a>
                 <% } %>
                   <% for (let i=1; i <=totalPages; i++) { %>

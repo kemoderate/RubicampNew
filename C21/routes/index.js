@@ -81,11 +81,19 @@ router.get('/', async (req, res, next) => {
       where = `WHERE ${filters.join(operator)}`;
     }
 
+    // sorting 
+    let { sort, order} = req.query;
+if (Array.isArray(sort)) sort = sort[sort.length - 1]
+if (Array.isArray(order)) order = order[order.length - 1]
+
+    sort = ['id','title','deadline', 'complete'].includes(sort) ? sort : 'id';
+    order = order && order.toString().toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
+
     // Query hitung total data
     let countQuery = `SELECT COUNT(*) as count FROM todos ${where}`;
 
     // Query ambil data + pagination
-    let dataQuery = `SELECT * FROM todos ${where} LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
+    let dataQuery = `SELECT * FROM todos ${where} ORDER BY ${sort} ${order} LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
 
     // Jalankan query count
     const countResult = await pool.query(countQuery, params);
