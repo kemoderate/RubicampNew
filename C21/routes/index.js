@@ -82,11 +82,11 @@ router.get('/', async (req, res, next) => {
     }
 
     // sorting 
-    let { sort, order} = req.query;
-if (Array.isArray(sort)) sort = sort[sort.length - 1]
-if (Array.isArray(order)) order = order[order.length - 1]
+    let { sort, order } = req.query;
+    if (Array.isArray(sort)) sort = sort[sort.length - 1]
+    if (Array.isArray(order)) order = order[order.length - 1]
 
-    sort = ['id','title','deadline', 'complete'].includes(sort) ? sort : 'id';
+    sort = ['id', 'title', 'deadline', 'complete'].includes(sort) ? sort : 'id';
     order = order && order.toString().toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
 
     // Query hitung total data
@@ -104,7 +104,14 @@ if (Array.isArray(order)) order = order[order.length - 1]
     const queryWithoutPage = { ...req.query };
     delete queryWithoutPage.page;
     const queryString = new URLSearchParams(queryWithoutPage).toString();
-    const baseUrl = `/?${queryString}`;
+    const paginationUrl = `/?${queryString}`;
+
+
+    const queryWithoutSort = { ...req.query }
+    delete queryWithoutSort.sort;
+    delete queryWithoutSort.order;
+    const sortingQuery = new URLSearchParams(queryWithoutSort).toString();
+    const sortingUrl = `/?${sortingQuery}`;
 
     // Jalankan query data
     const dataResult = await pool.query(dataQuery, [...params, limit, offset]);
@@ -113,22 +120,22 @@ if (Array.isArray(order)) order = order[order.length - 1]
     dataResult.rows.forEach((todo, index) => {
       todo.nomor_urut = offset + index + 1;
 
-      if(todo.deadline){
-        const dateObj = new Date (todo.deadline);
-        todo.deadline_formatted = dateObj.toLocaleDateString('id-ID',{
-          year : 'numeric',
-          month : '2-digit',
-          day : '2-digit',
-          hour : '2-digit',
-          minute : '2-digit',
-          second : '2-digit',
-          hour12 : false
+      if (todo.deadline) {
+        const dateObj = new Date(todo.deadline);
+        todo.deadline_formatted = dateObj.toLocaleDateString('id-ID', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false
         });
       } else {
         todo.deadline_formatted = '';
       }
     });
-    
+
 
     // Render ke view
     res.render('index', {
@@ -137,7 +144,8 @@ if (Array.isArray(order)) order = order[order.length - 1]
       query: req.query,
       page,
       totalPages,
-      url: baseUrl,
+      paginationUrl,   
+      sortingUrl,
       user: req.session.user || null
     });
 
@@ -237,7 +245,7 @@ router.post('/add', async (req, res) => {
 
   try {
     const now = new Date();
-    now.setDate(now.getDate()+ 1);
+    now.setDate(now.getDate() + 1);
 
     await pool.query(`INSERT INTO todos (title, complete , deadline, userid) VALUES ($1, false, $2, $3)`,
       [title, now, userid]
