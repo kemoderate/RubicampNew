@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <title><%= title %></title>
+  <title>
+    <%= title %>
+  </title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="/stylesheets/style.css">
@@ -16,11 +19,17 @@
           <a href="/users/avatar" class="me-2">
             <% if (user.avatar) { %>
               <img src="/uploads/<%= user.avatar %>" alt="Avatar" class="rounded-circle" width="40" height="40">
-            <% } else { %>
-              <img src="/images/default-avatar.png" alt="Avatar" class="rounded-circle" width="40" height="40">
-            <% } %>
+              <% } else { %>
+                <div class="d-flex align-items-center justify-content-center rounded-circle bg-secondary text-white"
+                  style="width:40px; height:40px;">
+                  <i class="fa-solid fa-user"></i>
+                </div>
+                <% } %>
           </a>
-          <span class="fw-semibold"><%= user.email %></span>
+
+          <span class="fw-semibold">
+            <%= user.email %>
+          </span>
         </div>
 
         <form action="/logout" method="POST" class="m-0">
@@ -29,147 +38,163 @@
           </button>
         </form>
       </div>
-    <% } %>
+      <% } %>
 
-    <h1 class="h3 mb-4"><%= title %></h1>
+        <h1 class="h3 mb-4">
+          <%= title %>
+        </h1>
 
-    <!-- Filter form -->
-    <form action="/" method="GET" class="card shadow-sm mb-4 p-3">
-      <input type="hidden" name="page" value="1">
+        <!-- Filter form -->
+        <form action="/" method="GET" class="card shadow-sm mb-4 p-3">
+          <input type="hidden" name="page" value="1">
 
-      <div class="mb-3">
-        <label class="form-label">Title</label>
-        <input type="text" name="string" class="form-control" placeholder="insert your title"
-          value="<%= query.string || '' %>">
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">Deadline</label>
-        <div class="d-flex align-items-center gap-2">
-          <input type="date" name="startdate" class="form-control" value="<%= query.startdate || '' %>">
-          <span class="mx-1">s.d.</span>
-          <input type="date" name="enddate" class="form-control" value="<%= query.enddate || '' %>">
-        </div>
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">Complete</label>
-        <select name="boolean" class="form-select">
-          <option value="">-select complete-</option>
-          <option value="true" <%=query.boolean==='true' ? 'selected' : '' %>>Yes</option>
-          <option value="false" <%=query.boolean==='false' ? 'selected' : '' %>>Not Yet</option>
-        </select>
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">Operation</label>
-        <div class="d-flex gap-3">
-          <div class="form-check">
-            <input class="form-check-input" type="radio" name="op" value="OR" <%=query.op==='OR' || !query.op ? 'checked' : '' %>>
-            <label class="form-check-label">OR</label>
+          <div class="mb-3">
+            <label class="form-label">Title</label>
+            <input type="text" name="string" class="form-control" placeholder="insert your title"
+              value="<%= query.string || '' %>">
           </div>
-          <div class="form-check">
-            <input class="form-check-input" type="radio" name="op" value="AND" <%=query.op==='AND' ? 'checked' : '' %>>
-            <label class="form-check-label">AND</label>
+
+          <div class="mb-3">
+            <label class="form-label">Deadline</label>
+            <div class="d-flex align-items-center gap-2">
+              <input type="date" name="startdate" class="form-control" value="<%= query.startdate || '' %>">
+              <span class="mx-1">s.d.</span>
+              <input type="date" name="enddate" class="form-control" value="<%= query.enddate || '' %>">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Complete</label>
+            <select name="boolean" class="form-select">
+              <option value="">-select complete-</option>
+              <option value="true" <%=query.boolean==='true' ? 'selected' : '' %>>Yes</option>
+              <option value="false" <%=query.boolean==='false' ? 'selected' : '' %>>Not Yet</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Operation</label>
+            <div class="d-flex gap-3">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="op" value="OR" <%=query.op==='OR' || !query.op
+                  ? 'checked' : '' %>>
+                <label class="form-check-label">OR</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="op" value="AND" <%=query.op==='AND' ? 'checked' : ''
+                  %>>
+                <label class="form-check-label">AND</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex gap-2 mt-3">
+            <button type="submit" class="btn btn-primary">
+              <i class="fa fa-search"></i>
+            </button>
+            <a href="/" class="btn btn-warning"><i class="fa fa-refresh"></i></a>
+          </div>
+        </form>
+
+        <!-- Table -->
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-striped table-hover align-middle">
+                <thead class="table-white">
+                  <tr>
+                    <% const headers=[ {key: 'id' , label: 'No' }, {key: 'title' , label: 'Title' }, {key: 'complete' ,
+                      label: 'Complete' }, {key: 'deadline' , label: 'Deadline' } ]; %>
+
+                      <% headers.forEach(h=> { %>
+                        <th>
+                          <div class="d-flex justify-content-between align-items-center">
+                            <span>
+                              <%= h.label %>
+                            </span>
+                            <a href="<%= sortingUrl %>&sort=<%= h.key %>&order=<%= query.order === 'ASC' ? 'DESC' : 'ASC' %>"
+                              class="btn btn-sm btn-light ms-2">
+                              <% if (query.sort===h.key) { %>
+                                <% if (query.order==='ASC' ) { %>
+                                  <i class="fa-solid fa-sort-up"></i>
+                                  <% } else { %>
+                                    <i class="fa-solid fa-sort-down"></i>
+                                    <% } %>
+                                      <% } else { %>
+                                        <i class="fa-solid fa-sort"></i>
+                                        <% } %>
+                            </a>
+                          </div>
+                        </th>
+                        <% }) %>
+                          <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% data.forEach((entry, index)=> {
+                    const isOverdue = !entry.complete && new Date(entry.deadline) < new Date(); %>
+                      <tr class="<%= isOverdue ? 'table-overdue' : '' %>">
+                        <td>
+                          <%= entry.nomor_urut %>
+                        </td>
+                        <td style="display:none;">
+                          <%= entry.id %>
+                        </td>
+                        <td>
+                          <%= entry.title %>
+                        </td>
+                        <td>
+                          <%= entry.complete ? 'Done' : 'Not Yet' %>
+                        </td>
+                        <td>
+                          <%= entry.deadline_formatted %>
+                        </td>
+                        <td>
+                          <div class="d-flex gap-2">
+                            <form action="/edit/<%= entry.id %>" method="GET" class="m-0">
+                              <button class="btn btn-sm btn-success" title="Edit">
+                                <i class="fa fa-edit"></i>
+                              </button>
+                            </form>
+                            <button type="button" class="btn btn-sm btn-danger" title="Delete"
+                              onclick="openDeleteModal('<%= entry.title %>', '/delete/<%= entry.id %>')">
+                              <i class="fa fa-trash"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                      <% }) %>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="d-flex gap-2 mt-3">
-        <button type="submit" class="btn btn-primary">
-          <i class="fa fa-search"></i>
-        </button>
-        <a href="/" class="btn btn-warning"><i class="fa fa-refresh"></i></a>
-      </div>
-    </form>
-
-    <!-- Table -->
-    <div class="card shadow-sm">
-      <div class="card-body">
-        <div class="table-responsive">
-          <table class="table table-striped table-hover align-middle">
-            <thead class="table-white">
-              <tr>
-                <% const headers=[ 
-                  {key: 'id', label: 'No'}, 
-                  {key: 'title', label: 'Title'}, 
-                  {key: 'complete', label: 'Complete'}, 
-                  {key: 'deadline', label: 'Deadline'} 
-                ]; %>
-
-                <% headers.forEach(h=> { %>
-                  <th>
-                    <div class="d-flex justify-content-between align-items-center">
-                      <span><%= h.label %></span>
-                      <a href="<%= sortingUrl %>&sort=<%= h.key %>&order=<%= query.order === 'ASC' ? 'DESC' : 'ASC' %>"
-                        class="btn btn-sm btn-light ms-2">
-                        <% if (query.sort===h.key) { %>
-                          <% if (query.order==='ASC') { %>
-                            <i class="fa-solid fa-sort-up"></i>
-                          <% } else { %>
-                            <i class="fa-solid fa-sort-down"></i>
-                          <% } %>
-                        <% } else { %>
-                          <i class="fa-solid fa-sort"></i>
-                        <% } %>
+        <!-- Bottom bar -->
+        <div class="d-flex justify-content-between align-items-center mt-3">
+          <a href="/add" class="btn btn-primary">
+            <i class="fa fa-plus"></i>
+          </a>
+          <nav>
+            <ul class="pagination mb-0">
+              <% if (page> 1) { %>
+                <li class="page-item"><a class="page-link" href="<%= paginationUrl %>&page=<%= page - 1 %>">&laquo;</a>
+                </li>
+                <% } %>
+                  <% for (let i=1; i <=totalPages; i++) { %>
+                    <li class="page-item <%= page == i ? 'active' : '' %>">
+                      <a class="page-link" href="<%= paginationUrl %>&page=<%= i %>">
+                        <%= i %>
                       </a>
-                    </div>
-                  </th>
-                <% }) %>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% data.forEach((entry, index)=> {
-                const isOverdue = !entry.complete && new Date(entry.deadline) < new Date(); %>
-                <tr class="<%= isOverdue ? 'table-overdue' : '' %>">
-                  <td><%= entry.nomor_urut %></td>
-                  <td style="display:none;"><%= entry.id %></td>
-                  <td><%= entry.title %></td>
-                  <td><%= entry.complete ? 'Done' : 'Not Yet' %></td>
-                  <td><%= entry.deadline_formatted %></td>
-                  <td>
-                    <div class="d-flex gap-2">
-                      <form action="/edit/<%= entry.id %>" method="GET" class="m-0">
-                        <button class="btn btn-sm btn-success" title="Edit">
-                          <i class="fa fa-edit"></i>
-                        </button>
-                      </form>
-                      <button type="button" class="btn btn-sm btn-danger" title="Delete"
-                        onclick="openDeleteModal('<%= entry.title %>', '/delete/<%= entry.id %>')">
-                        <i class="fa fa-trash"></i>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              <% }) %>
-            </tbody>
-          </table>
+                    </li>
+                    <% } %>
+                      <% if (page < totalPages) { %>
+                        <li class="page-item"><a class="page-link"
+                            href="<%= paginationUrl %>&page=<%= page + 1 %>">&raquo;</a></li>
+                        <% } %>
+            </ul>
+          </nav>
         </div>
-      </div>
-    </div>
-
-    <!-- Bottom bar -->
-    <div class="d-flex justify-content-between align-items-center mt-3">
-      <a href="/add" class="btn btn-primary">
-        <i class="fa fa-plus"></i>
-      </a>
-      <nav>
-        <ul class="pagination mb-0">
-          <% if (page> 1) { %>
-            <li class="page-item"><a class="page-link" href="<%= paginationUrl %>&page=<%= page - 1 %>">&laquo;</a></li>
-          <% } %>
-          <% for (let i=1; i <=totalPages; i++) { %>
-            <li class="page-item <%= page == i ? 'active' : '' %>">
-              <a class="page-link" href="<%= paginationUrl %>&page=<%= i %>"><%= i %></a>
-            </li>
-          <% } %>
-          <% if (page < totalPages) { %>
-            <li class="page-item"><a class="page-link" href="<%= paginationUrl %>&page=<%= page + 1 %>">&raquo;</a></li>
-          <% } %>
-        </ul>
-      </nav>
-    </div>
   </div>
 
   <!-- Modal Delete -->
@@ -185,11 +210,11 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-             No
+            No
           </button>
           <form id="deleteForm" method="POST">
             <button type="submit" class="btn btn-warning">
-               Yes
+              Yes
             </button>
           </form>
         </div>
@@ -210,4 +235,5 @@
     }
   </script>
 </body>
+
 </html>
