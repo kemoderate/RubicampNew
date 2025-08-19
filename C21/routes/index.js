@@ -131,11 +131,12 @@ router.get('/', async (req, res, next) => {
           second: '2-digit',
           hour12: false
         });
+        todo.isOverdue = dateObj < new Date() && !todo.complete;
       } else {
         todo.deadline_formatted = '';
+        todo.isOverdue = false;
       }
     });
-
 
     // Render ke view
     res.render('index', {
@@ -144,7 +145,7 @@ router.get('/', async (req, res, next) => {
       query: req.query,
       page,
       totalPages,
-      paginationUrl,   
+      paginationUrl,
       sortingUrl,
       user: req.session.user || null
     });
