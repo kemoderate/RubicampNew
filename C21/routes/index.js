@@ -180,7 +180,8 @@ router.post('/register', async (req, res) => {
     await pool.query('INSERT INTO users (email, password) VALUES ($1, $2)', [email, hash]
     );
 
-    res.redirect('/login')
+    req.flash('success_msg', ' successfully registered,please sign in')
+   return res.redirect('/login')
   }
   catch (err) {
     console.error(err);
@@ -203,9 +204,16 @@ router.get('/login', (req, res) => {
 router.post('/login', async (req, res) => {
   const { email, password } = req.body
 
-  if (!email || !password) {
-    req.flash('error_msg', ' masukan email atau password terlebih dahulu');
-    return res.redirect('/login');
+  if (!email) {
+     req.flash('error_msg','masukan email terlebih dahulu')
+    return res.redirect('/login')
+  }else if (!password){
+   req.flash('error_msg','password is wrong')
+    return res.redirect('/login')
+    
+  }else if(!email || !password){
+    req.flash('error_msg', ' masukan email dan password terlebih dahulu');
+    return res.redirect('/login')
   }
   try {
     const result = await pool.query('SELECT * FROM users WHERE email = $1',
@@ -213,13 +221,13 @@ router.post('/login', async (req, res) => {
     );
 
     if (result.rows.length === 0) {
-      req.flash('error_msg', 'email is invalid');
+      req.flash('error_msg', 'email tidak terdaftar');
       return res.redirect('/login');
     }
     const user = result.rows[0];
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      req.flash('error_msg', 'password is invalid');
+      req.flash('error_msg', 'password is wrong');
       return res.redirect('/login');
     } else {
       req.session.user = { id: user.id, email: user.email, avatar: user.avatar };
