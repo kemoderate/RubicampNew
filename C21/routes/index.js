@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const pool = require('../db');
 const saltRounds = 10;
+const moment = require('moment');
 
 
 
@@ -11,6 +12,16 @@ router.get('/', async (req, res, next) => {
   try {
     // Ambil query params + default op = AND
     let { id, string, startdate, enddate, boolean, page, op = 'AND' } = req.query;
+    if (startdate) {
+      startdate = moment(startdate, "DD/MM/YYYY").format("YYYY-MM-DD");
+    }
+    if (enddate) {
+      enddate = moment(enddate, "DD/MM/YYYY").format("YYYY-MM-DD");
+    }
+
+
+
+
 
     // Ambil data session user
     const userSession = req.session.user || null;
@@ -122,15 +133,14 @@ router.get('/', async (req, res, next) => {
 
       if (todo.deadline) {
         const dateObj = new Date(todo.deadline);
-        todo.deadline_formatted = dateObj.toLocaleDateString('id-ID', {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-          hour12: false
-        });
+        const day = String(dateObj.getDate()).padStart(2, '0');
+        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const year = dateObj.getFullYear();
+        const hours = String(dateObj.getHours()).padStart(2, '0');
+        const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+        const seconds = String(dateObj.getSeconds()).padStart(2,'0');
+        todo.deadline_formatted = `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+
         todo.isOverdue = dateObj < new Date() && !todo.complete;
       } else {
         todo.deadline_formatted = '';
@@ -181,7 +191,7 @@ router.post('/register', async (req, res) => {
     );
 
     req.flash('success_msg', ' successfully registered,please sign in')
-   return res.redirect('/login')
+    return res.redirect('/login')
   }
   catch (err) {
     console.error(err);
@@ -205,13 +215,13 @@ router.post('/login', async (req, res) => {
   const { email, password } = req.body
 
   if (!email) {
-     req.flash('error_msg','masukan email terlebih dahulu')
+    req.flash('error_msg', 'masukan email terlebih dahulu')
     return res.redirect('/login')
-  }else if (!password){
-   req.flash('error_msg','password is wrong')
+  } else if (!password) {
+    req.flash('error_msg', 'password is wrong')
     return res.redirect('/login')
-    
-  }else if(!email || !password){
+
+  } else if (!email || !password) {
     req.flash('error_msg', ' masukan email dan password terlebih dahulu');
     return res.redirect('/login')
   }
