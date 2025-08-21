@@ -57,14 +57,11 @@
           <div class="mb-3">
             <label class="form-label">Deadline</label>
             <div class="d-flex align-items-center gap-2">
-              <input id="startdate" type="text" name="startdate" class="form-control" placeholder="dd/mm/yyyy"
-                value="<%= query.startdate ? moment(query.startdate, 'YYYY-MM-DD').format('DD/MM/YYYY') : '' %>">
+              <input type="date" name="startdate" class="form-control" value="<%= query.startdate || '' %>">
               <span class="mx-1">s.d.</span>
-              <input id="enddate" type="text" name="enddate" class="form-control" placeholder="dd/mm/yyyy"
-                value="<%= query.enddate ? moment(query.enddate, 'YYYY-MM-DD').format('DD/MM/YYYY') : '' %>">
+              <input type="date" name="enddate" class="form-control" value="<%= query.enddate || '' %>">
             </div>
           </div>
-
 
           <div class="mb-3">
             <label class="form-label">Complete</label>
@@ -231,30 +228,12 @@
   <!-- Script Modal -->
   <script>
     function openDeleteModal(title, actionUrl) {
-      document.getElementById('deleteForm').action = actionUrl;
       document.getElementById('deleteItem').textContent = `"${title}"`;
+      document.getElementById('deleteForm').action = actionUrl;
       const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
       modal.show();
     }
   </script>
-  <!-- Flatpickr CSS -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-
-  <!-- Flatpickr JS -->
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-  <script>
-    flatpickr("#startdate", {
-      dateFormat: "d/m/Y",
-      allowInput: true
-    });
-
-    flatpickr("#enddate", {
-      dateFormat: "d/m/Y",
-      allowInput: true
-    });
-  </script>
-
-
 </body>
 
 </html>
