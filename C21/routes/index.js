@@ -147,9 +147,8 @@ router.get('/', async (req, res, next) => {
         const hours = String(dateObj.getHours()).padStart(2, '0');
         const minutes = String(dateObj.getMinutes()).padStart(2, '0');
         const seconds = String(dateObj.getSeconds()).padStart(2, '0');
-        todo.deadline_formatted = `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
-
-        todo.isOverdue = dateObj < new Date() && !todo.complete;
+        todo.deadline_formatted = moment(todo.deadline).format('DD/MM/YYYY HH:mm:ss');;
+        todo.isOverdue = moment(todo.deadline).isBefore(moment()) && !todo.complete;
       } else {
         todo.deadline_formatted = '';
         todo.isOverdue = false;
@@ -307,13 +306,13 @@ router.get('/edit/:id', async function (req, res) {
     }
     const todo = rows[0]
     const deadlineDate = new Date(todo.deadline);
-    const deadlineYYYYMMDD = isNaN(deadlineDate)
-      ? ''
-      : deadlineDate.toISOString().slice(0, 10)
+    const deadlineLocal = todo.deadline
+      ? moment(todo.deadline).format('YYYY-MM-DDTHH:mm')
+      : '';
     res.render('edit', {
       title: 'Edit list',
       todo,
-      deadlineYYYYMMDD
+      deadlineLocal
     });
   } catch (err) {
     console.error(err);
@@ -326,15 +325,16 @@ router.post('/edit/:id', async (req, res) => {
   const userid = req.session.user.id;
   const { id } = req.params
   const { title, complete, deadline } = req.body;
-
   const completeValue = complete === 'on';
 
   try {
+    const deadlineDate = deadline ? new Date (deadline): null;
+
     const result = await pool.query(
       `Update todos 
       SET title = $1, complete = $2, deadline = $3
       WHERE id = $4 AND userid = $5`,
-      [title, completeValue, deadline, id, userid]
+      [title, completeValue, deadlineDate, id, userid]
     );
     if (result.rowCount === 0) {
       req.flash('error_msg', 'list tidak ditemukan atau bukan milik anda')
