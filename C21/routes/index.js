@@ -12,13 +12,17 @@ router.get('/', async (req, res, next) => {
   try {
     // Ambil query params + default op = AND
     let { id, string, startdate, enddate, boolean, page, op = 'AND' } = req.query;
+
     if (startdate) {
-      startdate = moment(startdate, "DD/MM/YYYY").format("YYYY-MM-DD");
+      startdate = moment(startdate, "YYYY-MM-DD", true).isValid()
+        ? moment(startdate, "YYYY-MM-DD").format("YYYY-MM-DD")
+        : null;
     }
     if (enddate) {
-      enddate = moment(enddate, "DD/MM/YYYY").format("YYYY-MM-DD");
+      enddate = moment(enddate, "YYYY-MM-DD", true).isValid()
+        ? moment(enddate, "YYYY-MM-DD").format("YYYY-MM-DD")
+        : null;
     }
-
 
 
 
@@ -66,15 +70,19 @@ router.get('/', async (req, res, next) => {
     }
 
     if (startdate && enddate) {
-      Todosfilter.push(`deadline BETWEEN $${params.length + 1} AND $${params.length + 2}`);
+      Todosfilter.push(`deadline BETWEEN $${params.length + 1} AND ($${params.length + 2}::date + interval '1 day' - interval '1 second')`);
       params.push(startdate, enddate);
     } else if (startdate) {
       Todosfilter.push(`deadline >= $${params.length + 1}`);
       params.push(startdate);
     } else if (enddate) {
-      Todosfilter.push(`deadline <= $${params.length + 1}`);
+      Todosfilter.push(`deadline <= ($${params.length + 1}::date + interval '1 day' - interval '1 second')`);
       params.push(enddate);
     }
+
+
+
+
 
     if (boolean === 'true') {
       Todosfilter.push(`complete = $${params.length + 1}`);
@@ -138,7 +146,7 @@ router.get('/', async (req, res, next) => {
         const year = dateObj.getFullYear();
         const hours = String(dateObj.getHours()).padStart(2, '0');
         const minutes = String(dateObj.getMinutes()).padStart(2, '0');
-        const seconds = String(dateObj.getSeconds()).padStart(2,'0');
+        const seconds = String(dateObj.getSeconds()).padStart(2, '0');
         todo.deadline_formatted = `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
 
         todo.isOverdue = dateObj < new Date() && !todo.complete;
@@ -157,7 +165,11 @@ router.get('/', async (req, res, next) => {
       totalPages,
       paginationUrl,
       sortingUrl,
-      user: req.session.user || null
+      user: req.session.user || null,
+      moment,
+      formattedStart: req.query.startdate ? moment(req.query.startdate, "YYYY-MM-DD").format("DD/MM/YYYY") : "",
+      formattedEnd: req.query.enddate ? moment(req.query.enddate, "YYYY-MM-DD").format("DD/MM/YYYY") : ""
+
     });
 
   } catch (err) {
