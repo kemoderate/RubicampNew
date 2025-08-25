@@ -1,17 +1,9 @@
-const express = require('express');
-const router = express.Router();
-const User = require('../models/User');
+var express = require('express');
+var router = express.Router();
 
-router.get('/', async (req, res) => {
-    try {
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 5;
-        const total = await User.countDocuments();
-        const users = await User.find()
-            .skip((page - 1) * limit)
-            .limit(limit);
-        res.json({ data: users, pagination: { total, page, pages: Math.ceil(total / limit) } })
-    } catch (err) {
-        res.status(500).json({ error: err.message })
-    }
+/* GET users listing. */
+router.get('/', function(req, res, next) {
+  res.send('respond with a resource');
 });
+
+module.exports = router;
