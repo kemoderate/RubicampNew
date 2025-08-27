@@ -13,51 +13,62 @@ module.exports = (db) => {
     }
 
   });
-  // POST new bread
+
   router.post('/', async (req, res) => {
     try {
       const { title, complete, deadline, executor } = req.body;
+      if(!title) return res.status(400).json({error: 'Title required'})
       const result = await todos.insertOne({
         title, complete, deadline, executor
       });
       res.status(201).json(result)
 
     } catch (err) {
-      res.status(500).json({error: err.message});
+      res.status(500).json({ error: err.message });
     }
   });
 
-  // router.get('/:id', (req, res) => {
-  //   const bread = breads.find(b => b.id === parseInt(req.params.id));
-  //   if (!bread) return res.status(404).json({ message: 'Bread not found' });
-  //   res.json(bread);
-  // });
+  const { ObjectId, returnDocument } = require('mongodb')
 
+  router.get('/:id', async (req, res) => {
+    try {
+      const id = req.params.id
+      const todo = await todos.findOne({ _id: new ObjectId(id) })
+      if (!todo) return res.status(404).json({ message: ' todo not found' });
+      res.json(todo)
+    } catch (err) {
+      res.status(500).json({ error: err.message })
+    }
+  });
 
+  router.put('/:id', async (req, res) => {
+    try {
+      const id = req.params.id
+      const { title, complete, deadline, executor } = req.body;
+      const result = await todos.findOneAndUpdate({
+        _id: new ObjectId(id)
+      },
+        { $set: { title, complete, deadline, executor } },
+        { returnDocument: 'after' }
+      );
 
-  // // PUT update bread
-  // router.put('/:id', (req, res) => {
-  //   const bread = breads.find(b => b.id === parseInt(req.params.id));
-  //   if (!bread) return res.status(404).json({ message: 'Bread not found' });
+      if (!result.value) return res.status(404).json({ message: 'todo not found' })
+      res.json(result.value)
+    } catch (err) {
+      res.status(500).json({ error: err.message })
+    }
+  })
 
-  //   const { name, price } = req.body;
-  //   if (name) bread.name = name;
-  //   if (price) bread.price = price;
-
-  //   res.json(bread);
-  // });
-
-  // // DELETE bread
-  // router.delete('/:id', (req, res) => {
-  //   const index = breads.findIndex(b => b.id === parseInt(req.params.id));
-  //   if (index === -1) return res.status(404).json({ message: 'Bread not found' });
-
-  //   const deleted = breads.splice(index, 1);
-  //   res.json(deleted[0]);
-  // });
-
-
-
+  router.delete('/:id', async (req, res) => {
+  try{
+    const id = req.params.id
+    const result = await todos.deleteOne({_id: new ObjectId(id)});
+    if (result.deletedCount === 0) return res.status(404).json ({message: 'todo not found'})
+      res.json({message: 'todo deleted'})
+  }   catch(err){
+    res.status(500).json({error: err.message})
+  }
+  })
 
   return router;
 
