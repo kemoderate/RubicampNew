@@ -20,5 +20,23 @@
         </tbody>
       </table>
     </div>
+<script>
+    fetch('/users')
+    .then (res => res.json())
+    .then (data => {
+        const tbody = document.getElementById('userTable')
+        data.forEach((user, index) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${user.name}</td>
+            <td>${user.phone}</td>
+            `;
+            tbody.appendChild(tr)
+        });
+    })
+    .catch(err => console.error(err))
+</script>
+
   </body>
 </html>
