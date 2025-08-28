@@ -10,10 +10,27 @@ module.exports = (db) => {
 // render ejs
 router.get('/view', async (req, res) => {
   try{
-    const data = await users.find().toArray()
-    res.render('users', {title: "User List", users: data})
+    let { page = 1, name = '' , phone = ''} = req.query;
+    page = parseInt(page) || 1;
+    const limit = 5
+    const skip = (page - 1) * limit;
+
+    const filter = {};
+    if(name) filter.name = {$regex: name, $options: 'i'};
+    if(phone) filter.phone = {$regex: phone, $options: 'i'};
+
+    const totalUsers = await users.countDocuments(filter);
+    const totalPages = Math.ceil(totalUsers/limit);
+
+    const data = await users.find(filter).skip(skip).limit(limit).toArray();
+    res.render('users', {title: "User List",
+       users: data,
+      page,
+      totalPages,
+      query: {name, phone}
+      })
   }catch(err){
-    res.status(500).json({errpr: err.message})
+    res.status(500).json({error: err.message})
   }
 })
 
