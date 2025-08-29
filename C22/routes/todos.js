@@ -1,12 +1,37 @@
 const express = require('express');
 
 
-module.exports = (db) => {
-
-
-  
+module.exports = (db) => {  
   const router = express.Router();
+  const { ObjectId, returnDocument } = require('mongodb')
   const todos = db.collection('todos');
+  const users = db.collection('users')
+
+
+// render todos
+router.get('/todos/:id', async (req, res) => {
+  try{
+    const { id } = req.params;
+    
+    const user = await users.findOne({ _id: new ObjectId(id) });
+    if(!user){
+      return res.status(404).send('User Not Found')
+    }
+     
+    const todos = await db.collection('todos').find({userid: new ObjectId(id)}).toArray();
+    res.render('todos', {title: `todo ${user.name}`,
+       users: data,
+      page,
+      totalPages,
+      query: {name, phone}
+      })
+  }catch(err){
+    res.status(500).json({error: err.message})
+  }
+})
+
+
+
   router.get('/', async (req, res) => {
     try {
       const data = await todos.find().toArray();
@@ -31,7 +56,7 @@ module.exports = (db) => {
     }
   });
 
-  const { ObjectId, returnDocument } = require('mongodb')
+  
 
   router.get('/:id', async (req, res) => {
     try {

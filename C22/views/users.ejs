@@ -54,11 +54,11 @@
             <td>${user.phone}</td>
             <td>
                 <button class="btn btn-sm btn-success me-1" onclick="editUser('${user._id}','${user.name}','${user.phone}')">
-                    <i class="fa fa-edit"></i></button></button>
+                    <i class="fa fa-edit"></i></button>
                 <button class="btn btn-sm btn-danger me-1" onclick="deleteUser('${user._id}')">
                     <i class="fa fa-trash"></i></button>
-                <button class="btn btn-sm btn-warning " onclick="redirectPage()">
-                    <i class="fa fa-refresh"></i></button>
+                <button class="btn btn-sm btn-warning " onclick="redirectTodos('${user._id}')">
+                    <i class="fas fa-sign-in-alt"></i></button>
                 </td>
             `;
             tbody.appendChild(tr)
@@ -71,8 +71,8 @@
 loadUsers();
 </script>
 <script>
-  function redirectPage(){
-    window.location.href
+  function redirectTodos(id){
+    window.location.href = `/todos/${id}`;
   }
 </script>
 
