@@ -2,6 +2,9 @@ const express = require('express');
 
 
 module.exports = (db) => {
+
+
+  
   const router = express.Router();
   const todos = db.collection('todos');
   router.get('/', async (req, res) => {
@@ -14,7 +17,7 @@ module.exports = (db) => {
 
   });
 
-  router.post('/', async (req, res) => {
+  router.post('/', async (q, res) => {
     try {
       const { title, complete, deadline, executor } = req.body;
       if(!title) return res.status(400).json({error: 'Title required'})
