@@ -8,35 +8,58 @@
   <body class="p-4">
     <div class="container">
       <table class="table table-bordered table-striped">
-        <thead>
-          <form action="/users/view" method="GET" class="card shadow-sm mb-4 p-3">
-          <input type="hidden" name="page" value="1">
-          <div class="mb-3">
-            <label class="form-label"></label>
-            <input type="text" name="string" class="form-control" placeholder="insert your title"
-              value="<%= query.string || '' %>">
-                <div class="d-flex gap-2 mt-3">
-            <button type="submit" class="btn btn-primary">
-              <i class="fa fa-search"></i>
-            </button>
-            <div>
-            <a href="/users/view" class="btn btn-warning"><i class="fa fa-refresh"></i></a>
-          </div>
-                </div>
-          </div>
-          </form>
-          <tr>
-            <th>#</th>
-            <th>Name</th>
-            <th>Phone</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
+       <thead>
+  <form action="/users/view" method="GET" class="card shadow-sm mb-4 p-3">
+    <input type="hidden" name="page" value="1">
+    <div class="d-flex align-items-center ">
+      <input type="text" name="string" class="form-control" placeholder="insert your title"
+        value="<%= query.string || '' %>">
+      <button type="submit" class="btn btn-primary">
+        <i class="fa fa-search"></i>
+      </button>
+      <a href="/users/view" class="btn btn-warning"><i class="fa fa-refresh"></i></a>
+    </div>
+  </form>
+  <tr>
+    <th>#</th>
+    <th>Name</th>
+    <th>Phone</th>
+    <th>Actions</th>
+  </tr>
+</thead>
+
         <tbody id="userTable">
           
         </tbody>
       </table>
     </div>
+
+    <!-- bottom bar -->
+     <div class="d-flex justify-content-between align-items-center mt-3">
+          <a href="/add" class="btn btn-primary">
+            <i class="fa fa-plus"></i>
+          </a>
+          <nav>
+            <ul class="pagination mb-0">
+              <% if (page> 1) { %>
+                <li class="page-item"><a class="page-link" href="<%= paginationUrl %>&page=<%= page - 1 %>">&laquo;</a>
+                </li>
+                <% } %>
+                  <% for (let i=1; i <=totalPages; i++) { %>
+                    <li class="page-item <%= page == i ? 'active' : '' %>">
+                      <a class="page-link" href="<%= paginationUrl %>&page=<%= i %>">
+                        <%= i %>
+                      </a>
+                    </li>
+                    <% } %>
+                      <% if (page < totalPages) { %>
+                        <li class="page-item"><a class="page-link"
+                            href="<%= paginationUrl %>&page=<%= page + 1 %>">&raquo;</a></li>
+                        <% } %>
+            </ul>
+          </nav>
+        </div>
+  </div>
     
 <script>
     // ambil data 
@@ -60,7 +83,7 @@
                 <button class="btn btn-sm btn-warning " onclick="redirectTodos('${user._id}')">
                     <i class="fas fa-sign-in-alt"></i></button>
                 </td>
-            `;
+            `;  
             tbody.appendChild(tr)
         });
     })
