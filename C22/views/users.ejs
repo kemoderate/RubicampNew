@@ -1,103 +1,99 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title><%= title %></title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  </head>
-  <body class="p-4">
-    <div class="container">
-      <table class="table table-bordered table-striped">
-       <thead>
-  <form action="/users/view" method="GET" class="card shadow-sm mb-4 p-3">
-    <input type="hidden" name="page" value="1">
-    <div class="d-flex align-items-center ">
-      <input type="text" name="string" class="form-control" placeholder="insert your title"
-        value="<%= query.string || '' %>">
-      <button type="submit" class="btn btn-primary">
-        <i class="fa fa-search"></i>
-      </button>
-      <a href="/users/view" class="btn btn-warning"><i class="fa fa-refresh"></i></a>
-    </div>
-  </form>
-  <tr>
-    <th>#</th>
-    <th>Name</th>
-    <th>Phone</th>
-    <th>Actions</th>
-  </tr>
-</thead>
 
-        <tbody id="userTable">
-          
-        </tbody>
-      </table>
-    </div>
+<head>
+  <title><%= title %></title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
 
-    <!-- bottom bar -->
-     <div class="d-flex justify-content-between align-items-center mt-3">
-          <a href="/add" class="btn btn-primary">
-            <i class="fa fa-plus"></i>
-          </a>
-          <nav>
-            <ul class="pagination mb-0">
-              <% if (page> 1) { %>
-                <li class="page-item"><a class="page-link" href="<%= paginationUrl %>&page=<%= page - 1 %>">&laquo;</a>
-                </li>
-                <% } %>
-                  <% for (let i=1; i <=totalPages; i++) { %>
-                    <li class="page-item <%= page == i ? 'active' : '' %>">
-                      <a class="page-link" href="<%= paginationUrl %>&page=<%= i %>">
-                        <%= i %>
-                      </a>
-                    </li>
-                    <% } %>
-                      <% if (page < totalPages) { %>
-                        <li class="page-item"><a class="page-link"
-                            href="<%= paginationUrl %>&page=<%= page + 1 %>">&raquo;</a></li>
-                        <% } %>
-            </ul>
-          </nav>
-        </div>
-  </div>
-    
-<script>
-    // ambil data 
-    const loadUsers = () =>{
-    fetch('/users')
-    .then (res => res.json())
-    .then (data => {
-        const tbody = document.getElementById('userTable')
-        tbody.innerHTML = '';
-        data.forEach((user, index) => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-            <td>${index + 1}</td>
-            <td>${user.name}</td>
-            <td>${user.phone}</td>
+<body class="d-flex flex-column min-vh-100">
+  <div class="container flex-grow-1">
+
+    <!-- Filter Form -->
+    <form action="/users/view" method="GET" class="card shadow-sm mb-4 p-3">
+      <input type="hidden" name="page" value="1">
+
+      <div class="input-group">
+        <input type="text" name="search" class="form-control" placeholder="Search by name or phone"
+          value="<%= query.search || '' %>">
+        <button type="submit" class="btn btn-primary">
+          <i class="fa fa-search"></i>
+        </button>
+        <a href="/users/view" class="btn btn-warning">
+          <i class="fa fa-refresh"></i>
+        </a>
+      </div>
+    </form>
+
+    <!-- Data Table -->
+    <table class="table table-bordered table-striped">
+      <thead class="table-light">
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Phone</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="userTable">
+        <% users.forEach((user, index)=> { %>
+          <tr>
+            <td><%= (page - 1) * limit + index + 1 %></td>
+            <td><%= user.name %></td>
+            <td><%= user.phone %></td>
             <td>
-                <button class="btn btn-sm btn-success me-1" onclick="editUser('${user._id}','${user.name}','${user.phone}')">
-                    <i class="fa fa-edit"></i></button>
-                <button class="btn btn-sm btn-danger me-1" onclick="deleteUser('${user._id}')">
-                    <i class="fa fa-trash"></i></button>
-                <button class="btn btn-sm btn-warning " onclick="redirectTodos('${user._id}')">
-                    <i class="fas fa-sign-in-alt"></i></button>
-                </td>
-            `;  
-            tbody.appendChild(tr)
-        });
-    })
-    .catch(err => console.error(err))
-}
+              <button class="btn btn-sm btn-success me-1"
+                onclick="editUser('<%= user._id %>','<%= user.name %>','<%= user.phone %>')">
+                <i class="fa fa-edit"></i>
+              </button>
+              <button class="btn btn-sm btn-danger me-1" onclick="deleteUser('<%= user._id %>')">
+                <i class="fa fa-trash"></i>
+              </button>
+              <button class="btn btn-sm btn-warning" onclick="redirectTodos('<%= user._id %>')">
+                <i class="fas fa-sign-in-alt"></i>
+              </button>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
 
+    <!-- Bottom Bar -->
+    <footer class="bg-light text-center py-3 border-top mt-auto">
+      <div class="d-flex justify-content-between align-items-center mt-3">
+        <a href="/add" class="btn btn-primary">
+          <i class="fa fa-plus"></i>
+        </a>
+        <nav>
+          <ul class="pagination mb-0">
+            <% const baseUrl=`/users/view?search=${query.search || '' }` %>
+            <% if (page > 1) { %>
+              <li class="page-item">
+                <a class="page-link" href="<%= baseUrl %>&page=<%= page - 1 %>">&laquo;</a>
+              </li>
+            <% } %>
+            <% for (let i = 1; i <= totalPages; i++) { %>
+              <li class="page-item <%= page == i ? 'active' : '' %>">
+                <a class="page-link" href="<%= baseUrl %>&page=<%= i %>"><%= i %></a>
+              </li>
+            <% } %>
+            <% if (page < totalPages) { %>
+              <li class="page-item">
+                <a class="page-link" href="<%= baseUrl %>&page=<%= page + 1 %>">&raquo;</a>
+              </li>
+            <% } %>
+          </ul>
+        </nav>
+      </div>
+    </footer>
+  </div>
 
-loadUsers();
-</script>
-<script>
-  function redirectTodos(id){
-    window.location.href = `/todos/${id}`;
-  }
-</script>
+  <script>
+    function redirectTodos(id) {
+      window.location.href = `/todos/${id}`;
+    }
+  </script>
+</body>
 
-  </body>
 </html>
