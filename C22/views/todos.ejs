@@ -103,7 +103,7 @@
   const userId = "<%= user._id %>"; // dari server
 
   function loadTodos(params = {}) {
-    $.get(`/api/todos/${userId}`, params, function(res) {
+    $.get(`/todos/user/${userId}`, params, function(res) {
       // Render Table
       let rows = "";
       res.data.forEach((todo, idx) => {
