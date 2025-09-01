@@ -10,15 +10,20 @@ module.exports = (db) => {
 // render ejs
 router.get('/view', async (req, res) => {
   try{
-    let { page = 1, name = '' , phone = ''} = req.query;
+    let { page = 1, search = ''} = req.query;
     page = parseInt(page) || 1;
     const limit = 5
     const skip = (page - 1) * limit;
 
-    const filter = {};
-    if(name) filter.name = {$regex: name, $options: 'i'};
-    if(phone) filter.phone = {$regex: phone, $options: 'i'};
-
+    let filter = {};
+    if(search) {
+      filter = {
+        $or:[
+          { name: {$regex: search, $options: 'i'}},
+          {phone: {$regex: search, $options: 'i'}}
+        ]
+      }
+    }
     const totalUsers = await users.countDocuments(filter);
     const totalPages = Math.ceil(totalUsers/limit);
 
@@ -27,7 +32,8 @@ router.get('/view', async (req, res) => {
        users: data,
       page,
       totalPages,
-      query: {name, phone}
+      limit,
+      query: {search}
       })
   }catch(err){
     res.status(500).json({error: err.message})
