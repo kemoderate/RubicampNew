@@ -6,11 +6,57 @@ module.exports = (db) => {
   const { ObjectId, returnDocument } = require('mongodb')
   const todos = db.collection('todos');
 
-  router.get('/view/:userId', async (req, res) => {
+ // RENDER PAGE TODOS
+  router.get('/view/:userId', (req, res) => {
     const { userId } = req.params;
     res.render('todos', { userId, title: 'Todos List' });
   });
 
+  // FETCH TODOS JSON (dipakai jQuery di todos.ejs)
+  router.get('/user/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      let { page = 1, limit = 10, string = '', boolean, startdate, enddate } = req.query;
+      page = parseInt(page);
+      limit = parseInt(limit);
+
+      const q = { executor: new ObjectId(id) };
+      if (string) q.title = { $regex: string, $options: 'i' };
+      if (boolean === 'true' || boolean === 'false') q.complete = boolean === 'true';
+      if (startdate || enddate) {
+        q.deadline = {};
+        if (startdate) q.deadline.$gte = new Date(startdate);
+        if (enddate) {
+          const d = new Date(enddate);
+          d.setHours(23, 59, 59, 999);
+          q.deadline.$lte = d;
+        }
+      }
+
+      const total = await todos.countDocuments(q);
+      const data = await todos.find(q)
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .toArray();
+
+      const formattedData = data.map(todo => ({
+        ...todo,
+        deadlineFormatted: todo.deadline ? todo.deadline.toISOString().split('T')[0] : '-'
+      }));
+
+      res.json({
+        data: formattedData,
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+        offset: (page - 1) * limit
+      });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+  
   router.get('/', async (req, res) => {
     try {
       let { executor, string = '', boolean, startdate, enddate, page = 1, limit = 10 } = req.query;
