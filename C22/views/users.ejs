@@ -2,7 +2,9 @@
 <html>
 
 <head>
-  <title><%= title %></title>
+  <title>
+    <%= title %>
+  </title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -11,7 +13,7 @@
   <div class="container flex-grow-1">
 
     <!-- Filter Form -->
-    <form action="/users/view" method="GET" class="card shadow-sm mb-4 p-3">
+    <form class="card shadow-sm mb-4 p-3">
       <input type="hidden" name="page" value="1">
 
       <div class="input-group">
@@ -20,9 +22,11 @@
         <button type="submit" class="btn btn-primary">
           <i class="fa fa-search"></i>
         </button>
-        <a href="/users/view" class="btn btn-warning">
+        <button type="button" class="btn btn-warning"
+          onclick="document.querySelector('input[name=search]').value=''; loadUsers(1);">
           <i class="fa fa-refresh"></i>
-        </a>
+        </button>
+
       </div>
     </form>
 
@@ -37,25 +41,6 @@
         </tr>
       </thead>
       <tbody id="userTable">
-        <% users.forEach((user, index)=> { %>
-          <tr>
-            <td><%= (page - 1) * limit + index + 1 %></td>
-            <td><%= user.name %></td>
-            <td><%= user.phone %></td>
-            <td>
-              <button class="btn btn-sm btn-success me-1"
-                onclick="editUser('<%= user._id %>','<%= user.name %>','<%= user.phone %>')">
-                <i class="fa fa-edit"></i>
-              </button>
-              <button class="btn btn-sm btn-danger me-1" onclick="deleteUser('<%= user._id %>')">
-                <i class="fa fa-trash"></i>
-              </button>
-              <button class="btn btn-sm btn-warning" onclick="redirectTodos('<%= user._id %>')">
-                <i class="fas fa-sign-in-alt"></i>
-              </button>
-            </td>
-          </tr>
-        <% }) %>
       </tbody>
     </table>
 
@@ -67,33 +52,88 @@
         </a>
         <nav>
           <ul class="pagination mb-0">
-            <% const baseUrl=`/users/view?search=${query.search || '' }` %>
-            <% if (page > 1) { %>
-              <li class="page-item">
-                <a class="page-link" href="<%= baseUrl %>&page=<%= page - 1 %>">&laquo;</a>
-              </li>
-            <% } %>
-            <% for (let i = 1; i <= totalPages; i++) { %>
-              <li class="page-item <%= page == i ? 'active' : '' %>">
-                <a class="page-link" href="<%= baseUrl %>&page=<%= i %>"><%= i %></a>
-              </li>
-            <% } %>
-            <% if (page < totalPages) { %>
-              <li class="page-item">
-                <a class="page-link" href="<%= baseUrl %>&page=<%= page + 1 %>">&raquo;</a>
-              </li>
-            <% } %>
           </ul>
         </nav>
       </div>
     </footer>
   </div>
+  <script>
+    let currentPage = 1;
+    let totalPages = 1;
+
+    async function loadUsers(page = 1) {
+      const search = document.querySelector("input[name='search']").value;
+
+      const res = await fetch(`/users/?page=${page}&search=${encodeURIComponent(search)}`, {
+        headers: {
+          "Accept": "application/json"
+        }
+      });
+      const data = await res.json();
+
+      const tbody = document.getElementById("userTable");
+      tbody.innerHTML = "";
+
+      data.users.forEach((u, i) => {
+        const row = `<tr>
+        <td>${(page - 1) * data.limit + i + 1}</td>
+        <td>${u.name}</td>
+        <td>${u.phone}</td>
+        <td>
+          <button class="btn btn-sm btn-success me-1" onclick="editUser('${u._id}','${u.name}','${u.phone}')">
+            <i class="fa fa-edit"></i>
+          </button>
+          <button class="btn btn-sm btn-danger me-1" onclick="deleteUser('${u._id}')">
+            <i class="fa fa-trash"></i>
+          </button>
+          <button class="btn btn-sm btn-warning" onclick="redirectTodos('${u._id}')">
+            <i class="fas fa-sign-in-alt"></i>
+          </button>
+        </td>
+      </tr>`;
+        tbody.innerHTML += row;
+      });
+
+      // update pagination
+      currentPage = data.page;
+      totalPages = data.totalPages;
+
+      const pagination = document.querySelector(".pagination");
+      pagination.innerHTML = "";
+
+      if (currentPage > 1) {
+        pagination.innerHTML += `<li class="page-item"><a class="page-link" href="javascript:loadUsers(${currentPage - 1})">&laquo;</a></li>`;
+      }
+
+      for (let i = 1; i <= totalPages; i++) {
+        pagination.innerHTML += `<li class="page-item ${currentPage === i ? "active" : ""}">
+        <a class="page-link" href="javascript:loadUsers(${i})">${i}</a>
+      </li>`;
+      }
+
+      if (currentPage < totalPages) {
+        pagination.innerHTML += `<li class="page-item"><a class="page-link" href="javascript:loadUsers(${currentPage + 1})">&raquo;</a></li>`;
+      }
+    }
+
+    // Event listener untuk tombol search
+    document.querySelector("form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      loadUsers(1);
+    });
+
+    // load pertama kali
+    loadUsers();
+  </script>
+
 
   <script>
     function redirectTodos(id) {
       window.location.href = `/todos/${id}`;
     }
   </script>
+
+
 </body>
 
 </html>

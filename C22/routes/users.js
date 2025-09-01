@@ -7,8 +7,8 @@ module.exports = (db) => {
   const users = db.collection('users');
   const { ObjectId } = require('mongodb')
 
-// render ejs
-router.get('/view', async (req, res) => {
+  // tampil data
+router.get('/', async (req, res) => {
   try{
     let { page = 1, search = ''} = req.query;
     page = parseInt(page) || 1;
@@ -26,8 +26,11 @@ router.get('/view', async (req, res) => {
     }
     const totalUsers = await users.countDocuments(filter);
     const totalPages = Math.ceil(totalUsers/limit);
-
     const data = await users.find(filter).skip(skip).limit(limit).toArray();
+
+    if (req.xhr || req.headers.accept.indexOf('json') > -1){
+      return res.json({users: data,page, totalPages, limit})
+    }
     res.render('users', {title: "User List",
        users: data,
       page,
@@ -40,16 +43,6 @@ router.get('/view', async (req, res) => {
   }
 })
 
-
-  // tampil data
-  router.get('/', async (req, res) => {
-    try {
-      const data = await users.find().toArray();
-      res.json(data);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
-    }
-  });
 
   // get by id
 
