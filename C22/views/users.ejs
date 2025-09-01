@@ -51,6 +51,32 @@
     </footer>
   </div>
 
+  <!-- add modal -->
+   <div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <form id="addForm" class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Add User</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="addId">
+          <div class="mb-3">
+            <label class="form-label">Name</label>
+            <input type="text" id="addName" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Phone</label>
+            <input type="text" id="addPhone" class="form-control" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Edit Modal -->
   <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
@@ -160,6 +186,13 @@
       loadUsers(1);
     });
 
+      function addUser(id, oldName, oldPhone) {
+      document.getElementById("addId").value = id;
+      document.getElementById("addName").value = oldName;
+      document.getElementById("addPhone").value = oldPhone;
+      addModal.show();
+    }
+
     // EDIT (buka modal)
     function editUser(id, oldName, oldPhone) {
       document.getElementById("editId").value = id;
@@ -208,7 +241,7 @@ async function confirmDelete() {
 
     // REDIRECT
     function redirectTodos(id) {
-      window.location.href = `/todos/${id}`;
+      window.location.href = `/todos/user/${id}`;
     }
 
     // Load pertama kali
