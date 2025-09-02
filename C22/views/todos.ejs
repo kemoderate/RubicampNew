@@ -97,38 +97,40 @@
 
   <!-- edit modal -->
   <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-header">
-      <h5 class="modal-title">Add Todos</h5>
-      <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-    </div>
-    <div class="modal-body">
-      <input type="hidden" id="addId">
-      <div class="mb-3">
-        <label class="form-label"> Title</label>
-        <input type="text" id="editTitle" class="form-control" required>
-      </div>
-      <div class="mb-3">
-        <label class="form-label"> Deadline</label>
-        <input type="date" id="startdate" class="form-control" required>
-        <input type="date" id="enddate" class="form-control" required>
-      </div>
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Edit Todos</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="editId">
+          <div class="mb-3">
+            <label class="form-label"> Title</label>
+            <input type="text" id="editTitle" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label"> Deadline</label>
+            <input type="date" id="editstartDate" class="form-control" required>
+            <input type="date" id="editendDate" class="form-control" required>
+          </div>
 
-      <div class="mb-3">
-        <label class="form-label"> Complete</label>
-        <select id="editComplete" class="form-control" required>
-          <option value="true">Done</option>
-          <option value="false">Not Yet</option>
-        </select>
+          <div class="mb-3">
+            <label class="form-label"> Complete</label>
+            <select id="editComplete" class="form-control" required>
+              <option value="true">Done</option>
+              <option value="false">Not Yet</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Save changes</button>
+        </div>
       </div>
     </div>
-
-    <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-      <button type="submit" class="btn btn-primary">Save changes</button>
-    </div>
-
   </div>
-
   <!-- Delete Modal -->
   <div class="modal fade" id="deleteModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
@@ -166,7 +168,14 @@
             <td>${todo.complete ? 'Done' : 'Not Yet'}</td>
             <td>${todo.deadlineFormatted}</td>
             <td>
-              <button class="btn btn-sm btn-success me-1 editBtn" data-id="${todo._id}"><i class="fa fa-edit"></i></button>
+              <button class="btn btn-sm btn-success me-1 editBtn" 
+              data-id="${todo._id}" 
+              data-title="${todo.title}"
+              data-startdate="${todo.startdate}"
+              data-enddate="${todo.enddate}"
+              data-complete="${todo.complete}">
+              <i class="fa fa-edit"></i>
+              </button>
               <button class="btn btn-sm btn-danger deleteBtn" data-id="${todo._id}" data-title="${todo.title}"><i class="fa fa-trash"></i></button>
             </td>
           </tr>`;
