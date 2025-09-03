@@ -1,20 +1,29 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <title>
-    <%= title %>
-  </title>
+  <title><%= title %></title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style class=""></style>
+
+  <style>
+    html,
+    body {
+      min-height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow-y: auto;
+    }
+
+    .table-responsive {
+      overflow: visible !important;
+    }
+  </style>
 </head>
 
 <body class="bg-light">
   <div class="container py-4">
-
-    <h1 class="h4 mb-4">
-      <%= title %>
-    </h1>
+    <h1 class="h4 mb-4"><%= title %></h1>
 
     <!-- Filter Form -->
     <form id="filterForm" class="card shadow-sm mb-4 p-3">
@@ -40,16 +49,17 @@
         </select>
       </div>
       <div class="d-flex gap-2 mt-3">
-        <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i></button>
-        <button type="button" id="resetBtn" class="btn btn-warning"><i class="fa fa-refresh"></i></button>
+        <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i> Filter</button>
+        <button type="button" id="resetBtn" class="btn btn-warning"><i class="fa fa-refresh"></i> Reset</button>
       </div>
     </form>
+
+    <!-- Add New Todo -->
     <form class="card shadow-sm mb-3 p-2">
-      <input type="hidden" name="page" value="1">
       <div class="input-group">
-        <input type="text" name="add" class="form-control" placeholder="title" value="">
+        <input type="text" name="add" class="form-control" placeholder="Add new todo title">
         <button type="submit" class="btn btn-primary">
-          <i class="fa fa-arrow-down"></i>
+          <i class="fa fa-plus"></i>
         </button>
       </div>
     </form>
@@ -71,243 +81,127 @@
             <tbody id="todoTable"></tbody>
           </table>
         </div>
-      </div>
-    </div>
-
-    <!-- Pagination -->
-    <div id="todoList" class="list-group"></div>
-    <div id="loading" class="text-center my-3" style="display:none;">
-      <div class="spinner-border" role="status"></div>
-    </div>
-
-    <!-- add modal -->
-    <div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-
-          <div class="modal-header">
-            <h5 class="modal-title">Add Todos</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-            <input type="hidden" id="addId">
-            <div class="mb-3">
-              <label class="form-label"> Title</label>
-              <input type="text" id="addTitle" class="form-control" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label"> Deadline</label>
-              <input type="date" id="addDeadline" class="form-control" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label"> Complete</label>
-              <input type="checkbox" id="addComplete" class="form-check-input">
-            </div>
-          </div>
+        <!-- Spinner -->
+        <div id="loading" class="text-center my-3" style="display:none;">
+          <div class="spinner-border" role="status"></div>
         </div>
       </div>
     </div>
+  </div>
 
-
-
-    <!-- edit modal -->
-    <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <form id="editForm">
-            <div class="modal-header">
-              <h5 class="modal-title">Edit Todos</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-              <input type="hidden" id="editId">
-              <div class="mb-3">
-                <label class="form-label"> Title</label>
-                <input type="text" id="editTitle" class="form-control" required>
-              </div>
-              <div class="mb-3">
-                <label class="form-label"> Deadline</label>
-                <input type="date" id="editDeadline" class="form-control" required>
-              </div>
-
-              <div class="mb-3 form-check">
-                <input type="checkbox" id="editComplete" class="form-check-input">
-                <label class="form-check-label" for="editComplete">Done</label>
-              </div>
-
-
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary">Save changes</button>
-              </div>
+  <!-- Delete Modal -->
+  <div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title">Confirm Delete</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          Are you sure want to delete <span id="deleteItem"></span>?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+          <form id="deleteForm" method="POST">
+            <button type="submit" class="btn btn-warning">Yes</button>
           </form>
         </div>
       </div>
     </div>
+  </div>
 
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Delete Modal -->
-    <div class="modal fade" id="deleteModal" tabindex="-1">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-          <div class="modal-header bg-danger text-white">
-            <h5 class="modal-title">Confirm Delete</h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-            Are you sure want to delete <span id="deleteItem"></span>?
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
-            <form id="deleteForm" method="POST">
-              <button type="submit" class="btn btn-warning">Yes</button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    const userId = "<%= userId %>";
+    let page = 1;
+    let loading = false;
+    let finished = false;
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-      const userId = "<%= userId %>";
-      let page = 1;
-      let loading = false;
-      let finished = false;
-      function loadTodos(params = {}) {
-        if (loading || finished) return;
-        loading = true;
-        $("#loading").show()
+    // Load todos
+    function loadTodos(params = {}) {
+      if (loading || finished) return;
+      loading = true;
+      $("#loading").show();
 
-        const query = $.param({ ...params, page })
+      const query = $.param({ ...params, page });
 
-        $.get(`/todos/user/${userId}?${query}`, params, function (res) {
-          if (res.data.length === 0) {
-            finished = true;
-            $("#loading").hide();
-            return;
-          }
-
-          let rows = "";
-
-          res.data.forEach((todo, idx) => {
-            rows += `
-          <tr class="${!todo.complete && new Date(todo.deadline) < new Date() ? 'table-danger' : ''}">
-            <td>${res.offset + idx + 1}</td>
-            <td>${todo.title}</td>
-            <td>${todo.complete ? 'Done' : 'Not Yet'}</td>
-            <td>${todo.deadlineFormatted}</td>
-            <td>
-              <button class="btn btn-sm btn-success me-1 editBtn" 
-              data-id="${todo._id}" 
-              data-title="${todo.title}"
-              data-deadline="${todo.deadlineFormatted}"
-              data-complete="${todo.complete}">
-              <i class="fa fa-edit"></i>
-              </button>
-              <button class="btn btn-sm btn-danger deleteBtn" data-id="${todo._id}" data-title="${todo.title}"><i class="fa fa-trash"></i></button>
-            </td>
-          </tr>`;
-          });
-          $("#todoTable").append(rows);
-          page++;
-          loading = false;
+      $.get(`/todos/user/${userId}?${query}`, function (res) {
+        if (res.data.length === 0) {
+          finished = true;
           $("#loading").hide();
-        });
-      }
-
-      $(window).scroll(function () {
-        if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
-          loadTodos();
+          return;
         }
+
+        let rows = "";
+        res.data.forEach((todo, idx) => {
+          rows += `
+            <tr class="${!todo.complete && new Date(todo.deadline) < new Date() ? 'table-danger' : ''}">
+              <td>${res.offset + idx + 1}</td>
+              <td>${todo.title}</td>
+              <td>${todo.complete ? 'Done' : 'Not Yet'}</td>
+              <td>${todo.deadlineFormatted}</td>
+              <td>
+                <button class="btn btn-sm btn-success me-1 editBtn" 
+                  data-id="${todo._id}" 
+                  data-title="${todo.title}"
+                  data-deadline="${todo.deadlineFormatted}"
+                  data-complete="${todo.complete}">
+                  <i class="fa fa-edit"></i>
+                </button>
+                <button class="btn btn-sm btn-danger deleteBtn" 
+                  data-id="${todo._id}" 
+                  data-title="${todo.title}">
+                  <i class="fa fa-trash"></i>
+                </button>
+              </td>
+            </tr>`;
+        });
+
+        $("#todoTable").append(rows);
+        page++;
+        loading = false;
+        $("#loading").hide();
       });
+    }
 
-      // Filter
-      $("#filterForm").on("submit", function (e) {
-        e.preventDefault();
-        page = 1;
-        finished = false;
-        $("#todoTable").empty()
-        loadTodos($(this).serialize());
-      });
+    // Infinite scroll
+    $(window).on("scroll", function () {
+      if ($(window).scrollTop() + $(window).height() >= $(document).height() - 50) {
+        loadTodos($("#filterForm").serialize());
+      }
+    });
 
-      $("#resetBtn").click(function () {
-        $("#filterForm")[0].reset();
-        page = 1;
-        finished = false;
-        $("#todoTable").empty()
-        loadTodos();
-      });
+    // Filter submit
+    $("#filterForm").on("submit", function (e) {
+      e.preventDefault();
+      page = 1;
+      finished = false;
+      $("#todoTable").empty();
+      loadTodos($(this).serialize());
+    });
 
-      // Pagination scroll
-      $(document).on("click", ".pageBtn", function (e) {
-        e.preventDefault();
-        const page = $(this).data("page");
-        const params = $("#filterForm").serialize() + "&page=" + page;
-        loadTodos(params);
-      });
-
-      // edit modal
-      $(document).on("click", ".editBtn", function () {
-        const id = $(this).data("id");
-        const title = $(this).data("title");
-        const deadline = $(this).data("deadline");
-        const complete = $(this).data("complete");
-
-        $("#editId").val(id)
-        $("#editTitle").val(title)
-        $("#editDeadline").val(deadline)
-
-        $("#editComplete").prop("checked", complete === true);
-
-
-        new bootstrap.Modal($("#editModal")).show();
-      });
-
-      // submit edit event handler
-
-      $("#editForm").on("submit", function (e) {
-        e.preventDefault();
-        const id = $("#editId").val();
-
-
-        $.ajax({
-          url: `/todos/${id}`,
-          method: "PUT",
-          data: {
-            title: $("#editTitle").val(),
-            deadline: $("#editDeadline").val(),
-            complete: $("#editComplete").is(":checked")
-          }
-        }).done(function (res) {
-          $("#editModal").modal("hide");
-          page = 1;
-          finished = false;
-          $("#todoTable").empty();
-          loadTodos();
-        }).fail(function (xhr, status, err) {
-          console.error("XHR:", xhr.responseText);
-          console.error("Status:", status);
-          console.error("Error:", err);
-          alert("gagal update todo")
-        })
-
-      })
-
-
-
-      // Delete modal
-      $(document).on("click", ".deleteBtn", function () {
-        const id = $(this).data("id");
-        const title = $(this).data("title");
-        $("#deleteItem").text(title);
-        $("#deleteForm").attr("action", `/todos/delete/${id}`);
-        new bootstrap.Modal($("#deleteModal")).show();
-      });
-
-      // initial load
+    // Reset filter
+    $("#resetBtn").click(function () {
+      $("#filterForm")[0].reset();
+      page = 1;
+      finished = false;
+      $("#todoTable").empty();
       loadTodos();
-    </script>
-</body>
+    });
 
+    // Delete modal
+    $(document).on("click", ".deleteBtn", function () {
+      const id = $(this).data("id");
+      const title = $(this).data("title");
+      $("#deleteItem").text(title);
+      $("#deleteForm").attr("action", `/todos/delete/${id}`);
+      new bootstrap.Modal($("#deleteModal")).show();
+    });
+
+    // Initial load
+    loadTodos();
+  </script>
+</body>
 </html>
