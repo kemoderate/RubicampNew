@@ -73,6 +73,7 @@
 
   <!-- add modal -->
   <div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
+
     <div class="modal-header">
       <h5 class="modal-title">Add Todos</h5>
       <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -99,38 +100,38 @@
   <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Edit Todos</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <input type="hidden" id="editId">
-          <div class="mb-3">
-            <label class="form-label"> Title</label>
-            <input type="text" id="editTitle" class="form-control" required>
+        <form id="editForm">
+          <div class="modal-header">
+            <h5 class="modal-title">Edit Todos</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
-          <div class="mb-3">
-            <label class="form-label"> Deadline</label>
-            <input type="date" id="editstartDate" class="form-control" required>
-            <input type="date" id="editendDate" class="form-control" required>
-          </div>
+          <div class="modal-body">
+            <input type="hidden" id="editId">
+            <div class="mb-3">
+              <label class="form-label"> Title</label>
+              <input type="text" id="editTitle" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label"> Deadline</label>
+              <input type="date" id="editDeadline" class="form-control" required>
+            </div>
 
-          <div class="mb-3">
-            <label class="form-label"> Complete</label>
-            <select id="editComplete" class="form-control" required>
-              <option value="true">Done</option>
-              <option value="false">Not Yet</option>
-            </select>
-          </div>
-        </div>
+            <div class="mb-3 form-check">
+              <input type="checkbox" id="editComplete" class="form-check-input">
+              <label class="form-check-label" for="editComplete">Done</label>
+            </div>
 
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-primary">Save changes</button>
-        </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Save changes</button>
+            </div>
+        </form>
       </div>
     </div>
   </div>
+
+
   <!-- Delete Modal -->
   <div class="modal fade" id="deleteModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
@@ -151,8 +152,8 @@
       </div>
     </div>
   </div>
-
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     const userId = "<%= userId %>";
@@ -171,8 +172,7 @@
               <button class="btn btn-sm btn-success me-1 editBtn" 
               data-id="${todo._id}" 
               data-title="${todo.title}"
-              data-startdate="${todo.startdate}"
-              data-enddate="${todo.enddate}"
+              data-deadline="${todo.deadlineFormatted}"
               data-complete="${todo.complete}">
               <i class="fa fa-edit"></i>
               </button>
@@ -215,18 +215,46 @@
     $(document).on("click", ".editBtn", function () {
       const id = $(this).data("id");
       const title = $(this).data("title");
-      const startdate = $(this).data("startdate");
-      const enddate = $(this).data("enddate");
+      const deadline = $(this).data("deadline");
       const complete = $(this).data("complete");
 
+      $("#editId").val(id)
       $("#editTitle").val(title)
-      $("#editstartDate").val(startdate)
-      $("#editendDate").val(enddate)
-      $("#editComplete").val(complete)
+      $("#editDeadline").val(deadline)
+
+      $("#editComplete").prop("checked", complete === true);
 
 
       new bootstrap.Modal($("#editModal")).show();
     });
+
+    // submit edit event handler
+
+    $("#editForm").on("submit", function (e) {
+      e.preventDefault();
+      const id = $("#editId").val();
+
+
+      $.ajax({
+        url: `/todos/${id}`,
+        method: "PUT",
+        data: {
+          title: $("#editTitle").val(),
+          deadline: $("#editDeadline").val(),
+          complete: $("#editComplete").is(":checked")
+        }
+        }).done(function (res) {
+          $("#editModal").modal("hide");
+          loadTodos();
+        }).fail(function (xhr, status, err) {
+          console.error("XHR:", xhr.responseText);
+          console.error("Status:", status);
+          console.error("Error:", err);
+          alert("gagal update todo")
+        })
+       
+      })
+   
 
 
     // Delete modal
