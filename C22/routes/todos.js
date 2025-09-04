@@ -41,6 +41,7 @@ module.exports = (db) => {
 
       const total = await todos.countDocuments(q);
       const data = await todos.find(q)
+        .sort(sortObj)
         .skip((page - 1) * limit)
         .limit(limit)
         .toArray();
