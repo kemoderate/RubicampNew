@@ -6,42 +6,45 @@ module.exports = (db) => {
   const router = express.Router();
   const users = db.collection('users');
   const { ObjectId } = require('mongodb')
+  
+
 
   // tampil data
-router.get('/', async (req, res) => {
-  try{
-    let { page = 1, search = ''} = req.query;
-    page = parseInt(page) || 1;
-    const limit = 5
-    const skip = (page - 1) * limit;
+  router.get('/', async (req, res) => {
+    try {
+      let { page = 1, search = '' } = req.query;
+      page = parseInt(page) || 1;
+      const limit = 5
+      const skip = (page - 1) * limit;
 
-    let filter = {};
-    if(search) {
-      filter = {
-        $or:[
-          { name: {$regex: search, $options: 'i'}},
-          {phone: {$regex: search, $options: 'i'}}
-        ]
+      let filter = {};
+      if (search) {
+        filter = {
+          $or: [
+            { name: { $regex: search, $options: 'i' } },
+            { phone: { $regex: search, $options: 'i' } }
+          ]
+        }
       }
-    }
-    const totalUsers = await users.countDocuments(filter);
-    const totalPages = Math.ceil(totalUsers/limit);
-    const data = await users.find(filter).skip(skip).limit(limit).toArray();
+      const totalUsers = await users.countDocuments(filter);
+      const totalPages = Math.ceil(totalUsers / limit);
+      const data = await users.find(filter).skip(skip).limit(limit).toArray();
 
-    if (req.xhr || req.headers.accept.indexOf('json') > -1){
-      return res.json({users: data,page, totalPages, limit})
-    }
-    res.render('users', {title: "User List",
-       users: data,
-      page,
-      totalPages,
-      limit,
-      query: {search}
+      if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+        return res.json({ users: data, page, totalPages, limit })
+      }
+      res.render('users', {
+        title: "User List",
+        users: data,
+        page,
+        totalPages,
+        limit,
+        query: { search }
       })
-  }catch(err){
-    res.status(500).json({error: err.message})
-  }
-})
+    } catch (err) {
+      res.status(500).json({ error: err.message })
+    }
+  })
 
 
   // get by id

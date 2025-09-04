@@ -20,6 +20,10 @@
     .table-responsive {
       overflow: visible !important;
     }
+
+    #todoContainer .alert {
+      padding: 10px 15px;
+    }
   </style>
 </head>
 
@@ -86,20 +90,7 @@
     <!-- Table -->
     <div class="card shadow-sm">
       <div class="card-body">
-        <div class="table-responsive">
-          <table class="table table-striped table-hover align-middle">
-            <thead>
-              <tr>
-                <th>No</th>
-                <th>Title</th>
-                <th>Complete</th>
-                <th>Deadline</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="todoTable"></tbody>
-          </table>
-        </div>
+        <div id="todoContainer" class="d-flex flex-column gap-2"></div>
         <!-- Spinner -->
         <div id="loading" class="text-center my-3" style="display:none;">
           <div class="spinner-border" role="status"></div>
@@ -154,32 +145,39 @@
           return;
         }
 
-        let rows = "";
+        let alerts = "";
         res.data.forEach((todo, idx) => {
-          rows += `
-            <tr class="${!todo.complete && new Date(todo.deadline) < new Date() ? 'table-danger' : ''}">
-              <td>${res.offset + idx + 1}</td>
-              <td>${todo.title}</td>
-              <td>${todo.complete ? 'Done' : 'Not Yet'}</td>
-              <td>${todo.deadlineFormatted}</td>
-              <td>
-                <button class="btn btn-sm btn-success me-1 editBtn" 
-                  data-id="${todo._id}" 
-                  data-title="${todo.title}"
-                  data-deadline="${todo.deadlineFormatted}"
-                  data-complete="${todo.complete}">
+          let alertClass = "alert-secondary";
+          if (!todo.complete && new Date(todo.deadline) < new Date()) {
+            alertClass = "alert-danger";
+          } else if (todo.complete) {
+            alertClass = "alert-success";
+          }
+
+          alerts += `
+            <div class="alert ${alertClass} d-flex justify-content-between align-items-center">
+              <div>
+                <small>${todo.deadlineFormatted}</small>
+                <small>${todo.title}</small>
+                </div>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-sm btn-success editBtn"
+                  data-id="${todo._id}"
+                  data.title="${todo.title}"
+                  data.deadline="${todo.deadline}"
+                  data.complete="${todo.complete}">
                   <i class="fa fa-edit"></i>
-                </button>
-                <button class="btn btn-sm btn-danger deleteBtn" 
-                  data-id="${todo._id}" 
+                  </button>
+                  <button class="btn btn-sm btn-danger deleteBtn"
+                  data-id ="${todo._id}"
                   data-title="${todo.title}">
                   <i class="fa fa-trash"></i>
-                </button>
-              </td>
-            </tr>`;
+                    </button>
+                   </div>
+                  </div>`;
         });
 
-        $("#todoTable").append(rows);
+        $("#todoContainer").append(alerts);
         page++;
         loading = false;
         $("#loading").hide();
@@ -200,7 +198,7 @@
 
       page = 1;
       finished = false;
-      $("#todoTable").empty();
+      $("#todoContainer").empty();
 
       loadTodos({ sortBy: 'deadline', sortMode: sortMode })
 
@@ -214,7 +212,7 @@
       e.preventDefault();
       page = 1;
       finished = false;
-      $("#todoTable").empty();
+      $("#todoContainer").empty();
       loadTodos($(this).serialize());
     });
 
@@ -224,7 +222,7 @@
       page = 1;
       finished = false;
       sortMode = 'asc';
-      $("#todoTable").empty();
+      $("#todoContainer").empty();
       $("#sortIcon").removeClass("fa-sort-up fa-sort-down").addClass("fa-sort")
       loadTodos({ sortBy: 'deadline', sortMode: sortMode });
     });

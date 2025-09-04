@@ -3,6 +3,7 @@ const express = require('express');
 
 module.exports = (db) => {
   const router = express.Router();
+  const moment = require('moment');
   const { ObjectId, returnDocument } = require('mongodb')
   const todos = db.collection('todos');
 
@@ -48,7 +49,7 @@ module.exports = (db) => {
 
       const formattedData = data.map(todo => ({
         ...todo,
-        deadlineFormatted: todo.deadline ? todo.deadline.toISOString().split('T')[0] : '-'
+        deadlineFormatted: todo.deadline ? moment(todo.deadline).format('YYYY-MM-DD HH:mm') : '-'
       }));
 
       res.json({
