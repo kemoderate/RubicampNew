@@ -35,13 +35,13 @@
 
       <div class="row mb-3 align-items-center">
         <label class="col-sm-2 col-form-label text-start">Title</label>
-        <div class="col sm-10">
+        <div class="col-sm-10">
           <input type="text" name="string" class="form-control" placeholder="Search title">
         </div>
       </div>
       <div class="row mb-3 align-items-center">
         <label class="col-sm-2 col-form-label text-start">Deadline</label>
-        <div class="col sm-10">
+        <div class="col-sm-10">
           <div class="d-flex gap-2">
             <input type="date" name="startdate" class="form-control">
             <span>s.d.</span>
@@ -52,7 +52,7 @@
 
       <div class="row mb-3 align-items-center">
         <label class="col-sm-2 col-form-label text-start">Complete</label>
-        <div class="col sm-10">
+        <div class="col-sm-10">
           <select name="boolean" class="form-select">
             <option value="">-select complete-</option>
             <option value="true">Yes</option>
@@ -64,7 +64,7 @@
       <div class="d-flex gap-5 justify-content-start align-items-center mb-3">
         <button id="sortDeadlineBtn" class="btn btn-success">
           <i id="sortIcon" class="fa fa-sort"></i>
-          Sort by Deadline 
+          Sort by Deadline
         </button>
         <div class="d-flex gap-1">
           <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -78,7 +78,7 @@
       <div class="input-group">
         <input type="text" name="add" class="form-control" placeholder="Add new todo title">
         <button type="submit" class="btn btn-primary">
-          <i class="fa fa-plus"></i>
+          <i class="fa fa-arrow-down"></i>
         </button>
       </div>
     </form>
@@ -137,6 +137,7 @@
     let page = 1;
     let loading = false;
     let finished = false;
+    let sortMode = 'asc';
 
     // Load todos
     function loadTodos(params = {}) {
@@ -188,8 +189,24 @@
     // Infinite scroll
     $(window).on("scroll", function () {
       if ($(window).scrollTop() + $(window).height() >= $(document).height() - 50) {
-        loadTodos($("#filterForm").serialize());
+        loadTodos($("#filterForm").serialize()) + `&sortBy=deadline&sortMode=${sortMode}`;
       }
+    });
+
+    // sorting 
+    $("#sortDeadlineBtn").click(function (e) {
+      e.preventDefault();
+      sortMode = sortMode === 'asc' ? 'desc' : 'asc';
+
+      page = 1;
+      finished = false;
+      $("#todoTable").empty();
+
+      loadTodos({ sortBy: 'deadline', sortMode: sortMode })
+
+      $("#sortIcon").removeClass("fa-sort fa-sort-up fa-sort-down");
+      $("#sortIcon").addClass(sortMode === 'asc' ? 'fa-sort-up' : 'fa-sort-down')
+
     });
 
     // Filter submit
@@ -206,8 +223,10 @@
       $("#filterForm")[0].reset();
       page = 1;
       finished = false;
+      sortMode = 'asc';
       $("#todoTable").empty();
-      loadTodos();
+      $("#sortIcon").removeClass("fa-sort-up fa-sort-down").addClass("fa-sort")
+      loadTodos({ sortBy: 'deadline', sortMode: sortMode });
     });
 
     // Delete modal
