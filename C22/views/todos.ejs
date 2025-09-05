@@ -110,14 +110,12 @@
           </div>
           <div class="modal-body">
             <input type="hidden" id="editId">
-
             <div class="mb-3">
-              <label class="form-label">Title</label>
+              <label class="form-label"> Title</label>
               <input type="text" id="editTitle" class="form-control" required>
             </div>
-
             <div class="mb-3">
-              <label class="form-label">Deadline</label>
+              <label class="form-label"> Deadline</label>
               <input type="date" id="editDeadline" class="form-control" required>
             </div>
 
@@ -125,12 +123,12 @@
               <input type="checkbox" id="editComplete" class="form-check-input">
               <label class="form-check-label" for="editComplete">Done</label>
             </div>
-          </div>
 
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-primary">Save changes</button>
-          </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Save changes</button>
+            </div>
         </form>
       </div>
     </div>
@@ -203,9 +201,9 @@
                 <div class="d-flex gap-2">
                   <button class="btn btn-sm btn-success editBtn"
                   data-id="${todo._id}"
-                  data.title="${todo.title}"
-                  data.deadline="${todo.deadline}"
-                  data.complete="${todo.complete}">
+                  data-title="${todo.title}"
+                  data-deadline="${todo.deadline}"
+                  data-complete="${todo.complete}">
                   <i class="fa fa-edit"></i>
                   </button>
                   <button class="btn btn-sm btn-danger deleteBtn"
@@ -315,18 +313,51 @@
     $(document).on("click", ".editBtn", function () {
       const id = $(this).data("id");
       const title = $(this).data("title");
-      const startdate = $(this).data("startdate");
-      const enddate = $(this).data("enddate");
+      const deadline = $(this).data("deadline");
       const complete = $(this).data("complete");
 
-      $("#editId").val(id);
-      $("#editTitle").val(title);
-      $("#editStartdate").val(startdate);
-      $("#editEnddate").val(enddate);
-      $("#editComplete").val(complete);
+      $("#editId").val(id)
+      $("#editTitle").val(title)
+      $("#editDeadline").val(deadline.split("T")[0])
 
-      new bootstrap.Modal($("#editModal")).show();
+      $("#editComplete").prop("checked", complete === true || complete === "true");
+
+
+     const modal = new bootstrap.Modal(document.getElementById("editModal"));
+     modal.show();
     });
+
+    // submit edit event handler
+
+    $("#editForm").on("submit", function (e) {
+      e.preventDefault();
+      const id = $("#editId").val();
+
+
+      $.ajax({
+        url: `/todos/${id}`,
+        method: "PUT",
+        data: {
+          title: $("#editTitle").val(),
+          deadline: $("#editDeadline").val(),
+          complete: $("#editComplete").is(":checked")
+        }
+      }).done(function (res) {
+        $("#editModal").modal("hide");
+
+        page = 1;
+        finished = false;
+        $("#todoContainer").empty()
+        loadTodos({sortBy: "deadline", sortMode: sortMode});
+      }).fail(function (xhr, status, err) {
+        console.error("XHR:", xhr.responseText);
+        console.error("Status:", status);
+        console.error("Error:", err);
+        alert("gagal update todo")
+      })
+
+    })
+
 
 
 
