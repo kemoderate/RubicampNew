@@ -100,17 +100,23 @@ module.exports = (db) => {
 
   router.post('/', async (req, res) => {
     try {
-      const { title, complete = false, deadline, executor } = req.body;
+      const { title, executor} = req.body;
       if (!title) return res.status(400).json({ error: 'Title required' })
+      if (!executor) return res.status(400).json({ error: 'Executor required' })
+      const now = new Date();
+      const deadline = new Date(now.getTime() + 24 * 60 * 60 * 1000);
       const doc = {
         title,
-        complete: complete === true || complete === 'true',
-        deadline: deadline ? new Date(deadline) : null,
-        executor: executor ? new ObjectId(executor) : null
+        complete: false,
+        deadline,
+        executor: new ObjectId(executor)
       }
 
       const result = await todos.insertOne(doc);
-      res.status(201).json(result)
+      res.status(201).json({
+        message: "todo created successfully",
+        data: result
+      })
 
     } catch (err) {
       res.status(500).json({ error: err.message });
