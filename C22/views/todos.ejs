@@ -224,9 +224,9 @@
 
     // Reset filter
     $("#resetBtn").click(function () {
-      console.log("Reset button clicked");
+
       $("#filterForm")[0].reset();
-       console.log($("#filterForm").serializeArray());
+
       page = 1;
       finished = false;
       sortMode = 'asc';
@@ -270,14 +270,45 @@
       })
     })
 
-    // Delete modal
+    // delete event handler
     $(document).on("click", ".deleteBtn", function () {
       const id = $(this).data("id");
       const title = $(this).data("title");
+
       $("#deleteItem").text(title);
-      $("#deleteForm").attr("action", `/todos/delete/${id}`);
-      new bootstrap.Modal($("#deleteModal")).show();
+      $("#deleteForm").attr("action", `/todos/${id}`);
+
+      const modal = new bootstrap.Modal(document.getElementById("deleteModal"))
+      modal.show();
+    })
+    // Delete modal
+    $("#deleteForm").on("submit", function (e) {
+      e.preventDefault();
+
+      const actionUrl = $(this).attr("action");
+
+      $.ajax({
+        url: actionUrl,
+        type: "DELETE",
+
+      })
+        .done(function (res) {
+          console.log("todo deleted:", res.message);
+          $("#deleteModal").modal("hide");
+
+          page = 1;
+          finished = false;
+          $("#todoContainer").empty();
+          loadTodos({ sortBy: "deadline", sortMode: sortMode });
+        })
+        .fail(function (xhr, status, error) {
+          const errMsg = xhr.responseJSON?.error || error;
+          alert("Failed to delete todo: " + errMsg);
+          console.error("delete error:", errMsg);
+        });
     });
+
+
 
     // Initial load
     loadTodos();
