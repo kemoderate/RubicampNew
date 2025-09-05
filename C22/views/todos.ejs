@@ -99,6 +99,44 @@
     </div>
   </div>
 
+  <!-- edit modal -->
+  <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="editForm">
+          <div class="modal-header">
+            <h5 class="modal-title">Edit Todos</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="editId">
+
+            <div class="mb-3">
+              <label class="form-label">Title</label>
+              <input type="text" id="editTitle" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Deadline</label>
+              <input type="date" id="editDeadline" class="form-control" required>
+            </div>
+
+            <div class="mb-3 form-check">
+              <input type="checkbox" id="editComplete" class="form-check-input">
+              <label class="form-check-label" for="editComplete">Done</label>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Save changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
   <!-- Delete Modal -->
   <div class="modal fade" id="deleteModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
@@ -129,6 +167,8 @@
     let loading = false;
     let finished = false;
     let sortMode = 'asc';
+    let FormData = {};
+
 
     // Load todos
     function loadTodos(params = {}) {
@@ -216,6 +256,7 @@
       page = 1;
       finished = false;
       $("#todoContainer").empty();
+      FormData = {}; //clear
       $(this).serializeArray().forEach(item => {
         if (item.value.trim() !== "") FormData[item.name] = item.value.trim();
       });
@@ -269,6 +310,25 @@
         }
       })
     })
+
+    // edit modal
+    $(document).on("click", ".editBtn", function () {
+      const id = $(this).data("id");
+      const title = $(this).data("title");
+      const startdate = $(this).data("startdate");
+      const enddate = $(this).data("enddate");
+      const complete = $(this).data("complete");
+
+      $("#editId").val(id);
+      $("#editTitle").val(title);
+      $("#editStartdate").val(startdate);
+      $("#editEnddate").val(enddate);
+      $("#editComplete").val(complete);
+
+      new bootstrap.Modal($("#editModal")).show();
+    });
+
+
 
     // delete event handler
     $(document).on("click", ".deleteBtn", function () {
