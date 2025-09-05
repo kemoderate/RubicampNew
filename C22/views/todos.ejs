@@ -123,7 +123,7 @@
               <input type="checkbox" id="editComplete" class="form-check-input">
               <label class="form-check-label" for="editComplete">Done</label>
             </div>
-
+            </div> 
 
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -133,23 +133,24 @@
       </div>
     </div>
   </div>
+  
 
 
   <!-- Delete Modal -->
   <div class="modal fade" id="deleteModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content border-0 shadow">
-        <div class="modal-header bg-danger text-white">
+        <div class="modal-header text-black">
           <h5 class="modal-title">Confirm Delete</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          Are you sure want to delete <span id="deleteItem"></span>?
+          Are you sure will delete "<span id="deleteItem"></span>"?
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
-          <form id="deleteForm" method="POST">
-            <button type="submit" class="btn btn-warning">Yes</button>
+          <form id="deleteForm">
+            <button type="submit" class="btn btn-primary">Yes</button>
           </form>
         </div>
       </div>
@@ -362,6 +363,7 @@
 
 
     // delete event handler
+    let deleteModalInstance;
     $(document).on("click", ".deleteBtn", function () {
       const id = $(this).data("id");
       const title = $(this).data("title");
@@ -369,8 +371,8 @@
       $("#deleteItem").text(title);
       $("#deleteForm").attr("action", `/todos/${id}`);
 
-      const modal = new bootstrap.Modal(document.getElementById("deleteModal"))
-      modal.show();
+      deleteModalInstance = new bootstrap.Modal(document.getElementById("deleteModal"))
+      deleteModalInstance.show();
     })
     // Delete modal
     $("#deleteForm").on("submit", function (e) {
@@ -385,7 +387,7 @@
       })
         .done(function (res) {
           console.log("todo deleted:", res.message);
-          $("#deleteModal").modal("hide");
+         $("#deleteModal").modal("hide");
 
           page = 1;
           finished = false;
