@@ -10,7 +10,7 @@ module.exports = (db) => {
   // RENDER PAGE TODOS
   router.get('/view/:userId', (req, res) => {
     const { userId } = req.params;
-    res.render('todos', { userId, title: 'Todos List' });
+    res.render('todos', { userId, title: 'Todo List' });
   });
 
   // FETCH TODOS JSON (dipakai jQuery di todos.ejs)
