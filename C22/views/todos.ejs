@@ -224,13 +224,15 @@
 
     // Reset filter
     $("#resetBtn").click(function () {
+      console.log("Reset button clicked");
       $("#filterForm")[0].reset();
+       console.log($("#filterForm").serializeArray());
       page = 1;
       finished = false;
       sortMode = 'asc';
       $("#todoContainer").empty();
-      $("#sortIcon").removeClass("fa-sort-up fa-sort-down").addClass("fa-sort")
-      loadTodos({ sortBy: 'deadline', sortMode: sortMode });
+      $("#sortIcon").attr("class", "fa fa-sort");
+      loadTodos();
     });
 
     // ADD form
