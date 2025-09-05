@@ -6,16 +6,20 @@ module.exports = (db) => {
   const router = express.Router();
   const users = db.collection('users');
   const { ObjectId } = require('mongodb')
-  
+
 
 
   // tampil data
   router.get('/', async (req, res) => {
     try {
-      let { page = 1, search = '' } = req.query;
+      let { page = 1, search = '',
+        sortBy = 'name',
+        sortMode = 'asc',
+        limit = 5
+      } = req.query;
       page = parseInt(page) || 1;
-      const limit = 5
-      const skip = (page - 1) * limit;
+      limit = limit === 'all' ? 0 : parsetInt(limit) || 5;
+      const skip = limit === 0 ? 0 : (page - 1) * limit;
 
       let filter = {};
       if (search) {
@@ -26,19 +30,39 @@ module.exports = (db) => {
           ]
         }
       }
+      // sorting
+      const sortOrder = sortMode === 'desc' ? -1 : 1;
+      const sortOptions = {};
+
+      const sortFields = sortBy.split(',');
+      sortFields.forEach(field => {
+        if (['name', 'phone'].includes(field.trim())) {
+          sortOptions[field.trim()] = sortOrder;
+        }
+      });
+
       const totalUsers = await users.countDocuments(filter);
       const totalPages = Math.ceil(totalUsers / limit);
       const data = await users.find(filter).skip(skip).limit(limit).toArray();
 
       if (req.xhr || req.headers.accept.indexOf('json') > -1) {
-        return res.json({ users: data, page, totalPages, limit })
+        return res.json({
+          users: data,
+          page,
+          totalPages,
+          limit,
+          totalUsers,
+          sortBy,
+          sortMode,
+        })
       }
       res.render('users', {
-        title: "User List",
+        title: "MongoDB Breads(Browse,Read,Edit,Add,Delete,Sort)",
         users: data,
         page,
         totalPages,
         limit,
+        totalUsers,
         query: { search }
       })
     } catch (err) {
