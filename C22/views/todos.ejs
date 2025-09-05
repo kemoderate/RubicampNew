@@ -187,7 +187,10 @@
     // Infinite scroll
     $(window).on("scroll", function () {
       if ($(window).scrollTop() + $(window).height() >= $(document).height() - 50) {
-        loadTodos($("#filterForm").serialize()) + `&sortBy=deadline&sortMode=${sortMode}`;
+        $("#filterForm").serializeArray().forEach(item => {
+          if (item.value.trim() !== "") FormData[item.name] = item.value.trim();
+        })
+        loadTodos({ ...FormData, sortBy: 'deadline', sortMode: sortMode })
       }
     });
 
@@ -213,7 +216,10 @@
       page = 1;
       finished = false;
       $("#todoContainer").empty();
-      loadTodos($(this).serialize());
+      $(this).serializeArray().forEach(item => {
+        if (item.value.trim() !== "") FormData[item.name] = item.value.trim();
+      });
+      loadTodos({ ...FormData, sortBy: 'deadline', sortMode: sortMode })
     });
 
     // Reset filter
@@ -228,12 +234,12 @@
     });
 
     // ADD form
-    $("#addTodoForm").on("submit", function(e) {
+    $("#addTodoForm").on("submit", function (e) {
       e.preventDefault()
-      
+
       const title = $(this).find("input[name='title']").val().trim();
 
-      if(!title){
+      if (!title) {
         alert("title is required");
         return;
       }
@@ -245,18 +251,18 @@
           title: title,
           executor: userId
         }),
-        success: function(res){
-          console.log("todo added: ",res);
+        success: function (res) {
+          console.log("todo added: ", res);
 
           $("#addTodoForm")[0].reset()
 
           page = 1;
           finished = false;
           $("#todoContainer").empty();
-          loadTodos({sortBy: 'deadline', sortMode: sortMode})
+          loadTodos({ sortBy: 'deadline', sortMode: sortMode })
 
         },
-        error: function(err){
+        error: function (err) {
           alert("failed to add todo: " + (err.responseJSON?.error || err.status))
         }
       })
