@@ -24,7 +24,8 @@
     #todoContainer .alert {
       padding: 10px 15px;
     }
-    .my-title{
+
+    .my-title {
       background-color: rgb(153, 148, 148);
       box-sizing: border-box;
     }
@@ -127,17 +128,17 @@
               <input type="checkbox" id="editComplete" class="form-check-input">
               <label class="form-check-label" for="editComplete">Done</label>
             </div>
-            </div> 
+          </div>
 
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="submit" class="btn btn-primary">Save changes</button>
-            </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Save changes</button>
+          </div>
         </form>
       </div>
     </div>
   </div>
-  
+
 
 
   <!-- Delete Modal -->
@@ -328,8 +329,8 @@
       $("#editComplete").prop("checked", complete === true || complete === "true");
 
 
-     const modal = new bootstrap.Modal(document.getElementById("editModal"));
-     modal.show();
+      const modal = new bootstrap.Modal(document.getElementById("editModal"));
+      modal.show();
     });
 
     // submit edit event handler
@@ -348,12 +349,15 @@
           complete: $("#editComplete").is(":checked")
         }
       }).done(function (res) {
-        $("#editModal").modal("hide");
+        $("#filterForm")[0].reset();
 
         page = 1;
         finished = false;
+        sortMode = 'asc'
+
         $("#todoContainer").empty()
-        loadTodos({sortBy: "deadline", sortMode: sortMode});
+        $("#editModal").modal("hide");
+        loadTodos();
       }).fail(function (xhr, status, err) {
         console.error("XHR:", xhr.responseText);
         console.error("Status:", status);
@@ -391,7 +395,7 @@
       })
         .done(function (res) {
           console.log("todo deleted:", res.message);
-         $("#deleteModal").modal("hide");
+          $("#deleteModal").modal("hide");
 
           page = 1;
           finished = false;
