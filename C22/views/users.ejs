@@ -13,9 +13,15 @@
       box-sizing: border-box;
     }
 
-    .form-select-limit {
+    .form-select-limit,
+    .form-select-limit option {
       width: auto;
       display: inline-block;
+      max-width: 80px;
+      text-align: center;
+      border-radius: 0 !important;
+      font-size: 14px;
+      padding: 4px 8px;
     }
   </style>
 </head>
@@ -29,11 +35,10 @@
     </h1>
 
     <!-- show entries -->
-    <div class="d-flex justify-content-start align-items-center mb-2 flex-wrap">
-      <label class="mb-0">
-        show
-        <select id="limitSelect" class="form-select form-select-limit d-inline-block-w-auto mx-1"
-          onchange="changeLimit()">
+    <div class="card mb-3 p-2 d-flex flex-row align-items-center gap-3">
+      <label class="mb-0 d-flex align-items-center bg-light px-2 py-1">
+        Show
+        <select id="limitSelect" class="form-select form-select-limit mx-2" onchange="changeLimit()">
           <option value="5">5</option>
           <option value="10">10</option>
           <option value="all">All</option>
@@ -42,11 +47,10 @@
       </label>
 
       <!-- Filter Form -->
-      <form class="shadow-sm mb-4 p-4">
+      <form class="d-flex flex-grow-1">
         <input type="hidden" name="page" value="1">
         <div class="input-group">
-          <input type="text" name="search" class="form-control" placeholder="Search by name or phone"
-            value="<%= query.search || '' %>">
+          <input type="text" name="search" class="form-control" placeholder="search" value="<%= query.search || '' %>">
           <button type="submit" class="btn btn-primary">
             <i class="fa fa-search"></i>
           </button>
@@ -73,14 +77,12 @@
     <!-- Bottom Bar -->
     <footer class="bg-light text-center py-3 border-top mt-auto">
       <div class="d-flex justify-content-between align-items-center mt-3">
-        <a href="/add" class="btn btn-primary">
-          <i class="fa fa-plus"></i>
-        </a>
+        <button class="btn btn-primary" onclick="addUser()"> <i class="fa fa-plus"></i></button>
         <nav>
           <ul class="pagination mb-0"></ul>
         </nav>
       </div>
-    </footer>
+  </div>
   </div>
 
   <!-- add modal -->
@@ -159,12 +161,20 @@
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
+    function changeLimit() {
+      loadUsers(1); 
+    }
+
     let currentPage = 1;
     let totalPages = 1;
     const editModal = new bootstrap.Modal(document.getElementById('editModal'));
+    const addModal = new bootstrap.Modal(document.getElementById('addModal'));
+
 
     async function loadUsers(page = 1) {
+
       const search = document.querySelector("input[name='search']").value;
+      const limit = document.getElementById("limitSelect").value;
       const res = await fetch(`/users/?page=${page}&search=${encodeURIComponent(search)}`, {
         headers: { "Accept": "application/json" }
       });
@@ -190,7 +200,8 @@
                 <i class="fas fa-sign-in-alt"></i>
               </button>
             </td>
-          </tr>`;
+          </tr>
+          `;
       });
 
       // update pagination
@@ -218,12 +229,32 @@
       loadUsers(1);
     });
 
+    // ADD modal
     function addUser(id, oldName, oldPhone) {
-      document.getElementById("addId").value = id;
-      document.getElementById("addName").value = oldName;
-      document.getElementById("addPhone").value = oldPhone;
+      document.getElementById("addId").value = '';
+      document.getElementById("addName").value = '';
+      document.getElementById("addPhone").value = '';
       addModal.show();
     }
+
+    // submit add form
+    document.getElementById("addForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = document.getElementById("addName").value
+      const phone = document.getElementById("addPhone").value
+
+      const res = await fetch("/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, phone })
+      })
+      if (res.ok) {
+        addModal.hide()
+        loadUsers(1)
+      } else (
+        alert("failed to add user")
+      )
+    })
 
     // EDIT (buka modal)
     function editUser(id, oldName, oldPhone) {
