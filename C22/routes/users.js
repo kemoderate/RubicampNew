@@ -54,6 +54,7 @@ module.exports = (db) => {
           totalUsers,
           sortBy,
           sortMode,
+          totalUsers
         })
       }
       res.render('users', {
