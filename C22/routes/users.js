@@ -18,7 +18,7 @@ module.exports = (db) => {
         limit = 5
       } = req.query;
       page = parseInt(page) || 1;
-      limit = limit === 'all' ? 0 : parsetInt(limit) || 5;
+      limit = limit === 'all' ? 0 : parseInt(limit) || 5;
       const skip = limit === 0 ? 0 : (page - 1) * limit;
 
       let filter = {};
@@ -42,8 +42,8 @@ module.exports = (db) => {
       });
 
       const totalUsers = await users.countDocuments(filter);
-      const totalPages = Math.ceil(totalUsers / limit);
-      const data = await users.find(filter).skip(skip).limit(limit).toArray();
+      const totalPages = limit ===  0 ? 1 : Math.ceil(totalUsers / limit);
+      const data = await users.find(filter).sort(sortOptions).skip(skip).limit(limit).toArray();
 
       if (req.xhr || req.headers.accept.indexOf('json') > -1) {
         return res.json({
