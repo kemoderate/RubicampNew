@@ -271,7 +271,7 @@
     $("#resetBtn").click(function () {
 
       $("#filterForm")[0].reset();
-      
+
       page = 1;
       finished = false;
       loading = false;
@@ -306,8 +306,10 @@
 
           page = 1;
           finished = false;
+          loading = false;
+          sortMode = 'asc';
           $("#todoContainer").empty();
-          loadTodos({ sortBy: 'deadline', sortMode: sortMode })
+          loadTodos()
 
         },
         error: function (err) {
