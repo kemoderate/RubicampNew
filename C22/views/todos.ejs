@@ -271,9 +271,10 @@
     $("#resetBtn").click(function () {
 
       $("#filterForm")[0].reset();
-
+      
       page = 1;
       finished = false;
+      loading = false;
       sortMode = 'asc';
       $("#todoContainer").empty();
       $("#sortIcon").attr("class", "fa fa-sort");

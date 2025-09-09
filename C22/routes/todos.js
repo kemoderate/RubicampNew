@@ -23,9 +23,13 @@ module.exports = (db) => {
       limit = parseInt(limit);
 
       const q = { executor: new ObjectId(id) };
+      // console.log("Filter MongoDB:", q);
+
 
       if (string) q.title = { $regex: string, $options: 'i' };
-      if (boolean === 'true' || boolean === 'false') q.complete = boolean === 'true';
+      if (boolean && (boolean === 'true' || boolean === 'false')) {
+        q.complete = boolean === 'true';
+      }
       if (startdate || enddate) {
         q.deadline = {};
         if (startdate) q.deadline.$gte = new Date(startdate);
@@ -100,7 +104,7 @@ module.exports = (db) => {
 
   router.post('/', async (req, res) => {
     try {
-      const { title, executor} = req.body;
+      const { title, executor } = req.body;
       if (!title) return res.status(400).json({ error: 'Title required' })
       if (!executor) return res.status(400).json({ error: 'Executor required' })
       const now = new Date();
