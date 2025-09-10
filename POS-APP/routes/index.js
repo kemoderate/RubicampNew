@@ -14,4 +14,9 @@ router.get('/dashboard', function(req, res, next) {
    });
 });
 
+router.get('/users', (req, res) => {
+  res.render('users'); // otomatis cari file views/users.ejs
+});
+
+
 module.exports = router;
