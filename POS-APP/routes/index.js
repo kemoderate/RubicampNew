@@ -3,8 +3,7 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('login', { title: 'Login',
-    layout: 'layout'
+  res.render('login', { title: 'Login'
    });
 });
 
@@ -15,7 +14,9 @@ router.get('/dashboard', function(req, res, next) {
 });
 
 router.get('/users', (req, res) => {
-  res.render('users'); // otomatis cari file views/users.ejs
+  res.render('users',{ title: 'Users',
+    layout: 'layout'
+  }); 
 });
 
 
