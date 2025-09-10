@@ -6,3 +6,6 @@ body {
 a {
   color: #00B7FF;
 }
+.bg-custom-black {
+  background-color: #000; /* hitam pekat */
+}
