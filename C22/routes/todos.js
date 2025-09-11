@@ -53,6 +53,7 @@ module.exports = (db) => {
 
       const formattedData = data.map(todo => ({
         ...todo,
+        
         deadlineFormatted: todo.deadline ? moment(todo.deadline).format('YYYY-MM-DD HH:mm') : '-'
       }));
 

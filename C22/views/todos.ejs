@@ -7,7 +7,7 @@
   </title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
+
 
   <style>
     html,
@@ -179,6 +179,8 @@
 
     // Load todos
     function loadTodos(params = {}) {
+      console.log("loadTodos params:", { ...params, page });
+
       if (loading || finished) return;
       loading = true;
       $("#loading").show();
@@ -234,7 +236,7 @@
     // Infinite scroll
     $(window).on("scroll", function () {
       if ($(window).scrollTop() + $(window).height() >= $(document).height() - 50) {
-        FormData = {}; 
+        FormData = {};
         $("#filterForm").serializeArray().forEach(item => {
           if (item.value.trim() !== "") FormData[item.name] = item.value.trim();
         })
@@ -250,6 +252,7 @@
       page = 1;
       finished = false;
       $("#todoContainer").empty();
+     
 
       loadTodos({ ...FormData, sortBy: 'deadline', sortMode: sortMode })
 
@@ -269,6 +272,7 @@
       $(this).serializeArray().forEach(item => {
         if (item.value.trim() !== "") FormData[item.name] = item.value.trim();
       });
+      console.log("Filter applied:", FormData); //
       loadTodos({ ...FormData, sortBy: 'deadline', sortMode: sortMode })
     });
 
@@ -333,7 +337,7 @@
 
       $("#editId").val(id)
       $("#editTitle").val(title)
-      $("#editDeadline").val(deadline.split("T")[0])
+      $("#editDeadline").val(deadline.replace(" ", "T"));
 
       $("#editComplete").prop("checked", complete === true || complete === "true");
 
@@ -358,16 +362,32 @@
           complete: $("#editComplete").is(":checked")
         }
       }).done(function (res) {
-        $("#filterForm")[0].reset();
 
-        page = 1;
-        loading = false;
-        finished = false;
-        sortMode = 'asc'
+        const modal = bootstrap.Modal.getInstance(document.getElementById("editModal"));
+        modal.hide();
 
-        $("#todoContainer").empty()
-        $("#editModal").modal("hide");
-        loadTodos();
+
+        const hasFilter = Object.keys(FormData).length > 0;
+        const hasSorting = sortMode !== 'asc';
+
+        if (!hasFilter && !hasSorting) {
+
+          page = 1;
+          $("#filterForm")[0].reset();
+          sortMode = 'asc';
+          finished = false;
+          loading = false;
+          $("#todoContainer").empty();
+          loadTodos(); // reload default
+        } else {
+          finished = false;
+          loading = false;
+        
+          $("#todoContainer").empty();
+          page = 1;
+
+          loadTodos({ ...FormData, sortBy: 'deadline', sortMode: sortMode , page: page});
+        }
       }).fail(function (xhr, status, err) {
         console.error("XHR:", xhr.responseText);
         console.error("Status:", status);
