@@ -1,23 +1,24 @@
 var express = require('express');
-var router = express.Router();
+
+
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('login', { title: 'Login'
-   });
-});
+module.exports = (requireLogin) => {
 
-router.get('/dashboard', function(req, res, next) {
-  res.render('index', { title: 'Dashboard',
-    layout: 'layout'
-   });
-});
+  const router = express.Router();
 
-router.get('/users', (req, res) => {
-  res.render('users',{ title: 'Users',
-    layout: 'layout'
-  }); 
-});
+  router.get('/', requireLogin, (req, res) => {
+    res.render('index', {
+      title: 'Dashboard',
+      user: req.session.user,
+      layout: 'layout'
+    });
+  });
+
+  
+
+  return router;
+}
 
 
-module.exports = router;
+
