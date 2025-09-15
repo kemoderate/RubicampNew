@@ -6,10 +6,19 @@ var logger = require('morgan');
 const session = require('express-session');
 const bodyParser = require('body-parser')
 const flash = require('connect-flash')
+const db = require('./db')
+
+
+function requireLogin(req, res , next){
+  if(!req.session.user){
+    return res.redirect('/')
+  }
+  next();
+}
 
 var userloginRouter = require('./routes/userlogin');
-var indexRouter = require('./routes/index')(requireLogin);
-var usersRouter = require('./routes/users')(requireLogin);
+var indexRouter = require('./routes/index')(requireLogin,db);
+var usersRouter = require('./routes/users')(requireLogin,db);
 
 var app = express();
 
@@ -20,7 +29,7 @@ app.set('view engine', 'ejs');
 
 app.use(logger('dev'));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({extended: false }))
@@ -33,19 +42,13 @@ app.use(session({
 app.use(flash());
 
 app.use((req, res, next) => {
-  res.locals.error = req.flash('error');   // pesan error
-  res.locals.success = req.flash('success'); // pesan success
+  res.locals.error = req.flash('error_msg');   // pesan error
+  res.locals.success = req.flash('success_msg'); // pesan success
   next();
 });
 
 
 
-function requireLogin(req, res , next){
-  if(!req.session.user){
-    return res.redirect('/')
-  }
-  next();
-}
 
 
 app.use('/dashboard',requireLogin, indexRouter);

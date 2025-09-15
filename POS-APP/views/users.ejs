@@ -1,25 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
-  <%- include('partials/head') %>
+<%- include('partials/head') %>
+
   <body id="page-top">
     <div id="wrapper">
       <%- include('partials/sidebar') %>
 
-      <div id="content-wrapper" class="d-flex flex-column">
-        <div id="content">
-          <%- include('partials/topbar') %>
+        <div id="content-wrapper" class="d-flex flex-column">
+          <div id="content">
+            <%- include('partials/topbar') %>
 
-          <!-- Begin Page Content -->
-          <div class="container-fluid">
-            <h1 class="h3 mb-4 text-gray-800">Users</h1>
-             <h2 class="h4 mb-4 text-gray-800">This is data of Users</h2>
-            
-            <!-- Isi dashboard di sini -->
+              <!-- Begin Page Content -->
+              <div class="container-fluid">
+                <h1 class="h3 mb-4 text-gray-800">Users</h1>
+                <h2 class="h4 mb-4 text-gray-800">This is data of Users</h2>
+              </div>
+              <div class="container-fluid">
+                <div class="card-header py-3">
+                  <button type="button" class="btn btn-primary">
+                    <span class="icon-box">
+                      <i class="fa fa-plus"></i>
+                    </span>
+                    <span class="text-box" class="btn btn-secondary">
+                      Add
+                    </span>
+                  </button>
+                </div>
+
+                <div class="card shadow mb-4">
+                  <div class="card-body">
+                    <div class="table-responsive">
+                      <table id="myTable" class="table table-bordered">
+                        <thead>
+                          <tr>
+                            <th>User ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <% users.forEach(user=> { %>
+                            <tr>
+                              <td>
+                                <%= user.userid %>
+                              </td>
+                              <td>
+                                <%= user.name %>
+                              </td>
+                              <td>
+                                <%= user.email %>
+                              </td>
+                              <td>
+                                <%= user.role %>
+                              </td>
+                              <td>
+                                <button class="btn btn-sm btn-success">Edit</button>
+                                <button class="btn btn-sm btn-danger">Delete</button>
+                              </td>
+                            </tr>
+                            <% }) %>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
           </div>
         </div>
 
+
+
         <%- include('partials/footer') %>
-      </div>
+    </div>
     </div>
   </body>
+
 </html>
