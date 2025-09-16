@@ -4,7 +4,7 @@ const db = require('../db')
 
 
 /* GET home page. */
-module.exports = (requireLogin,db) => {
+module.exports = (requireLogin, db) => {
 
   const router = express.Router();
 
@@ -26,6 +26,29 @@ module.exports = (requireLogin,db) => {
     }
   });
 
+  router.get('/add', requireLogin, async (req, res) => {
+    res.render('user-form', {
+      title: 'Add User',
+      action: '/users/add',
+      userData: {},
+      user: req.session.user
+
+    })
+  })
+  router.post('/add', requireLogin, async (req, res) => {
+    const { name, email, role } = req.body
+    try {
+      await db.query(
+        'INSERT INTO users (name,email,role) VALUES ($1,$2,$3)',
+        [name, email, role]
+      );
+      res.redirect('/users')
+    }
+    catch (err) {
+      console.error(err)
+      res.status(500).send('Failed to add User')
+    }
+  });
 
   return router;
 }

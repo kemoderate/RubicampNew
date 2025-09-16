@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/head') %>
+<body id="page-top">
+  <div id="wrapper">
+    <%- include('partials/sidebar') %>
+
+    <div id="content-wrapper" class="d-flex flex-column">
+      <div id="content">
+        <%- include('partials/topbar') %>
+
+        <div class="container-fluid">
+          <h1 class="h3 mb-4 text-gray-800"><%= title %></h1>
+
+          <div class="card shadow mb-4">
+            <div class="card-body">
+              <form action="<%= action %>" method="POST">
+                <div class="form-group">
+                  <label for="name">Name</label>
+                  <input type="text" id="name" name="name" class="form-control"
+                    value="<%= userData.name || '' %>" required>
+                </div>
+
+                <div class="form-group">
+                  <label for="email">Email</label>
+                  <input type="email" id="email" name="email" class="form-control"
+                    value="<%= userData.email || '' %>" required>
+                </div>
+
+                <div class="form-group">
+                  <label for="role">Role</label>
+                  <select id="role" name="role" class="form-control" required>
+                    <option value="">-- Select Role --</option>
+                    <option value="admin" <%= userData.role === 'admin' ? 'selected' : '' %>>Admin</option>
+                    <option value="cashier" <%= userData.role === 'cashier' ? 'selected' : '' %>>Cashier</option>
+                    <option value="staff" <%= userData.role === 'staff' ? 'selected' : '' %>>Staff</option>
+                  </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Save</button>
+                <a href="/users" class="btn btn-secondary">Cancel</a>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <%- include('partials/footer') %>
+    </div>
+  </div>
+</body>
+</html>
