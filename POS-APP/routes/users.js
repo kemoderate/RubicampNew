@@ -36,11 +36,11 @@ module.exports = (requireLogin, db) => {
     })
   })
   router.post('/add', requireLogin, async (req, res) => {
-    const { name, email, role } = req.body
+    const { name, password, email, role } = req.body
     try {
       await db.query(
-        'INSERT INTO users (name,email,role) VALUES ($1,$2,$3)',
-        [name, email, role]
+        'INSERT INTO users (name,password,email,role) VALUES ($1,$2,$3,$4)',
+        [name, password, email, role]
       );
       res.redirect('/users')
     }
