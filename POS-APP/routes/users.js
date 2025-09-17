@@ -71,12 +71,12 @@ module.exports = (requireLogin, db) => {
     }
   });
 
-  router.post('edit/id', requireLogin, async (req, res) => {
+  router.post('/edit/:id', requireLogin, async (req, res) => {
     const { id } = req.params
-    const { name, email, password, role } = req.body
+    const { name, email, password, role} = req.body
     try {
-      await db.query('UPDATE users SET name=$1, email=$2, role=$3 WHERE userid=$4',
-        [name, email, password, role]
+      await db.query('UPDATE users SET name=$1, email=$2, password=$3,role=$4 WHERE userid=$5',
+        [name, email, password, role, id]
       )
       res.redirect('/users')
     } catch (err) {

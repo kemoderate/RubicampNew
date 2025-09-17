@@ -65,7 +65,11 @@
       paging: true,
       searching: true,
       ordering: true, // ini untuk enable sort
-      columnDefs: [{ orderable: false, targets: 4 }] // actions column tidak sortable
+      columnDefs: [{ orderable: false, targets: 4 }], // actions column tidak sortable
+      pageLength: 3,
+
+      // 🔹 Dropdown pilihan entries
+      lengthMenu: [[3, 5, 10, 25, 50, -1], [3, 5, 10, 25, 50, "All"]]
     });
   });
 </script>

@@ -16,10 +16,80 @@
     rel="stylesheet">
 
   <!-- Custom styles for this template-->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
   <link href="/css/sb-admin-2.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
- 
+
+
+  <style>
+    /* Pagination default Bootstrap warna biru */
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+      background: #007bff !important;
+      /* Biru Bootstrap */
+      color: white !important;
+      border: 1px solid #007bff !important;
+      border-radius: 5px;
+    }
+
+    /* Hover pagination button */
+    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+      background: #007bff !important;
+      color: white !important;
+      border: 1px solid #007bff !important;
+      border-radius: 5px;
+    }
+
+
+    /* ======== STYLE TOMBOL ======== */
+    /* Wrapper untuk tombol */
+    .custom-btn {
+      display: flex;
+      align-items: center;
+      padding: 0;
+      overflow: hidden;
+      border-radius: 8px;
+      font-weight: 500;
+      border: none;
+    }
+
+    /* Bagian kiri: icon */
+    .custom-btn .btn-icon {
+      background: rgba(0, 0, 0, 0.15);
+      /* efek transparan untuk kontras */
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Bagian kanan: teks */
+    .custom-btn .btn-text {
+      padding: 8px 16px;
+    }
+
+    /* Save (Hijau) */
+    .btn-success {
+      background-color: #20c997;
+      color: white;
+    }
+
+    .btn-success:hover {
+      background-color: #17a589;
+    }
+
+    /* Back (Kuning) */
+    .btn-warning {
+      background-color: #ffc107;
+      color: white;
+    }
+
+    .btn-warning:hover {
+      background-color: #e0a800;
+    }
+  </style>
 
 
 
