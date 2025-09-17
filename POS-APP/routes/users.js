@@ -1,6 +1,6 @@
 var express = require('express');
 const db = require('../db')
-
+const bcrypt = require('bcrypt')
 
 
 /* GET home page. */
@@ -73,11 +73,19 @@ module.exports = (requireLogin, db) => {
 
   router.post('/edit/:id', requireLogin, async (req, res) => {
     const { id } = req.params
-    const { name, email, password, role} = req.body
+    const { name, email, password, role } = req.body
     try {
-      await db.query('UPDATE users SET name=$1, email=$2, password=$3,role=$4 WHERE userid=$5',
-        [name, email, password, role, id]
-      )
+
+      if (password && password.trim() !== "") {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        query = 'UPDATE users SET name=$1, email=$2, password=$3,role=$4 WHERE userid=$5';
+        params = [name, email, hashedPassword, role, id]
+      } else {
+        query = 'UPDATE users SET name=$1, email=$2,role=$3 WHERE userid=$4'
+        params = [name, email, role, id]
+      }
+
+      await db.query(query, params);
       res.redirect('/users')
     } catch (err) {
       console.error(err);
