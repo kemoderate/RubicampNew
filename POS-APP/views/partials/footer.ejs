@@ -76,12 +76,9 @@
 <!-- CRUD mulai dari sini -->
 <script>
   // edit
-  $(document).ready(function () {
-    $('.btn-edit').click(function () {
-      const userId = $(this).data('id')
-      window.location.href = `/users/edit/${userId}`;
-
-    })
+  $(document).on('click', '.btn-edit', function () {
+    const userId = $(this).data('id')
+    window.location.href = `/users/edit/${userId}`;
   })
   // submit edit
   $(document).ready(function () {
@@ -91,18 +88,49 @@
     })
   })
 
-  // delete
-  $(document).ready(function () {
-    let deleteUserId = null;
-    $('.btn-delete').click(function () {
-      const userId = $(this).data('id')
-      $('#deleteModal').modal('show');
+  // delete 
+  $(function () {
 
-      $('#confirmDelete').click(function () {
-        if (deleteUserId) {
-          window.location.href = `/users/delete/${userId}`;
-        }
-      })
-    })
-  })
+
+    let deleteUserId = null;
+
+    // Pakai event delegation biar jalan walau DataTables re-render
+    $('#myTable').on('click', '.btn-delete', function (e) {
+      e.preventDefault();
+
+      deleteUserId = $(this).data('id');
+      console.log('btn-delete clicked, id =', deleteUserId);
+
+      if (!deleteUserId) {
+        alert('ID user tidak ditemukan!');
+        return;
+      }
+
+      // Show modal pakai Bootstrap 4 (jQuery)
+      $('#deleteModal').modal('show');
+    });
+
+    // Tombol confirm delete
+    $('#confirmDelete').off('click').on('click', function (e) {
+      e.preventDefault();
+      console.log('confirmDelete clicked, deleteUserId =', deleteUserId);
+
+      if (!deleteUserId) {
+        alert('Tidak ada user yang dipilih untuk dihapus');
+        return;
+      }
+
+      // Redirect ke route delete
+      window.location.href = `/users/delete/${encodeURIComponent(deleteUserId)}`;
+    });
+
+    // Reset id saat modal ditutup
+    $('#deleteModal').on('hidden.bs.modal', function () {
+      console.log('deleteModal hidden - reset deleteUserId');
+      deleteUserId = null;
+    });
+  });
+
+
+
 </script>

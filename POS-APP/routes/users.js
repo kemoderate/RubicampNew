@@ -11,7 +11,9 @@ module.exports = (requireLogin, db) => {
   router.get('/', requireLogin, async (req, res) => {
     try {
       const result = await db.query('SELECT userid, name, email, role FROM users ORDER BY userid ASC');
+    
       const users = result.rows;
+     
 
       // render EJS dan kirim data users
       res.render('users', {
@@ -42,9 +44,10 @@ module.exports = (requireLogin, db) => {
       return res.status(400).send('Semua field wajib diisi!');
     }
     try {
+       const hashedPassword = await bcrypt.hash(password, 10);
       await db.query(
         'INSERT INTO users (name,password,email,role) VALUES ($1,$2,$3,$4)',
-        [name, password, email, role]
+        [name, hashedPassword, email, role]
       );
       res.redirect('/users')
     }
