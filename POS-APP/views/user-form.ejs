@@ -1,56 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
 <%- include('partials/head') %>
-<body id="page-top">
-  <div id="wrapper">
-    <%- include('partials/sidebar') %>
 
-    <div id="content-wrapper" class="d-flex flex-column">
-      <div id="content">
-        <%- include('partials/topbar') %>
+  <body id="page-top">
+    <div id="wrapper">
+      <%- include('partials/sidebar') %>
 
-        <div class="container-fluid">
-          <h1 class="h3 mb-4 text-gray-800"><%= title %></h1>
+        <div id="content-wrapper" class="d-flex flex-column">
+          <div id="content">
+            <%- include('partials/topbar') %>
 
-          <div class="card shadow mb-4">
-            <div class="card-body">
-              <form action="<%= action %>" method="POST">
-                <div class="form-group">
-                  <label for="email">Email</label>
-                  <input type="email" id="email" name="email" class="form-control"
-                    value="<%= userData.email || '' %>" required>
+              <div class="container-fluid">
+                <h1 class="h3 mb-4 text-gray-800">
+                  Users
+                </h1>
+
+                <div class="card shadow mb-4">
+
+                  <div class="card-header">
+                    <h5 class="mb-0 text-primary font-weight-bold">
+                      <%= title %>
+                    </h5>
+                  </div>
+
+                  <div class="card-body">
+                    <form action="<%= action %>" method="POST">
+
+                      <div class="form-group row">
+                        <label for="email" class="col-sm-2 col-form-label">Email</label>
+                        <div class="col-sm-10">
+                          <input type="email" id="email" name="email" class="form-control"
+                            value="<%= userData.email || '' %>" required>
+                        </div>
+                      </div>
+
+                      <div class="form-group row">
+                        <label for="name" class="col-sm-2 col-form-label">Name</label>
+                        <div class="col-sm-10">
+                          <input type="text" id="name" name="name" class="form-control"
+                            value="<%= userData.name || '' %>" required>
+                        </div>
+                      </div>
+
+                      <div class="form-group row">
+                        <label for="password" class="col-sm-2 col-form-label">Password</label>
+                        <div class="col-sm-10">
+                          <input type="password" id="password" name="password" class="form-control"
+                            value="<%= userData.password || '' %>" required>
+                        </div>
+                      </div>
+
+                      <!-- role -->
+                      <div class="form-group row">
+                        <label for="role" class="col-sm-2 col-form-label">Role</label>
+                        <div class="col-sm-10">
+                          <div class="form-check">
+                            <input type="radio" id="roleOperator" name="role" class="form-check-input" value="operator"
+                              <%= !userData.role || userData.role ==='operator' ? 'checked' : '' %> required>
+                            <label class="form-check-label" for="roleOperator"> Operator </label>
+                          </div>
+
+                          <div class="form-check">
+                            <input type="radio" id="roleAdmin" name="role" class="form-check-input" value="admin"
+                              <%=userData.role==='admin' ? 'checked' : '' %> required >
+                            <label class="form-check-label" for="roleAdmin">
+                              Admin
+                            </label>
+                          </div>
+
+
+                        </div>
+                    </form>
+                  </div>
                 </div>
 
-                <div class="form-group">
-                  <label for="name">Name</label>
-                  <input type="text" id="name" name="name" class="form-control"
-                    value="<%= userData.name || '' %>" required>
-                </div>
+                <div class="card-footer d-flex justify-content-start">
+                  <button id="btnSave" class="btn btn-success">Save</button>
+                  <a href="/users" class="btn btn-warning">Cancel</a>
 
-                <div class="form-group">
-                  <label for="email">Password</label>
-                  <input type="email" id="password" name="password" class="form-control"
-                    value="<%= userData.password || '' %>" required>
                 </div>
-                
-                <div class="form-group">
-                  <label for="role">Role</label>
-                  <input type="radio" id="role" name="role" class="form-control" required>
-                    <option value="">-- Select Role --</option>
-                    <option value="admin" <%= userData.role === 'admin' ? 'selected' : '' %>>Admin</option>
-                    <option value="cashier" <%= userData.role === 'cashier' ? 'selected' : '' %>>Operator</option>
-                </div>
-
-                <button type="submit" class="btn btn-primary">Save</button>
-                <a href="/users" class="btn btn-secondary">Cancel</a>
-              </form>
-            </div>
+              </div>
           </div>
-        </div>
-      </div>
 
-      <%- include('partials/footer') %>
+          <%- include('partials/footer') %>
+        </div>
     </div>
-  </div>
-</body>
+  </body>
+
 </html>
