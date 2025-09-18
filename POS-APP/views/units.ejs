@@ -30,7 +30,7 @@
                                 <div class="card shadow mb-4">
                                     <div class="card-body">
                                         <div class="table-responsive">
-                                            <table id="myTable" class="table table-bordered">
+                                            <table id="myTable" class="table table-bordered" data-entity="units">
                                                 <thead>
                                                     <tr>
                                                         <th>Unit </th>
@@ -62,13 +62,13 @@
                                                             <td>
                                                                 <button type="button"
                                                                     class="btn btn-sm btn-success btn-edit rounded-circle  align-items-center justify-content-center"
-                                                                    data-id="<%= unit.unitid %>"
+                                                                    data-id="<%= unit.unit %>"
                                                                     data-entity = "units">
                                                                     <i class="fas fa-info-circle"></i>
                                                                 </button>
                                                                 <button
                                                                     class="btn btn-sm btn-danger btn-delete rounded-circle  align-items-center justify-content-center"
-                                                                    data-id="<%= unit.userid %>"
+                                                                    data-id="<%= unit.unit%>"
                                                                     data-entity = "units">
                                                                     <i class="fas fa-trash"></i>
                                                                 </button>

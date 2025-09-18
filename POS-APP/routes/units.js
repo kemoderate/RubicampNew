@@ -20,7 +20,7 @@ module.exports = (requireLogin, db) => {
         title: 'Units',
         units,
         user: req.session.user,
-        layout: 'layout'
+        layout: 'layout',
       });
     } catch (err) {
       console.error(err);
@@ -30,42 +30,48 @@ module.exports = (requireLogin, db) => {
 
   router.get('/add', requireLogin, async (req, res) => {
     res.render('unit-form', {
-      title: 'Add User',
+      title: 'Add Unit',
       action: '/units/add',
       unitData: {},
       user: req.session.user
-
     })
   })
   router.post('/add', requireLogin, async (req, res) => {
     const { unit, name, note } = req.body
 
-    if (!unit || !name || !note) {
-      return res.status(400).send('Semua field wajib diisi!');
+    if (!unit) {
+      req.flash('error_msg', 'Unit field must be filled!')
+      return res.redirect('/units/add');
     }
     try {
       await db.query(
         'INSERT INTO units (unit,name,note) VALUES ($1,$2,$3)',
-        [unit, name, note]
+        [unit, name || null, note || null]
       );
+      req.flash('success_msg', 'unit has been added !')
       res.redirect('/units')
     }
     catch (err) {
       console.error(err)
-      res.status(500).send('Failed to add User')
+      req.flash('error_msg','Failed to add unit');
+      res.redirect('/units/add')
     }
   });
 
-  router.get('/edit/:id', requireLogin, async (req, res) => {
-    const { id } = req.params
+  router.get('/edit/:unit', requireLogin, async (req, res) => {
+    const { unit } = req.params
     try {
-      const { rows } = await db.query('SELECT * FROM units WHERE unit = $1', [id]);
-      if (rows.length === 0) return res.status(404).send('User Not Found')
+      const { rows } = await db.query('SELECT * FROM units WHERE unit = $1', [unit]);
+      if (rows.length === 0) {
+        req.flash('error_msg', 'Unit not found')
+        return res.redirect('/units')
+      }
+
       res.render('unit-form', {
         title: 'Edit unit',
-        action: `/units/edit/${id}`,
+        action: `/units/edit/${unit}`,
         unitData: rows[0],
-        user: req.session.user,
+        user: req.session.user
       })
     } catch (err) {
       console.error(err)
@@ -73,28 +79,38 @@ module.exports = (requireLogin, db) => {
     }
   });
 
-  router.post('/edit/:id', requireLogin, async (req, res) => {
-    const { id } = req.params
-    const { unit, name ,note } = req.body
+  router.post('/edit/:unit', requireLogin, async (req, res) => {
+    const { unit } = req.params
+    const { name, note } = req.body
+
+    if (!name || !note) {
+      req.flash('error_msg', 'Semua field wajib diisi');
+      return res.redirect(`/units/edit/${unit}`)
+    }
+
     try {
-      await db.query('UPDATE units SET unit=$1, name=$2, note=$3 WHERE unit=$5',
-        [unit, name ,note]
+      await db.query('UPDATE units SET name=$1, note=$2 WHERE unit=$3',
+        [name, note, unit]
       )
+      req.flash('success_msg', 'Unit has been updated!')
       res.redirect('/units')
     } catch (err) {
       console.error(err);
-      res.status(500).send('Failed to update user')
+      req.flash('error_msg', 'failed updating Unit')
+      res.redirect(`/units/edit/${unit}`);
     }
   })
 
-  router.get('/delete/:id', requireLogin, async (req, res) => {
-    const { id } = req.params
+  router.get('/delete/:unit', requireLogin, async (req, res) => {
+    const { unit } = req.params
     try {
-      await db.query('DELETE FROM units WHERE userid = $1', [id])
+      await db.query('DELETE FROM units WHERE unit = $1', [unit])
+      req.flash('success_msg','unit has been deleted!')
       res.redirect('/units')
     } catch (err) {
       console.error(err)
-      res.status(500).send('Failed to delete user')
+      req.flash('error_msg','Failed to delete Unit')
+      res.redirect('/units')
     }
   })
 
