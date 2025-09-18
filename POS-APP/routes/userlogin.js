@@ -4,17 +4,17 @@ const bcrypt = require('bcrypt')
 const pool = require('../db')
 
 
-// async function hashPasswords() {
-//   const { rows: users } = await pool.query('SELECT userid, password FROM users');
-//   for (const user of users) {
-//     if (!user.password.startsWith('$2b$')) { // cek kalau belum hash
-//       const hash = await bcrypt.hash(user.password, 10);
-//       await pool.query('UPDATE users SET password = $1 WHERE userid = $2', [hash, user.userid]);
-//       console.log(`User ${user.userid} password hashed`);
-//     }
-//   }
-// }
-// hashPasswords();
+async function hashPasswords() {
+  const { rows: users } = await pool.query('SELECT userid, password FROM users');
+  for (const user of users) {
+    if (!user.password.startsWith('$2b$')) { // cek kalau belum hash
+      const hash = await bcrypt.hash(user.password, 10);
+      await pool.query('UPDATE users SET password = $1 WHERE userid = $2', [hash, user.userid]);
+      console.log(`User ${user.userid} password hashed`);
+    }
+  }
+}
+hashPasswords();
 
 
 router.get('/', (req, res) => {

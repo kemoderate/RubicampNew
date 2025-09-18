@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/head') %>
+
+    <body id="page-top">
+        <div id="wrapper">
+            <%- include('partials/sidebar') %>
+
+                <div id="content-wrapper" class="d-flex flex-column">
+                    <div id="content">
+                        <%- include('partials/topbar') %>
+
+                            <!-- Begin Page Content -->
+                            <div class="container-fluid">
+                                <h1 class="h3 mb-4 text-gray-800">Units</h1>
+                                <h2 class="h4 mb-4 text-gray-800">This is data of Units</h2>
+                            </div>
+                            <div class="container-fluid">
+
+                                <div class="card-header py-3">
+                                    <a href="/units/add" class="btn btn-primary btn-icon-split">
+                                        <span class="icon text-white-50">
+                                            <i class="fa fa-plus"></i>
+                                        </span>
+                                        <span class="text">Add</span>
+                                    </a>
+                                </div>
+
+
+                                <div class="card shadow mb-4">
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table id="myTable" class="table table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Unit </th>
+                                                        <th>Name</th>
+                                                        <th>Note</th>
+                                                        <th>Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tfoot>
+                                                    <tr>
+                                                        <th>Unit </th>
+                                                        <th>Name</th>
+                                                        <th>Note</th>
+                                                        <th>Actions</th>
+                                                    </tr>
+                                                </tfoot>
+                                                <tbody>
+                                                    <% units.forEach(unit=> { %>
+                                                        <tr>
+                                                            <td>
+                                                                <%= unit.unit %>
+                                                            </td>
+                                                            <td>
+                                                                <%= unit.name %>
+                                                            </td>
+                                                            <td>
+                                                                <%= unit.note %>
+                                                            </td>
+                                                            <td>
+                                                                <button type="button"
+                                                                    class="btn btn-sm btn-success btn-edit rounded-circle  align-items-center justify-content-center"
+                                                                    data-id="<%= unit.unitid %>"
+                                                                    data-entity = "units">
+                                                                    <i class="fas fa-info-circle"></i>
+                                                                </button>
+                                                                <button
+                                                                    class="btn btn-sm btn-danger btn-delete rounded-circle  align-items-center justify-content-center"
+                                                                    data-id="<%= unit.userid %>"
+                                                                    data-entity = "units">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                        <% }) %>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                    </div>
+                </div>
+
+
+
+                <%- include('partials/footer') %>
+        </div>
+        </div>
+    </body>
+
+</html>

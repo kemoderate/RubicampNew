@@ -16,19 +16,16 @@
                 <h2 class="h4 mb-4 text-gray-800">This is data of Users</h2>
               </div>
               <div class="container-fluid">
+
                 <div class="card-header py-3">
-                  <button type="button" class="btn btn-primary">
-                    <span class="icon-box">
-                      <a href="/users/add" class="btn btn-primary"
-                        style="background-color: #280292; color: #707079; border: none;">
-                        <i class="fa fa-plus"></i>
-                      </a>
+                  <a href="/users/add" class="btn btn-primary btn-icon-split">
+                    <span class="icon text-white-50">
+                      <i class="fa fa-plus"></i>
                     </span>
-                    <span class="text-box" class="btn btn-secondary">
-                      Add
-                    </span>
-                  </button>
+                    <span class="text">Add</span>
+                  </a>
                 </div>
+
 
                 <div class="card shadow mb-4">
                   <div class="card-body">
@@ -70,12 +67,15 @@
                               <td>
                                 <button type="button"
                                   class="btn btn-sm btn-success btn-edit rounded-circle  align-items-center justify-content-center"
-                                  data-id="<%= user.userid %>">
+                                  data-id="<%= user.userid %>"
+                                  data-entity = "users">
+                                  
                                   <i class="fas fa-info-circle"></i>
                                 </button>
                                 <button
                                   class="btn btn-sm btn-danger btn-delete rounded-circle  align-items-center justify-content-center"
-                                  data-id="<%= user.userid %>">
+                                  data-id="<%= user.userid %>"
+                                  data-entity = "users">
                                   <i class="fas fa-trash"></i>
                                 </button>
                               </td>

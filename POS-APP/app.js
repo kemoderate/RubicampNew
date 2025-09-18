@@ -19,6 +19,7 @@ function requireLogin(req, res , next){
 var userloginRouter = require('./routes/userlogin');
 var indexRouter = require('./routes/index')(requireLogin,db);
 var usersRouter = require('./routes/users')(requireLogin,db);
+var unitsRouter = require('./routes/units')(requireLogin,db);
 
 var app = express();
 
@@ -53,7 +54,9 @@ app.use((req, res, next) => {
 
 app.use('/dashboard',requireLogin, indexRouter);
 app.use('/users',requireLogin, usersRouter);
+app.use('/units',requireLogin, unitsRouter);
 app.use('/', userloginRouter);
+
 
 
 // catch 404 and forward to error handler

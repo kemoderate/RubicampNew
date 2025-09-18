@@ -75,10 +75,15 @@
 </script>
 <!-- CRUD mulai dari sini -->
 <script>
+let currentEntity = null;
+
   // edit
   $(document).on('click', '.btn-edit', function () {
     const userId = $(this).data('id')
-    window.location.href = `/users/edit/${userId}`;
+    currentEntity = $(this).data('entity')
+
+    if(!id || !currentEntity ) return alert ('Data edit tidak lengkap');
+    window.location.href = `/${currentEntity}/edit/${encodeURIComponent(id)}`;
   })
   // submit edit
   $(document).ready(function () {
@@ -90,8 +95,7 @@
 
   // delete 
   $(function () {
-
-
+    
     let deleteUserId = null;
 
     // Pakai event delegation biar jalan walau DataTables re-render
