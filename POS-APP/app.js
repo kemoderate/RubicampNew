@@ -21,6 +21,7 @@ var indexRouter = require('./routes/index')(requireLogin, db);
 var usersRouter = require('./routes/users')(requireLogin, db);
 var unitsRouter = require('./routes/units')(requireLogin, db);
 var goodsRouter = require('./routes/goods')(requireLogin, db);
+var suppliersRouter = require('./routes/suppliers')(requireLogin, db);
 
 var app = express();
 
@@ -59,6 +60,7 @@ app.use('/dashboard', requireLogin, indexRouter);
 app.use('/users', requireLogin, usersRouter);
 app.use('/units', requireLogin, unitsRouter);
 app.use('/goods', requireLogin, goodsRouter);
+app.use('/suppliers', requireLogin, suppliersRouter);
 app.use('/', userloginRouter);
 
 
