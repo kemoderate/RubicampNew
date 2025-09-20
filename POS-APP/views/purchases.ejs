@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/head') %>
+
+    <body id="page-top">
+        <div id="wrapper">
+            <%- include('partials/sidebar') %>
+
+                <div id="content-wrapper" class="d-flex flex-column">
+                    <div id="content">
+                        <%- include('partials/topbar') %>
+
+                            <!-- Begin Page Content -->
+                            <div class="container-fluid">
+                                <h1 class="h3 mb-4 text-gray-800">Purchases</h1>
+                                <h2 class="h4 mb-4 text-gray-800">This is data of Purchases</h2>
+                            </div>
+                            <div class="container-fluid">
+
+                                <div class="card-header py-3">
+                                    <a href="/purchases/add" class="btn btn-primary btn-icon-split">
+                                        <span class="icon text-white-50">
+                                            <i class="fa fa-plus"></i>
+                                        </span>
+                                        <span class="text">Add</span>
+                                    </a>
+                                </div>
+
+
+                                <div class="card shadow mb-4">
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table id="myTable" class="table table-bordered" data-entity="purchases"
+                                                data-has-image="true">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Barcode </th>
+                                                        <th>Name</th>
+                                                        <th>Stock</th>
+                                                        <th>Purchase Price</th>
+                                                        <th>Selling Price</th>
+                                                        <th>Unit</th>
+                                                        <th>Pictures</th>
+                                                        <th>Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tfoot>
+                                                    <tr>
+                                                        <th>Barcode </th>
+                                                        <th>Name</th>
+                                                        <th>Stock</th>
+                                                        <th>Purchase Price</th>
+                                                        <th>Selling Price</th>
+                                                        <th>Unit</th>
+                                                        <th>Pictures</th>
+                                                        <th>Actions</th>
+                                                    </tr>
+                                                </tfoot>
+                                                <tbody>
+                                                    <% purchases.forEach(purchases=> { %>
+                                                        <tr>
+                                                            <td>
+                                                                <%= purchases.barcode %>
+                                                            </td>
+                                                            <td>
+                                                                <%= purchases.name %>
+                                                            </td>
+                                                            <td>
+                                                                <%= purchases.stock %>
+                                                            </td>
+                                                            <td>
+                                                                <%= new Intl.NumberFormat('id-ID', { style: 'currency' ,
+                                                                    currency: 'IDR' }).format(purchases.purchaseprice) %>
+                                                            </td>
+                                                            
+                                                            <td>
+                                                                <%= new Intl.NumberFormat('id-ID', { style: 'currency' ,
+                                                                    currency: 'IDR' }).format(purchases.sellingprice) %>
+                                                            </td>
+                                                            <td>
+                                                                <%= purchases.unit %>
+                                                            </td>
+                                                            <td>
+                                                                <%= purchases.picture %>
+                                                            </td>
+                                                            <td>
+                                                                <button type="button"
+                                                                    class="btn btn-sm btn-success btn-edit rounded-circle  align-items-center justify-content-center"
+                                                                    data-id="<%= purchases.barcode %>" data-entity="purchases">
+                                                                    <i class="fas fa-info-circle"></i>
+                                                                </button>
+                                                                <button
+                                                                    class="btn btn-sm btn-danger btn-delete rounded-circle  align-items-center justify-content-center"
+                                                                    data-id="<%= purchases.barcode %>" data-entity="purchases">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                        <% }) %>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                    </div>
+                </div>
+
+
+
+                <%- include('partials/footer') %>
+        </div>
+        </div>
+    </body>
+
+</html>
