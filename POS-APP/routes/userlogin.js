@@ -21,12 +21,12 @@ router.get('/', (req, res) => {
   if (req.session.user) {
     return res.redirect('/dashboard');
   }
-  res.render('login', { title: 'Login User',user: req.session.user });
+  res.render('login', { title: 'Login User', user: req.session.user });
 });
 
 
 router.post('/', async (req, res) => {
-  console.log('Login data:', req.body); 
+
   const { email, password } = req.body
 
   if (!email) {
@@ -45,7 +45,7 @@ router.post('/', async (req, res) => {
 
       [email]
     );
-    console.log('Query result:', result.rows);
+
 
     if (result.rows.length === 0) {
       req.flash('error_msg', 'email tidak terdaftar');

@@ -9,17 +9,18 @@ const flash = require('connect-flash')
 const db = require('./db')
 
 
-function requireLogin(req, res , next){
-  if(!req.session.user){
+function requireLogin(req, res, next) {
+  if (!req.session.user) {
     return res.redirect('/')
   }
   next();
 }
 
 var userloginRouter = require('./routes/userlogin');
-var indexRouter = require('./routes/index')(requireLogin,db);
-var usersRouter = require('./routes/users')(requireLogin,db);
-var unitsRouter = require('./routes/units')(requireLogin,db);
+var indexRouter = require('./routes/index')(requireLogin, db);
+var usersRouter = require('./routes/users')(requireLogin, db);
+var unitsRouter = require('./routes/units')(requireLogin, db);
+var goodsRouter = require('./routes/goods')(requireLogin, db);
 
 var app = express();
 
@@ -33,7 +34,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(bodyParser.urlencoded({extended: false }))
+app.use(bodyParser.urlencoded({ extended: false }))
 
 app.use(session({
   secret: 'rubicamp',
@@ -53,26 +54,28 @@ app.use((req, res, next) => {
 
 
 
-app.use('/dashboard',requireLogin, indexRouter);
-app.use('/users',requireLogin, usersRouter);
-app.use('/units',requireLogin, unitsRouter);
+
+app.use('/dashboard', requireLogin, indexRouter);
+app.use('/users', requireLogin, usersRouter);
+app.use('/units', requireLogin, unitsRouter);
+app.use('/goods', requireLogin, goodsRouter);
 app.use('/', userloginRouter);
 
 
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next(createError(404));
 });
 // error handler
 app.use(function (err, req, res, next) {
   console.error(err.stack);
-  res.status(err.status || 500).send(err.message); 
+  res.status(err.status || 500).send(err.message);
 });
 
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};

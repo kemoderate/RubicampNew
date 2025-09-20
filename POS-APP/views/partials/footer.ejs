@@ -58,3 +58,34 @@
 
 <!-- data tables -->
 <script src="/js/crud.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const pictureInput = document.getElementById('picture');
+    const previewContainer = document.getElementById('newPicturePreview');
+    const previewImage = document.getElementById('previewImage');
+
+    if (!pictureInput) {
+      console.error('Picture input element not found!');
+      return;
+    }
+
+    pictureInput.addEventListener('change', function (event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+          previewImage.src = e.target.result;
+          previewContainer.style.display = 'block';
+        };
+
+        reader.readAsDataURL(file);
+      } else {
+        // Reset jika user batal pilih file
+        previewImage.src = '';
+        previewContainer.style.display = 'none';
+      }
+    });
+  });
+</script>
+

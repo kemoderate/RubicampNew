@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>
+  </title>
+  
+</head>
+
+
+
+  <script>
+    function openDeleteModal(title, actionUrl) {
+      document.getElementById('deleteItem').textContent = `"${title}"`;
+      document.getElementById('deleteForm').action = actionUrl;
+      const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+      modal.show();
+    }
+  </script>
+  
+</body>
+
+</html>

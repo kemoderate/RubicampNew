@@ -37,8 +37,12 @@ function spellingWord(word) {
 
 
 spellingWord('program')
+
 spellingWord('programit')
+
 spellingWord('programmerit')
+
 spellingWord('programlala')
+
 spellingWord('proletarian')
 

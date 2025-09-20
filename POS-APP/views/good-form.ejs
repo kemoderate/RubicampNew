@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/head') %>
+
+    <body id="page-top">
+        <div id="wrapper">
+            <%- include('partials/sidebar') %>
+
+                <div id="content-wrapper" class="d-flex flex-column">
+                    <div id="content">
+                        <%- include('partials/topbar') %>
+
+                            <div class="container-fluid">
+                                <h1 class="h3 mb-4 text-gray-800">
+                                    Units
+                                </h1>
+
+                                <!-- 🔹 Flash Messages -->
+                                <% if (error && error.length> 0) { %>
+                                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                        <% error.forEach(msg=> { %>
+                                            <div>
+                                                <%= msg %>
+                                            </div>
+                                            <% }) %>
+                                                <button type="button" class="close" data-dismiss="alert"
+                                                    aria-label="Close"></button>
+                                    </div>
+                                    <% } %>
+
+                                        <% if (success && success.length> 0) { %>
+                                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                                <% success.forEach(msg=> { %>
+                                                    <div>
+                                                        <%= msg %>
+                                                    </div>
+                                                    <% }) %>
+                                                        <button type="button" class="close" data-dismiss="alert"
+                                                            aria-label="Close"></button>
+                                            </div>
+                                            <% } %>
+
+                                                <div class="card shadow mb-4">
+                                                    <div class="card-header">
+                                                        <h5 class="mb-0 text-primary font-weight-bold">
+                                                            <%= title %>
+                                                        </h5>
+                                                    </div>
+
+                                                    <div class="card-body">
+                                                        <form action="<%= action %>" method="POST"
+                                                            enctype="multipart/form-data">
+
+                                                            <div class="form-group row">
+                                                                <label for="barcode"
+                                                                    class="col-sm-2 col-form-label">Barcode</label>
+                                                                <div class="col-sm-10">
+                                                                    <input type="text" id="barcode" name="barcode"
+                                                                        class="form-control"
+                                                                        value="<%= goodData.barcode || '' %>" readonly>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="form-group row">
+                                                                <label for="name"
+                                                                    class="col-sm-2 col-form-label">Name</label>
+                                                                <div class="col-sm-10">
+                                                                    <input type="text" id="name" name="name"
+                                                                        class="form-control"
+                                                                        value="<%= goodData.name || '' %>" required>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="form-group row">
+                                                                <label for="stock"
+                                                                    class="col-sm-2 col-form-label">Stock</label>
+                                                                <div class="col-sm-10">
+                                                                    <input type="text" id="stock" name="stock"
+                                                                        class="form-control"
+                                                                        value="<%= goodData.stock || '' %>" placeholder="0" required>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="form-group row">
+                                                                <label for="purchaseprice"
+                                                                    class="col-sm-2 col-form-label">Purchase
+                                                                    Price</label>
+                                                                <div class="col-sm-10">
+                                                                    <input type="text" id="purchaseprice"
+                                                                        name="purchaseprice" class="form-control"
+                                                                        value="<%= goodData.purchaseprice || '' %>"
+                                                                        placeholder="0" required>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="form-group row">
+                                                                <label for="sellingprice"
+                                                                    class="col-sm-2 col-form-label">Selling
+                                                                    Price</label>
+                                                                <div class="col-sm-10">
+                                                                    <input type="text" id="sellingprice"
+                                                                        name="sellingprice" class="form-control"
+                                                                        value="<%= goodData.sellingprice || '' %>"
+                                                                        placeholder="0" required>
+                                                                </div>
+                                                            </div>
+
+
+                                                            <div class="form-group row">
+                                                                <label for="unit"
+                                                                    class="col-sm-2 col-form-label">Unit</label>
+                                                                <div class="col-sm-10">
+                                                                    <select id="unit" name="unit" class="form-control"
+                                                                        required>
+                                                                        <option value="">-- Select Unit --</option>
+                                                                        <% units.forEach(u=> { %>
+                                                                            <option value="<%= u.unit %>"
+                                                                                <%=goodData.unit===u.unit ? 'selected'
+                                                                                : '' %>>
+                                                                                <%= u.unit %> - <%= u.name %>
+                                                                            </option>
+                                                                            <% }) %>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                            <input type="hidden" name="oldPicture"
+                                                                value="<%= goodData.picture %>">
+                                                            <div class="form-group row">
+                                                                <label for="picture"
+                                                                    class="col-sm-2 col-form-label">Picture</label>
+                                                                <div class="col-sm-10">
+                                                                    <input type="file" id="picture" name="picture"
+                                                                        class="form-control-file" accept="image/*">
+                                                                    <div class="mt-2" id="newPicturePreview"
+                                                                        style="display:none;">
+                                                                        <p class="text-muted mb-1">Preview:</p>
+                                                                        <img id="previewImage" src="" alt="Preview"
+                                                                            style="max-height: 150px; border: 1px solid #ccc; padding: 4px;">
+                                                                    </div>
+                                                                    <% if (goodData.picture) { %>
+                                                                        <div class="mt-2">
+                                                                            <img src="/uploads/<%= goodData.picture %>"
+                                                                                alt="Current Picture"
+                                                                                style="max-height: 150px;">
+                                                                        </div>
+                                                                        <% } %>
+                                                                            <div
+                                                                                class="card-footer d-flex justify-content-start">
+                                                                                <!-- Save Button -->
+                                                                                <button id="btnSave" type="submit"
+                                                                                    class="btn custom-btn btn-success me-2">
+                                                                                    <span class="btn-icon">
+                                                                                        <i class="fas fa-database"></i>
+                                                                                    </span>
+                                                                                    <span class="btn-text">Save</span>
+                                                                                </button>
+
+                                                                                <!-- Back Button -->
+                                                                                <a href="/goods "
+                                                                                    class="btn custom-btn btn-warning">
+                                                                                    <span class="btn-icon">
+                                                                                        <i class="fas fa-undo-alt"></i>
+                                                                                    </span>
+                                                                                    <span class="btn-text">Back</span>
+                                                                                </a>
+                                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                            </div>
+                    </div>
+
+                    <%- include('partials/footer') %>
+                </div>
+        </div>
+    </body>
+
+</html>

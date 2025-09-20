@@ -426,11 +426,27 @@
         .done(function (res) {
           console.log("todo deleted:", res.message);
           $("#deleteModal").modal("hide");
+           const hasFilter = Object.keys(FormData).length > 0;
+        const hasSorting = sortMode !== 'asc';
+
+        if (!hasFilter && !hasSorting) {
 
           page = 1;
+          $("#filterForm")[0].reset();
+          sortMode = 'asc';
           finished = false;
+          loading = false;
           $("#todoContainer").empty();
-          loadTodos({ sortBy: "deadline", sortMode: sortMode });
+          loadTodos(); // reload default
+        } else {
+          finished = false;
+          loading = false;
+        
+          $("#todoContainer").empty();
+          page = 1;
+
+          loadTodos({ ...FormData, sortBy: 'deadline', sortMode: sortMode , page: page});
+        }
         })
         .fail(function (xhr, status, error) {
           const errMsg = xhr.responseJSON?.error || error;
