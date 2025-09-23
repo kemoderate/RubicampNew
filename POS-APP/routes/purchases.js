@@ -43,7 +43,7 @@ module.exports = (requireLogin, db) => {
 
         const units = await db.query('SELECT unit, name FROM units ORDER BY name ASC');
         res.render('purchase-form', {
-            title: 'Add Goods',
+            title: 'Transaction',
             action: '/purchases/add',
             purchaseData: {},
             units: units.rows,
