@@ -40,13 +40,28 @@ module.exports = (requireLogin, db) => {
         }
     });
 
+    router.get('/goods/:barcode', requireLogin , async (req,res)=>{
+        try{
+            const {barcode} = req.params;
+            const {rows} = await db.query('SELECT barcode, name, stock, purchaseprice FROM goods WHERE barcode = $1',[barcode]);
+            if (rows.length === 0) return res.status(404).json({error: 'Goods not found'});
+            res.json(rows[0]);
+        }
+        catch(err){
+            console.err(err);
+            res.status(500).json({error:'server error'})
+
+        }
+    })
+
     router.get('/generate-invoice', async (req, res) => {
         try {
             const result = await db.query('SELECT generate_invoice_no() AS invoice_no');
             res.json({
                 invoice: result.rows[0].invoice_no,
                 time: new Date().toISOString(),        // Server time in ISO format
-                operator: req.session.user.name
+                operator: req.session.user.name,
+
             });
         } catch (err) {
             console.error(err)
@@ -57,20 +72,21 @@ module.exports = (requireLogin, db) => {
 
     router.get('/add', requireLogin, async (req, res) => {
         try {
-
             const operatorResult = await db.query(
                 'SELECT userid, name FROM users WHERE userid = $1',
                 [req.session.user.id]
             );
             const operator = operatorResult.rows[0];
 
-            const goodsData = await db.query('SELECT barcode, name FROM goods ORDER BY name ASC')
+            const goodsData = await db.query('SELECT barcode, name , stock, purchaseprice FROM goods ORDER BY name ASC')
 
+            const suppliersData = await db.query('SELECT name FROM suppliers ORDER BY supplierid ASC')
             res.render('purchase-form', {
                 title: 'Transaction',
                 action: '/purchases/add',
                 goods: goodsData.rows,
-                operator : operator, 
+                suppliers: suppliersData.rows,
+                operator: operator,
                 purchaseData: {
 
                 },
@@ -90,22 +106,29 @@ module.exports = (requireLogin, db) => {
             });
         }
     })
-    router.post('/add', upload.single('picture'), requireLogin, async (req, res) => {
+    router.post('/add', requireLogin, async (req, res) => {
         try {
-            const { name, stock, purchaseprice, sellingprice, unit } = req.body
-            const picture = req.file ? req.file.filename : null;
+            const {invoice , operator , supplier, items } = req.body;
+            const time = new Date();
 
-            if (!name) {
-                req.flash('error_msg', 'Goods field must be filled!')
+            if (!invoice) {
+                req.flash('error_msg', 'invoice field must be filled!')
                 return res.redirect('/purchases/add');
             }
             const barcode = Date.now().toString().slice(-12);
 
-            await db.query(
-                `INSERT INTO purchases (barcode,name, stock, purchaseprice, sellingprice, unit, picture) 
-                VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-                [barcode, name, stock, purchaseprice, sellingprice, unit, picture]
+            // insert purchases
+            await db.query('INSERT INTO purchases(invoice, time, supplier, operator) VALUES($1,$2,$3,$4)',[invoice, time, supplier, operator]
+
             );
+
+            // insert purchaseitems
+            for(let item of JSON.parse(items)) {
+                await db.query(
+                    'INSERT INTO purchaseitems(invoice, itemcode, quantity, purchaseprice, totalprice) VALUES($1,$2,$3,$4,$5)',
+                    [invoice, item.barcode, item.qty, item.purchaseprice, item.totalprice]
+                );
+            }
             req.flash('success_msg', 'purchases has been added !')
             res.redirect('/purchases')
         }

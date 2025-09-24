@@ -88,6 +88,8 @@
     });
   });
 </script>
+
+
 <!-- script generate invoice -->
 <script>
   $(document).ready(function () {
@@ -120,4 +122,80 @@
       return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     }
   })
+</script>
+<!-- script untuk fill perhitungan total dan add ke table -->
+<script>
+  let items = [];
+  $(document).ready(function () {
+    $('#barcode').change(function () {
+      const barcode = $(this).val();
+      if (!barcode) return resetFields();
+
+      $.get(`/purchases/goods/${barcode}`, function (data) {
+        $('#goodsName').val(data.name);
+        $('#stock').val(data.stock);
+        $('#purchasePrice').val(data.purchaseprice);
+        $('#qty').val(1);
+        $('#totalPrice').val(data.purchaseprice);
+      })
+    })
+
+
+    $('#qty').on('input', function () {
+      const qty = Number($(this).val());
+      const price = Number($('#purchasePrice').val());
+      $('#totalPrice').val(qty * price);
+    })
+
+    $('#addItem').click(function () {
+      const barcode = $('#barcode').val();
+      const name = $('#goodsName').val();
+      const qty = Number($('#qty').val());
+      const price = Number($('#purchasePrice').val());
+      const total = Number($('#totalPrice').val());
+
+      if (!barcode || qty <= 0) return alert('Select goods and enter qty');
+      const item = { barcode, name, qty, purchaseprice: price, totalprice: total };
+      items.push(item);
+      renderTable();
+      updateTotalsum();
+      resetFields();
+    })
+
+    function renderTable() {
+      const tbody = $('#itemsTable tbody');
+      tbody.html('');
+      items.forEach((item, i) => {
+        tbody.append(
+          `<tr>
+          <td>${i + 1}</td>
+          <td>${item.barcode}</td>
+          <td>${item.name}</td>
+          <td>${item.qty}</td>
+          <td>${item.purchaseprice}</td>
+          <td>${item.totalprice}</td>
+          </tr>`
+        );
+      });
+    }
+
+    function updateTotalsum() {
+      let sum = items.reduce((a, b) => a + b.totalprice, 0);
+      $('#totalsum').val(sum);
+    }
+
+    function resetFields() {
+      $('#barcode').val('');
+      $('#goodsName, #stock, #purchasePrice, #qty, #totalPrice').val('')
+    }
+
+    $('form').submit(function () {
+      $('<input>').attr({
+        type: 'hidden',
+        name: 'items',
+        value: JSON.stringify(items)
+      }).appendTo('form');
+    })
+  })
+
 </script>
