@@ -11,16 +11,17 @@ module.exports = (requireLogin, db) => {
 
     router.get('/', requireLogin, async (req, res) => {
         try {
-            const result = await db.query(`SELECT 
-        p.invoice,
-        p.time, 
-        p.totalsum, 
-        p.supplier, 
-        p.operator 
-        FROM purchases p
-       
-        ORDER BY p.invoice ASC
-        `);
+            const result = await db.query(`
+             SELECT 
+              p.invoice,
+              p.time,
+              p.totalsum,
+              p.supplier,
+              u.name AS operator
+              FROM purchases p
+              LEFT JOIN users u ON p.operator = u.userid
+              ORDER BY p.invoice ASC
+`);
 
             const purchases = result.rows;
 
@@ -39,16 +40,55 @@ module.exports = (requireLogin, db) => {
         }
     });
 
-    router.get('/add', requireLogin, async (req, res) => {
+    router.get('/generate-invoice', async (req, res) => {
+        try {
+            const result = await db.query('SELECT generate_invoice_no() AS invoice_no');
+            res.json({
+                invoice: result.rows[0].invoice_no,
+                time: new Date().toISOString(),        // Server time in ISO format
+                operator: req.session.user.name
+            });
+        } catch (err) {
+            console.error(err)
+            req.flash('error_msg', 'Failed to add purchases');
+            res.redirect('/purchases/add')
+        }
+    })
 
-        const units = await db.query('SELECT unit, name FROM units ORDER BY name ASC');
-        res.render('purchase-form', {
-            title: 'Transaction',
-            action: '/purchases/add',
-            purchaseData: {},
-            units: units.rows,
-            user: req.session.user
-        })
+    router.get('/add', requireLogin, async (req, res) => {
+        try {
+
+            const operatorResult = await db.query(
+                'SELECT userid, name FROM users WHERE userid = $1',
+                [req.session.user.id]
+            );
+            const operator = operatorResult.rows[0];
+
+            const goodsData = await db.query('SELECT barcode, name FROM goods ORDER BY name ASC')
+
+            res.render('purchase-form', {
+                title: 'Transaction',
+                action: '/purchases/add',
+                goods: goodsData.rows,
+                operator : operator, 
+                purchaseData: {
+
+                },
+                success: [],
+                error: [],
+                user: req.session.user
+            });
+        } catch (err) {
+            console.error('Error generating invoice:', err);
+            res.render('purchase-form', {
+                title: 'Transaction',
+                action: '/purchases/add',
+                purchaseData: {},
+                success: [],
+                error: ['failed to generate invoice number'],
+                user: req.session.user
+            });
+        }
     })
     router.post('/add', upload.single('picture'), requireLogin, async (req, res) => {
         try {
@@ -99,12 +139,12 @@ module.exports = (requireLogin, db) => {
         }
     });
 
-    router.post('/edit/:barcode',upload.single('picture'), requireLogin, async (req, res) => {
+    router.post('/edit/:barcode', upload.single('picture'), requireLogin, async (req, res) => {
         const { barcode } = req.params
         const { name, stock, purchaseprice, sellingprice, unit, oldPicture } = req.body
         const picture = req.file ? req.file.filename : oldPicture;
 
-        if (!name ) {
+        if (!name) {
             req.flash('error_msg', 'Semua field wajib diisi');
             return res.redirect(`/purchases/edit/${barcode}`)
         }

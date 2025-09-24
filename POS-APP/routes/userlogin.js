@@ -57,7 +57,8 @@ router.post('/', async (req, res) => {
       req.flash('error_msg', 'password is wrong');
       return res.redirect('/');
     } else {
-      req.session.user = { id: user.userid, email: user.email, avatar: user.avatar };
+      req.session.user = { id: user.userid, email: user.email, name: user.name,       // simpan nama
+        role: user.role, avatar: user.avatar };
       req.session.loggedIn = true;
       req.flash('success_msg', 'Login Berhasil')
       res.redirect('/dashboard')

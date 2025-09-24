@@ -51,119 +51,158 @@
                                                         <form action="<%= action %>" method="POST"
                                                             enctype="multipart/form-data">
 
-                                                            <div class="form-group row">
-                                                                <label for="totalsum"
-                                                                    class="col-sm-2 col-form-label">Total Summary</label>
-                                                                <div class="col-sm-10">
-                                                                    <input type="text" id="totalsum" name="totalsum"
-                                                                        class="form-control"
-                                                                        value="<%= purchaseData.totalsum || '' %>" readonly>
+                                                            <!-- header fields -->
+                                                            <div class="form-row mb-3">
+                                                                <div class="form-group col-md-4">
+                                                                    <label>Invoice</label>
+                                                                    <input type="text" id="invoice" name="invoice"
+                                                                        class="form-control" readonly>
                                                                 </div>
+                                                                <div class="form-group col-md-4">
+                                                                    <label>Time</label>
+                                                                    <input type="text" id="time" name="time"
+                                                                        class="form-control" readonly>
+                                                                </div>
+                                                                <div class="form-group col-md-4">
+                                                                    <label>Operator</label>
+                                                                    <input type="text" class="form-control"
+                                                                        value="<%= operator.name %>" readonly>
+                                                                    <input type="hidden" name="operator"
+                                                                        value="<%= operator.userid %>">
+                                                                </div>
+
                                                             </div>
 
-                                                            <div class="form-group row">
-                                                                <label for="name"
-                                                                    class="col-sm-2 col-form-label">Name</label>
-                                                                <div class="col-sm-10">
-                                                                    <input type="text" id="name" name="name"
-                                                                        class="form-control"
-                                                                        value="<%= purchaseData.name || '' %>" required>
-                                                                </div>
-                                                            </div>
+                                                            <hr>
 
-                                                            <div class="form-group row">
-                                                                <label for="stock"
-                                                                    class="col-sm-2 col-form-label">Stock</label>
-                                                                <div class="col-sm-10">
-                                                                    <input type="text" id="stock" name="stock"
-                                                                        class="form-control"
-                                                                        value="<%= purchaseData.stock || '' %>" placeholder="0" required>
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="form-group row">
-                                                                <label for="purchaseprice"
-                                                                    class="col-sm-2 col-form-label">Purchase
-                                                                    Price</label>
-                                                                <div class="col-sm-10">
-                                                                    <input type="text" id="purchaseprice"
-                                                                        name="purchaseprice" class="form-control"
-                                                                        value="<%= purchaseData.purchaseprice || '' %>"
-                                                                        placeholder="0" required>
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="form-group row">
-                                                                <label for="sellingprice"
-                                                                    class="col-sm-2 col-form-label">Selling
-                                                                    Price</label>
-                                                                <div class="col-sm-10">
-                                                                    <input type="text" id="sellingprice"
-                                                                        name="sellingprice" class="form-control"
-                                                                        value="<%= purchaseData.sellingprice || '' %>"
-                                                                        placeholder="0" required>
-                                                                </div>
-                                                            </div>
-
-
-                                                            <div class="form-group row">
-                                                                <label for="unit"
-                                                                    class="col-sm-2 col-form-label">Unit</label>
-                                                                <div class="col-sm-10">
-                                                                    <select id="unit" name="unit" class="form-control"
-                                                                        required>
-                                                                        <option value="">-- Select Unit --</option>
-                                                                        <% units.forEach(u=> { %>
-                                                                            <option value="<%= u.unit %>"
-                                                                                <%=purchaseData.unit===u.unit ? 'selected'
-                                                                                : '' %>>
-                                                                                <%= u.unit %> - <%= u.name %>
+                                                            <!-- goods section -->
+                                                            <div class="form-row align-items-center mb-3">
+                                                                <div class="form-group col-md-4">
+                                                                    <label>Goods barcode</label>
+                                                                    <select name="barcode" id="barcode"
+                                                                        class="form-control">
+                                                                        <option value="">Select Goods</option>
+                                                                        <% goods.forEach(good=> { %>
+                                                                            <option value="<%= good.barcode %>">
+                                                                                <%= good.barcode %> - <%= good.name %>
                                                                             </option>
                                                                             <% }) %>
                                                                     </select>
                                                                 </div>
-                                                            </div>
-                                                            <input type="hidden" name="oldPicture"
-                                                                value="<%= purchaseData.picture %>">
-                                                            <div class="form-group row">
-                                                                <label for="picture"
-                                                                    class="col-sm-2 col-form-label">Picture</label>
-                                                                <div class="col-sm-10">
-                                                                    <input type="file" id="picture" name="picture"
-                                                                        class="form-control-file" accept="image/*">
-                                                                    <div class="mt-2" id="newPicturePreview"
-                                                                        style="display:none;">
-                                                                        <p class="text-muted mb-1">Preview:</p>
-                                                                        <img id="previewImage" src="" alt="Preview"
-                                                                            style="max-height: 150px; border: 1px solid #ccc; padding: 4px;">
-                                                                    </div>
-                                                                    <% if (purchaseData.picture) { %>
-                                                                        <div class="mt-2">
-                                                                            <img src="/uploads/<%= purchaseData.picture %>"
-                                                                                alt="Current Picture"
-                                                                                style="max-height: 150px;">
-                                                                        </div>
-                                                                        <% } %>
-                                                                            <div
-                                                                                class="card-footer d-flex justify-content-start">
-                                                                                <!-- Save Button -->
-                                                                                <button id="btnSave" type="submit"
-                                                                                    class="btn btn-success btn-icon-split">
-                                                                                    <span class="icon text-white-50">
-                                                                                        <i class="fas fa-plus"></i>
-                                                                                    </span>
-                                                                                    <span class="text">Finish</span>
-                                                                                </button>
 
-                                                                                <!-- Back Button -->
-                                                                                <a href="/purchases "
-                                                                                    class="btn custom-btn btn-warning">
-                                                                                    <span class="btn-icon">
-                                                                                        <i class="fas fa-undo-alt"></i>
-                                                                                    </span>
-                                                                                    <span class="btn-text">Back</span>
-                                                                                </a>
-                                                                            </div>
+                                                                <div class="form-group col-md-4">
+                                                                    <label>Goods Name</label>
+                                                                    <input type="text" id="goodsName"
+                                                                        class="form-control" readonly>
+                                                                </div>
+
+                                                                <div class="form-group col-md-4">
+                                                                    <label>Stock</label>
+                                                                    <input type="text" id="stock" class="form-control"
+                                                                        readonly>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="form-row align-items-center">
+                                                                <div class="form-group col-md-4">
+                                                                    <label for="purchaseprice"> Purchase price</label>
+                                                                    <input type="text" id="purchasePrice"
+                                                                        class="form-control" readonly>
+                                                                </div>
+
+                                                                <div class="form-group col-md-4">
+                                                                    <label>QTY</label>
+                                                                    <input type="number" id="qty" class="form-control">
+                                                                </div>
+
+                                                                <div class="form-group col-md-4">
+                                                                    <label>Total Price</label>
+                                                                    <input type="text" id="totalPrice"
+                                                                        class="form-control" readonly>
+                                                                </div>
+                                                            </div>
+
+
+                                                            <div class="form-group col-md-2">
+                                                                <button type="button" class="btn btn-primary w-100"
+                                                                    id="addItem">
+                                                                    <i class="fas fa-plus"> Add </i>
+                                                                </button>
+                                                            </div>
+
+                                                            <hr>
+
+                                                            <!-- Table Section -->
+                                                            <div class="table-responsive">
+                                                                <table class="table table-bordered">
+                                                                    <thead class="thead-light">
+                                                                        <tr>
+                                                                            <th>No.</th>
+                                                                            <th>Barcode</th>
+                                                                            <th>Name</th>
+                                                                            <th>Qty</th>
+                                                                            <th>Price</th>
+                                                                            <th>Total Price</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody id="itemsTable">
+                                                                        <tr>
+                                                                            <td colspan="6" class="text-center">No items
+                                                                            </td>
+                                                                        </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+
+                                                            <hr>
+
+                                                            <div class="card-footer d-flex flex-column">
+                                                                <!-- Row untuk Total Summary -->
+                                                                <div class="form-group row mb-3">
+                                                                    <label for="totalsum"
+                                                                        class="col-sm-2 col-form-label">Total
+                                                                        Summary</label>
+                                                                    <div class="col-sm-10">
+                                                                        <input type="text" id="totalsum" name="totalsum"
+                                                                            class="form-control"
+                                                                            value="<%= purchaseData.totalsum || '' %>"
+                                                                            readonly>
+                                                                    </div>
+                                                                </div>
+
+                                                                <!-- Row untuk Supplier -->
+                                                                <div class="form-group row mb-3">
+                                                                    <label for="supplier"
+                                                                        class="col-sm-2 col-form-label">Supplier</label>
+                                                                    <div class="col-sm-10">
+                                                                        <input type="text" id="supplier" name="supplier"
+                                                                            class="form-control"
+                                                                            value="<%= purchaseData.supplier || '' %>"
+                                                                            required>
+                                                                    </div>
+                                                                </div>
+
+
+                                                                <!-- Save Button -->
+                                                                <div class="d-flex justify-content-start mt-2">
+                                                                    <button id="btnSave" type="submit"
+                                                                        class="btn btn-success btn-icon-split mr-2">
+                                                                        <span class="icon text-white-50">
+                                                                            <i class="fas fa-plus"></i>
+                                                                        </span>
+                                                                        <span class="text">Finish</span>
+                                                                    </button>
+
+                                                                    <!-- Back Button -->
+                                                                    <a href="/purchases "
+                                                                        class="btn custom-btn btn-warning">
+                                                                        <span class="btn-icon">
+                                                                            <i class="fas fa-undo-alt"></i>
+                                                                        </span>
+                                                                        <span class="btn-text">Back</span>
+                                                                    </a>
+                                                                </div>
+                                                            </div>
                                                         </form>
                                                     </div>
                                                 </div>
