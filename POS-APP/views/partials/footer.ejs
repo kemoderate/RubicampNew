@@ -93,19 +93,26 @@
 <!-- script generate invoice -->
 <script>
   $(document).ready(function () {
-    $.ajax({
-      url: '/purchases/generate-invoice',
-      method: 'GET',
-    })
-      .done(function (response) {
-        $('#invoice').val(response.invoice);
-        $('#time').val(formatTime(response.time)); // format it nicely
-        // $('#operator').val(response.operator);
+    const storedInvoice = sessionStorage.getItem('currentInvoice');
+    if (storedInvoice) {
+      $('#invoice').val(storedInvoice);
+    } else {
+
+      $.ajax({
+        url: '/purchases/generate-invoice',
+        method: 'GET',
       })
-      .fail(function (jqXHR, textStatus, errorThrown) {
-        console.error('FAILED generating invoice:', textStatus, errorThrown)
-        alert('Failed to generate invoice')
-      })
+        .done(function (response) {
+          $('#invoice').val(response.invoice);
+          $('#time').val(formatTime(response.time)); // format it nicely
+          // $('#operator').val(response.operator);
+        })
+        .fail(function (jqXHR, textStatus, errorThrown) {
+          console.error('FAILED generating invoice:', textStatus, errorThrown)
+          alert('Failed to generate invoice')
+        })
+
+    }
 
     // Helper function to format date like HH:MM:SS
     function formatTime(dateString) {
@@ -127,17 +134,33 @@
 <script>
   let items = [];
   $(document).ready(function () {
+    if (!sessionStorage.getItem('currentInvoice')) {
+      $.get('/purchases/generate-invoice')
+        .done(function (response) {
+          sessionStorage.setItem('currentInvoice', response.invoice);
+          $('#invoice').val(response.invoice);
+          $('#time').val(formatTime(response.time));
+        });
+    } else {
+      const invoice = sessionStorage.getItem('currentInvoice');
+      $('#invoice').val(invoice);
+    }
     $('#barcode').change(function () {
       const barcode = $(this).val();
       if (!barcode) return resetFields();
 
-      $.get(`/purchases/goods/${barcode}`, function (data) {
-        $('#goodsName').val(data.name);
-        $('#stock').val(data.stock);
-        $('#purchasePrice').val(data.purchaseprice);
-        $('#qty').val(1);
-        $('#totalPrice').val(data.purchaseprice);
-      })
+      $.get(`/purchases/goods/${barcode}`)
+        .done(function (data) {
+          $('#goodsName').val(data.name);
+          $('#stock').val(data.stock);
+          $('#purchasePrice').val(data.purchaseprice);
+          $('#qty').val(1);
+          $('#totalPrice').val(data.purchaseprice);
+        })
+        .fail(function (xhr, status, error) {
+          console.error('Failed to fetch goods:', error);
+          alert('Error fetching goods data!');
+        });
     })
 
 
@@ -148,23 +171,53 @@
     })
 
     $('#addItem').click(function () {
+      const invoice = $('#invoice').val()
       const barcode = $('#barcode').val();
       const name = $('#goodsName').val();
       const qty = Number($('#qty').val());
       const price = Number($('#purchasePrice').val());
       const total = Number($('#totalPrice').val());
+      const supplier = $('#supplier').val();
+      const operator = $('input[name="operator"]').val();
 
       if (!barcode || qty <= 0) return alert('Select goods and enter qty');
-      const item = { barcode, name, qty, purchaseprice: price, totalprice: total };
-      items.push(item);
-      renderTable();
-      updateTotalsum();
-      resetFields();
+      $.ajax({
+        url: '/purchases/add-item',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+          invoice,
+          barcode,
+          qty,
+          purchaseprice: price,
+          totalprice: total,
+          supplier,
+          operator
+        })
+      })
+        .done(function (response) {
+          if (response.success) {
+            items.push({ barcode, name, qty, purchaseprice: price, totalprice: total });
+            renderTable();
+            updateTotalsum();
+            resetFields()
+          } else {
+            alert('Failed to add item!')
+          }
+        })
+        .fail(function (xhr, status, error) {
+          console.error('error adding item:', error);
+          alert('server error while adding item')
+        })
     })
 
     function renderTable() {
-      const tbody = $('#itemsTable tbody');
+      const tbody = $('#itemsTable');
       tbody.html('');
+      if (items.length === 0) {
+        tbody.append('<tr><td colspan="6" class="text-center">No items</td></tr>');
+        return;
+      }
       items.forEach((item, i) => {
         tbody.append(
           `<tr>
@@ -189,13 +242,18 @@
       $('#goodsName, #stock, #purchasePrice, #qty, #totalPrice').val('')
     }
 
-    $('form').submit(function () {
+    $('#btnFinish').click(function () {
+      if (items.length === 0) {
+        alert('add at least one item!');
+        return;
+      }
       $('<input>').attr({
         type: 'hidden',
         name: 'items',
         value: JSON.stringify(items)
       }).appendTo('form');
+
+      $('form').submit()
     })
   })
-
 </script>

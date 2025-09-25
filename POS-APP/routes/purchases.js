@@ -40,26 +40,44 @@ module.exports = (requireLogin, db) => {
         }
     });
 
-    router.get('/goods/:barcode', requireLogin , async (req,res)=>{
-        try{
-            const {barcode} = req.params;
-            const {rows} = await db.query('SELECT barcode, name, stock, purchaseprice FROM goods WHERE barcode = $1',[barcode]);
-            if (rows.length === 0) return res.status(404).json({error: 'Goods not found'});
+    router.get('/goods/:barcode', requireLogin, async (req, res) => {
+        try {
+            const { barcode } = req.params;
+            const { rows } = await db.query('SELECT barcode, name, stock, purchaseprice FROM goods WHERE barcode = $1', [barcode]);
+            if (rows.length === 0) return res.status(404).json({ error: 'Goods not found' });
             res.json(rows[0]);
         }
-        catch(err){
-            console.err(err);
-            res.status(500).json({error:'server error'})
+        catch (err) {
+            console.error(err);
+            res.status(500).json({ error: 'server error' })
 
         }
     })
 
     router.get('/generate-invoice', async (req, res) => {
         try {
+            const operatorId = req.session.user.id;
             const result = await db.query('SELECT generate_invoice_no() AS invoice_no');
+            const invoice = result.rows[0].invoice_no;
+
+
+            const check = await db.query('SELECT 1 FROM purchases WHERE invoice = $1', [invoice]);
+            if (check.rows.length > 0) {
+                return res.json({ invoice, message: 'Invoice already exists' });
+            }
+
+            const insert = await db.query(`
+            INSERT INTO purchases(invoice, time, totalsum, operator)
+            VALUES($1, NOW(), 0, $2)
+            RETURNING *`,
+                [invoice, operatorId]
+            );
+
+            req.session.currentInvoice = insert.rows[0].invoice;
+
             res.json({
-                invoice: result.rows[0].invoice_no,
-                time: new Date().toISOString(),        // Server time in ISO format
+                invoice: insert.rows[0].invoice,
+                time: insert.rows[0].time,        // Server time in ISO format
                 operator: req.session.user.name,
 
             });
@@ -106,24 +124,41 @@ module.exports = (requireLogin, db) => {
             });
         }
     })
-    router.post('/add', requireLogin, async (req, res) => {
+    // Tambah item langsung ke database
+    router.post('/add-item', requireLogin, async (req, res) => {
         try {
-            const {invoice , operator , supplier, items } = req.body;
-            const time = new Date();
+            const { invoice, barcode, qty, purchaseprice, totalprice } = req.body;
 
-            if (!invoice) {
-                req.flash('error_msg', 'invoice field must be filled!')
-                return res.redirect('/purchases/add');
+            if (!invoice || !barcode || qty <= 0) {
+                return res.status(400).json({ error: 'Invalid data' });
             }
-            const barcode = Date.now().toString().slice(-12);
 
-            // insert purchases
-            await db.query('INSERT INTO purchases(invoice, time, supplier, operator) VALUES($1,$2,$3,$4)',[invoice, time, supplier, operator]
-
+            // Insert ke purchaseitems
+            const result = await db.query(`
+      INSERT INTO purchaseitems(invoice, itemcode, quantity, purchaseprice, totalprice)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING id
+    `, [invoice, barcode, qty, purchaseprice, totalprice]
             );
 
+            res.json({ success: true, id: result.rows[0].id });
+        } catch (err) {
+            console.error('Error adding item:', err);
+            res.status(500).json({ error: 'Server error while adding item' });
+        }
+    });
+
+
+    router.post('/add', requireLogin, async (req, res) => {
+        try {
+            const { invoice, operator, supplier, items } = req.body;
+            const time = new Date();
+
+
+            const barcode = Date.now().toString().slice(-12);
+
             // insert purchaseitems
-            for(let item of JSON.parse(items)) {
+            for (let item of JSON.parse(items)) {
                 await db.query(
                     'INSERT INTO purchaseitems(invoice, itemcode, quantity, purchaseprice, totalprice) VALUES($1,$2,$3,$4,$5)',
                     [invoice, item.barcode, item.qty, item.purchaseprice, item.totalprice]
@@ -139,7 +174,26 @@ module.exports = (requireLogin, db) => {
         }
     });
 
-    router.get('/edit/:barcode', requireLogin, async (req, res) => {
+    router.post('/finish', requireLogin, async (req, res) => {
+        try {
+            const { invoice, supplier, totalsum } = req.body;
+            const operatorId = req.session.user.id;
+
+            await db.query(
+                `UPDATE purchases
+            SET totalsum = $1, supplier = $2, operator =$3
+            WHERE invoice = $4`, [totalsum, supplier, operatorId, invoice]
+            );
+            req.flash('success_msg', 'Purchase has been completed!');
+            res.redirect(`/purchases/edit/:${invoice}`)
+        } catch (err) {
+            console.error(err);
+            req.flash('error_msg', 'failed to finish purchase');
+            res.redirect(`/purchases/${invoice}`);
+        }
+    })
+
+    router.get('/edit/:invoice', requireLogin, async (req, res) => {
         const { barcode } = req.params
         const units = await db.query('SELECT unit, name FROM units ORDER BY name ASC');
         try {
@@ -162,28 +216,7 @@ module.exports = (requireLogin, db) => {
         }
     });
 
-    router.post('/edit/:barcode', upload.single('picture'), requireLogin, async (req, res) => {
-        const { barcode } = req.params
-        const { name, stock, purchaseprice, sellingprice, unit, oldPicture } = req.body
-        const picture = req.file ? req.file.filename : oldPicture;
 
-        if (!name) {
-            req.flash('error_msg', 'Semua field wajib diisi');
-            return res.redirect(`/purchases/edit/${barcode}`)
-        }
-
-        try {
-            await db.query('UPDATE purchases SET name = $1,stock = $2,purchaseprice = $3,sellingprice = $4,unit = $5, picture = $6 WHERE barcode = $7',
-                [name, stock, purchaseprice, sellingprice, unit, picture, barcode]
-            )
-            req.flash('success_msg', 'Goods has been updated!')
-            res.redirect('/purchases')
-        } catch (err) {
-            console.error(err);
-            req.flash('error_msg', 'failed updating Goods')
-            res.redirect(`/purchases/edit/${barcode}`);
-        }
-    })
 
     router.get('/delete/:barcode', requireLogin, async (req, res) => {
         const { barcode } = req.params
