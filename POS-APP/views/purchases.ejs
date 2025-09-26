@@ -13,104 +13,102 @@
                             <!-- Begin Page Content -->
                             <div class="container-fluid">
                                 <h1 class="h3 mb-4 text-gray-800">Purchases</h1>
-                                <h2 class="h4 mb-4 text-gray-800">This is data of Purchases</h2>
+                                <h2 class="h4 mb-4 text-gray-800">This is data Purchases </h2>
                             </div>
-                            <div class="container-fluid">
 
+                            <div class="container-fluid">
+                                <!-- Tombol Add -->
                                 <div class="card-header py-3">
                                     <a href="/purchases/add" class="btn btn-primary btn-icon-split">
                                         <span class="icon text-white-50">
                                             <i class="fa fa-plus"></i>
                                         </span>
-                                        <span class="text">Add</span>
+                                        <span class="text">Add  </span>
                                     </a>
                                 </div>
 
-
+                                <!-- Table -->
                                 <div class="card shadow mb-4">
                                     <div class="card-body">
                                         <div class="table-responsive">
-                                            <table id="myTable" class="table table-bordered" data-entity="purchases"
-                                                data-has-image="true">
+                                            <table id="myTable" class="table table-bordered" data-entity="purchases">
                                                 <thead>
                                                     <tr>
-                                                        <th>Barcode </th>
-                                                        <th>Name</th>
-                                                        <th>Stock</th>
-                                                        <th>Purchase Price</th>
-                                                        <th>Selling Price</th>
-                                                        <th>Unit</th>
-                                                        <th>Pictures</th>
+                                                        <th>Invoice</th>
+                                                        <th>Time</th>
+                                                        <th>Total Sum</th>
+                                                        <th>Supplier</th>
+                                                        <th>Operator</th>
                                                         <th>Actions</th>
                                                     </tr>
                                                 </thead>
                                                 <tfoot>
                                                     <tr>
-                                                        <th>Barcode </th>
-                                                        <th>Name</th>
-                                                        <th>Stock</th>
-                                                        <th>Purchase Price</th>
-                                                        <th>Selling Price</th>
-                                                        <th>Unit</th>
-                                                        <th>Pictures</th>
+                                                        <th>Invoice</th>
+                                                        <th>Time</th>
+                                                        <th>Total Sum</th>
+                                                        <th>Supplier</th>
+                                                        <th>Operator</th>
                                                         <th>Actions</th>
                                                     </tr>
                                                 </tfoot>
                                                 <tbody>
-                                                    <% purchases.forEach(purchases=> { %>
+                                                    <% if (purchases.length===0) { %>
                                                         <tr>
-                                                            <td>
-                                                                <%= purchases.barcode %>
-                                                            </td>
-                                                            <td>
-                                                                <%= purchases.name %>
-                                                            </td>
-                                                            <td>
-                                                                <%= purchases.stock %>
-                                                            </td>
-                                                            <td>
-                                                                <%= new Intl.NumberFormat('id-ID', { style: 'currency' ,
-                                                                    currency: 'IDR' }).format(purchases.purchaseprice) %>
-                                                            </td>
-                                                            
-                                                            <td>
-                                                                <%= new Intl.NumberFormat('id-ID', { style: 'currency' ,
-                                                                    currency: 'IDR' }).format(purchases.sellingprice) %>
-                                                            </td>
-                                                            <td>
-                                                                <%= purchases.unit %>
-                                                            </td>
-                                                            <td>
-                                                                <%= purchases.picture %>
-                                                            </td>
-                                                            <td>
-                                                                <button type="button"
-                                                                    class="btn btn-sm btn-success btn-edit rounded-circle  align-items-center justify-content-center"
-                                                                    data-id="<%= purchases.barcode %>" data-entity="purchases">
-                                                                    <i class="fas fa-info-circle"></i>
-                                                                </button>
-                                                                <button
-                                                                    class="btn btn-sm btn-danger btn-delete rounded-circle  align-items-center justify-content-center"
-                                                                    data-id="<%= purchases.barcode %>" data-entity="purchases">
-                                                                    <i class="fas fa-trash"></i>
-                                                                </button>
-                                                            </td>
+                                                            <td colspan="6" class="text-center">No purchases found</td>
                                                         </tr>
-                                                        <% }) %>
+                                                        <% } else { %>
+                                                            <% purchases.forEach(purchase=> { %>
+                                                                <tr>
+                                                                    <td>
+                                                                        <%= purchase.invoice %>
+                                                                    </td>
+                                                                    <td>
+                                                                        <%= new
+                                                                            Date(purchase.time).toLocaleString('id-ID')
+                                                                            %>
+                                                                    </td>
+                                                                    <td>
+                                                                        <%= new Intl.NumberFormat('id-ID', {
+                                                                            style: 'currency' , currency: 'IDR'
+                                                                            }).format(purchase.totalsum) %>
+                                                                    </td>
+                                                                    <td>
+                                                                        <%= purchase.supplier || '-' %>
+                                                                    </td>
+                                                                    <td>
+                                                                        <%= purchase.operator %>
+                                                                    </td>
+                                                                    <td>
+                                                                        <!-- Edit button -->
+                                                                        <a href="/purchases/edit/<%= purchase.invoice %>"
+                                                                            class="btn btn-sm btn-success rounded-circle"
+                                                                            title="View/Edit">
+                                                                            <i class="fas fa-info-circle"></i>
+                                                                        </a>
+
+                                                                        <!-- Delete button -->
+                                                                        <a href="/purchases/delete/<%= purchase.invoice %>"
+                                                                            onclick="return confirm('Are you sure to delete this purchase?')"
+                                                                            class="btn btn-sm btn-danger rounded-circle"
+                                                                            title="Delete">
+                                                                            <i class="fas fa-trash"></i>
+                                                                        </a>
+                                                                    </td>
+                                                                </tr>
+                                                                <% }) %>
+                                                                    <% } %>
                                                 </tbody>
                                             </table>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </div> <!-- End container -->
 
                     </div>
                 </div>
 
-
-
                 <%- include('partials/footer') %>
-        </div>
         </div>
     </body>
 

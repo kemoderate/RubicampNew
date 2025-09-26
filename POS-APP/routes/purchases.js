@@ -1,6 +1,7 @@
 var express = require('express');
 const db = require('../db')
-const upload = require('../upload')
+const upload = require('../upload');
+const suppliers = require('./suppliers');
 
 
 
@@ -19,6 +20,7 @@ module.exports = (requireLogin, db) => {
               p.supplier,
               u.name AS operator
               FROM purchases p
+              LEFT JOIN suppliers s ON p.supplier = s.supplierid
               LEFT JOIN users u ON p.operator = u.userid
               ORDER BY p.invoice ASC
 `);
@@ -29,7 +31,7 @@ module.exports = (requireLogin, db) => {
 
             // render EJS dan kirim data purchases
             res.render('purchases', {
-                title: 'Goods',
+                title: 'Purchases',
                 purchases,
                 user: req.session.user,
                 layout: 'layout',
@@ -110,7 +112,8 @@ module.exports = (requireLogin, db) => {
                 },
                 success: [],
                 error: [],
-                user: req.session.user
+                user: req.session.user,
+                isEdit: false
             });
         } catch (err) {
             console.error('Error generating invoice:', err);
@@ -120,7 +123,8 @@ module.exports = (requireLogin, db) => {
                 purchaseData: {},
                 success: [],
                 error: ['failed to generate invoice number'],
-                user: req.session.user
+                user: req.session.user,
+                isEdit: false
             });
         }
     })
@@ -149,7 +153,7 @@ module.exports = (requireLogin, db) => {
     });
 
 
-    router.post('/add', requireLogin, async (req, res) => {
+    router.post(`/add`, requireLogin, async (req, res) => {
         try {
             const { invoice, operator, supplier, items } = req.body;
             const time = new Date();
@@ -161,7 +165,7 @@ module.exports = (requireLogin, db) => {
             for (let item of JSON.parse(items)) {
                 await db.query(
                     'INSERT INTO purchaseitems(invoice, itemcode, quantity, purchaseprice, totalprice) VALUES($1,$2,$3,$4,$5)',
-                    [invoice, item.barcode, item.qty, item.purchaseprice, item.totalprice]
+                    [invoice, operator, supplier, item.barcode, item.qty, item.purchaseprice, item.totalprice]
                 );
             }
             req.flash('success_msg', 'purchases has been added !')
@@ -185,30 +189,59 @@ module.exports = (requireLogin, db) => {
             WHERE invoice = $4`, [totalsum, supplier, operatorId, invoice]
             );
             req.flash('success_msg', 'Purchase has been completed!');
-            res.redirect(`/purchases/edit/:${invoice}`)
+            res.redirect(`/purchases`)
         } catch (err) {
             console.error(err);
             req.flash('error_msg', 'failed to finish purchase');
-            res.redirect(`/purchases/${invoice}`);
+            res.redirect(`/purchases/add`);
         }
     })
 
     router.get('/edit/:invoice', requireLogin, async (req, res) => {
-        const { barcode } = req.params
-        const units = await db.query('SELECT unit, name FROM units ORDER BY name ASC');
+        const { invoice } = req.params
+        const operatorResult = await db.query(
+            'SELECT userid, name FROM users WHERE userid = $1',
+            [req.session.user.id]
+        );
+        const operator = operatorResult.rows[0];
+        const goodsData = await db.query('SELECT barcode, name , stock, purchaseprice FROM goods ORDER BY name ASC')
+
         try {
-            const { rows } = await db.query('SELECT * FROM purchases WHERE barcode = $1', [barcode]);
-            if (rows.length === 0) {
-                req.flash('error_msg', 'Goods not found')
-                return res.redirect('/purchases')
+
+            const purchaseResult = await db.query(`
+      SELECT p.invoice, p.time, p.totalsum, p.supplier, u.name AS operator
+      FROM purchases p
+      LEFT JOIN users u ON p.operator = u.userid
+      WHERE p.invoice = $1
+    `, [invoice]);
+
+            if (purchaseResult.rows.length === 0) {
+                req.flash('error_msg', 'Invoice not found');
+                return res.redirect('/purchases');
             }
+
+            const itemsResult = await db.query(`
+                SELECT pi.id,pi.itemcode, g.name ,pi.quantity, pi.purchaseprice, pi.totalprice
+                FROM purchaseitems pi
+                JOIN goods g ON pi.itemcode = g.barcode
+                WHERE pi.invoice = $1`, [invoice])
+
+
+            const suppliersData = await db.query(`
+      SELECT supplierid, name FROM suppliers ORDER BY supplierid ASC
+    `);
+            console.log("Purchase Data:", purchaseResult.rows[0]);
 
             res.render('purchase-form', {
                 title: 'Edit purchases',
-                action: `/purchases/edit/${barcode}`,
-                purchaseData: rows[0],
+                action: `/purchases/edit/${invoice}`,
+                purchaseData: purchaseResult.rows[0] || {},
+                isEdit: true,
+                items: itemsResult.rows,
+                suppliers: suppliersData.rows,
                 user: req.session.user,
-                units: units.rows,
+                goods: goodsData.rows,
+                operator: operator
             })
         } catch (err) {
             console.error(err)

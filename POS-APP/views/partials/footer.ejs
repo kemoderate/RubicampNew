@@ -58,6 +58,7 @@
 
 <!-- data tables -->
 <script src="/js/crud.js"></script>
+
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     const pictureInput = document.getElementById('picture');
@@ -92,59 +93,33 @@
 
 <!-- script generate invoice -->
 <script>
-  $(document).ready(function () {
-    const storedInvoice = sessionStorage.getItem('currentInvoice');
-    if (storedInvoice) {
-      $('#invoice').val(storedInvoice);
-    } else {
 
-      $.ajax({
-        url: '/purchases/generate-invoice',
-        method: 'GET',
-      })
-        .done(function (response) {
-          $('#invoice').val(response.invoice);
-          $('#time').val(formatTime(response.time)); // format it nicely
-          // $('#operator').val(response.operator);
-        })
-        .fail(function (jqXHR, textStatus, errorThrown) {
-          console.error('FAILED generating invoice:', textStatus, errorThrown)
-          alert('Failed to generate invoice')
-        })
-
-    }
-
-    // Helper function to format date like HH:MM:SS
-    function formatTime(dateString) {
-      const date = new Date(dateString);
-
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0'); // 0-indexed
-      const day = String(date.getDate()).padStart(2, '0');
-
-      const hours = String(date.getHours()).padStart(2, '0');
-      const minutes = String(date.getMinutes()).padStart(2, '0');
-      const seconds = String(date.getSeconds()).padStart(2, '0');
-
-      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-    }
-  })
-</script>
-<!-- script untuk fill perhitungan total dan add ke table -->
-<script>
   let items = [];
+  const isEdit = <%= JSON.stringify(typeof isEdit !== 'undefined' ? isEdit : false) %>;
+
+
   $(document).ready(function () {
-    if (!sessionStorage.getItem('currentInvoice')) {
-      $.get('/purchases/generate-invoice')
-        .done(function (response) {
-          sessionStorage.setItem('currentInvoice', response.invoice);
-          $('#invoice').val(response.invoice);
-          $('#time').val(formatTime(response.time));
-        });
+    // ==== 1. Generate invoice sekali saja ====
+    if (!isEdit) {
+      if (!sessionStorage.getItem('currentInvoice')) {
+        $.get('/purchases/generate-invoice')
+          .done(function (response) {
+            sessionStorage.setItem('currentInvoice', response.invoice);
+            $('#invoice').val(response.invoice);
+            $('#time').val(formatTime(response.time));
+          })
+          .fail(function () {
+            alert('Failed to generate invoice!');
+          });
+      } else {
+        const invoice = sessionStorage.getItem('currentInvoice');
+        $('#invoice').val(invoice);
+      }
     } else {
-      const invoice = sessionStorage.getItem('currentInvoice');
-      $('#invoice').val(invoice);
+      sessionStorage.removeItem('currentInvoice');
     }
+
+    // ==== 2. Ketika barcode diisi ====
     $('#barcode').change(function () {
       const barcode = $(this).val();
       if (!barcode) return resetFields();
@@ -157,21 +132,21 @@
           $('#qty').val(1);
           $('#totalPrice').val(data.purchaseprice);
         })
-        .fail(function (xhr, status, error) {
-          console.error('Failed to fetch goods:', error);
+        .fail(function () {
           alert('Error fetching goods data!');
         });
-    })
+    });
 
-
+    // ==== 3. Kalkulasi total otomatis ====
     $('#qty').on('input', function () {
       const qty = Number($(this).val());
       const price = Number($('#purchasePrice').val());
       $('#totalPrice').val(qty * price);
-    })
+    });
 
+    // ==== 4. Tambah item ke table ====
     $('#addItem').click(function () {
-      const invoice = $('#invoice').val()
+      const invoice = sessionStorage.getItem('currentInvoice');
       const barcode = $('#barcode').val();
       const name = $('#goodsName').val();
       const qty = Number($('#qty').val());
@@ -181,6 +156,7 @@
       const operator = $('input[name="operator"]').val();
 
       if (!barcode || qty <= 0) return alert('Select goods and enter qty');
+
       $.ajax({
         url: '/purchases/add-item',
         method: 'POST',
@@ -200,17 +176,35 @@
             items.push({ barcode, name, qty, purchaseprice: price, totalprice: total });
             renderTable();
             updateTotalsum();
-            resetFields()
+            resetFields();
           } else {
-            alert('Failed to add item!')
+            alert('Failed to add item!');
           }
         })
-        .fail(function (xhr, status, error) {
-          console.error('error adding item:', error);
-          alert('server error while adding item')
-        })
-    })
+        .fail(function () {
+          alert('Server error while adding item!');
+        });
+    });
 
+    // ==== 5. Finish & clear sessionStorage ====
+    $('#btnFinish').click(function () {
+      if (items.length === 0) {
+        alert('Add at least one item!');
+        return;
+      }
+
+      $('<input>').attr({
+        type: 'hidden',
+        name: 'items',
+        value: JSON.stringify(items)
+      }).appendTo('form');
+
+      // setelah submit, invoice dihapus supaya bisa generate baru lagi
+      $('form').submit();
+
+    });
+
+    // ==== Helper Functions ====
     function renderTable() {
       const tbody = $('#itemsTable');
       tbody.html('');
@@ -219,16 +213,16 @@
         return;
       }
       items.forEach((item, i) => {
-        tbody.append(
-          `<tr>
-          <td>${i + 1}</td>
-          <td>${item.barcode}</td>
-          <td>${item.name}</td>
-          <td>${item.qty}</td>
-          <td>${item.purchaseprice}</td>
-          <td>${item.totalprice}</td>
-          </tr>`
-        );
+        tbody.append(`
+          <tr>
+            <td>${i + 1}</td>
+            <td>${item.barcode}</td>
+            <td>${item.name}</td>
+            <td>${item.qty}</td>
+            <td>${item.purchaseprice}</td>
+            <td>${item.totalprice}</td>
+          </tr>
+        `);
       });
     }
 
@@ -239,21 +233,18 @@
 
     function resetFields() {
       $('#barcode').val('');
-      $('#goodsName, #stock, #purchasePrice, #qty, #totalPrice').val('')
+      $('#goodsName, #stock, #purchasePrice, #qty, #totalPrice').val('');
     }
 
-    $('#btnFinish').click(function () {
-      if (items.length === 0) {
-        alert('add at least one item!');
-        return;
-      }
-      $('<input>').attr({
-        type: 'hidden',
-        name: 'items',
-        value: JSON.stringify(items)
-      }).appendTo('form');
-
-      $('form').submit()
-    })
-  })
+    function formatTime(dateString) {
+      const date = new Date(dateString);
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const d = String(date.getDate()).padStart(2, '0');
+      const h = String(date.getHours()).padStart(2, '0');
+      const min = String(date.getMinutes()).padStart(2, '0');
+      const s = String(date.getSeconds()).padStart(2, '0');
+      return `${y}-${m}-${d} ${h}:${min}:${s}`;
+    }
+  });
 </script>
