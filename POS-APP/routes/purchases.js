@@ -174,7 +174,7 @@ module.exports = (requireLogin, db) => {
             for (let item of JSON.parse(items)) {
                 await db.query(
                     'INSERT INTO purchaseitems(invoice, itemcode, quantity, purchaseprice, totalprice) VALUES($1, $2, $3, $4, $5)',
-                    [invoice, operator, item.barcode, item.qty, item.purchaseprice, item.totalprice]
+                    [invoice, item.barcode, item.qty, item.purchaseprice, item.totalprice]
                 );
             }
             req.flash('success_msg', 'purchases has been added !')
