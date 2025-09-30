@@ -100,7 +100,7 @@ module.exports = (requireLogin, db) => {
 
             const goodsData = await db.query('SELECT barcode, name , stock, purchaseprice FROM goods ORDER BY name ASC')
 
-            const suppliersData = await db.query('SELECT name FROM suppliers ORDER BY supplierid ASC')
+            const suppliersData = await db.query('SELECT supplierid ,name FROM suppliers ORDER BY supplierid ASC')
             res.render('purchase-form', {
                 title: 'Transaction',
                 action: '/purchases/add',
@@ -113,7 +113,8 @@ module.exports = (requireLogin, db) => {
                 success: [],
                 error: [],
                 user: req.session.user,
-                isEdit: false
+                isEdit: false,
+                items: []
             });
         } catch (err) {
             console.error('Error generating invoice:', err);
@@ -136,6 +137,7 @@ module.exports = (requireLogin, db) => {
             if (!invoice || !barcode || qty <= 0) {
                 return res.status(400).json({ error: 'Invalid data' });
             }
+
 
             // Insert ke purchaseitems
             const result = await db.query(`
@@ -161,32 +163,40 @@ module.exports = (requireLogin, db) => {
 
             const barcode = Date.now().toString().slice(-12);
 
+            await db.query(
+                `UPDATE purchases 
+       SET supplier = $1, time = $2 
+       WHERE invoice = $3`,
+                [supplier, time, invoice]
+            );
+
             // insert purchaseitems
             for (let item of JSON.parse(items)) {
                 await db.query(
-                    'INSERT INTO purchaseitems(invoice, itemcode, quantity, purchaseprice, totalprice) VALUES($1,$2,$3,$4,$5)',
-                    [invoice, operator, supplier, item.barcode, item.qty, item.purchaseprice, item.totalprice]
+                    'INSERT INTO purchaseitems(invoice, itemcode, quantity, purchaseprice, totalprice) VALUES($1, $2, $3, $4, $5)',
+                    [invoice, operator, item.barcode, item.qty, item.purchaseprice, item.totalprice]
                 );
             }
             req.flash('success_msg', 'purchases has been added !')
-            res.redirect('/purchases')
+            res.redirect('/')
         }
         catch (err) {
             console.error(err)
             req.flash('error_msg', 'Failed to add purchases');
-            res.redirect('/purchases/add')
+            res.redirect('/add')
         }
     });
 
     router.post('/finish', requireLogin, async (req, res) => {
+        console.log('Finish Payload:', req.body);
         try {
             const { invoice, supplier, totalsum } = req.body;
-            const operatorId = req.session.user.id;
+            const operator = req.session.user.id;
 
             await db.query(
                 `UPDATE purchases
             SET totalsum = $1, supplier = $2, operator =$3
-            WHERE invoice = $4`, [totalsum, supplier, operatorId, invoice]
+            WHERE invoice = $4`, [totalsum, supplier, operator, invoice]
             );
             req.flash('success_msg', 'Purchase has been completed!');
             res.redirect(`/purchases`)
@@ -230,7 +240,7 @@ module.exports = (requireLogin, db) => {
             const suppliersData = await db.query(`
       SELECT supplierid, name FROM suppliers ORDER BY supplierid ASC
     `);
-            console.log("Purchase Data:", purchaseResult.rows[0]);
+
 
             res.render('purchase-form', {
                 title: 'Edit purchases',
@@ -249,13 +259,13 @@ module.exports = (requireLogin, db) => {
         }
     });
 
-
-
-    router.get('/delete/:barcode', requireLogin, async (req, res) => {
-        const { barcode } = req.params
+    router.get('/delete/:invoice', requireLogin, async (req, res) => {
+        const { invoice } = req.params
         try {
-            await db.query('DELETE FROM purchases WHERE barcode = $1', [barcode])
-            req.flash('success_msg', 'Goods has been deleted!')
+            await db.query('DELETE FROM purchases WHERE invoice = $1', [invoice])
+
+
+            req.flash('success_msg', 'Purchase has been deleted!')
             res.redirect('/purchases')
         } catch (err) {
             console.error(err)

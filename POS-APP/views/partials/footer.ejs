@@ -152,7 +152,6 @@
       const qty = Number($('#qty').val());
       const price = Number($('#purchasePrice').val());
       const total = Number($('#totalPrice').val());
-      const supplier = $('#supplier').val();
       const operator = $('input[name="operator"]').val();
 
       if (!barcode || qty <= 0) return alert('Select goods and enter qty');
@@ -167,11 +166,12 @@
           qty,
           purchaseprice: price,
           totalprice: total,
-          supplier,
-          operator
+          operator,
+          
         })
       })
         .done(function (response) {
+          console.log('Add Item Response:', response); // Debug
           if (response.success) {
             items.push({ barcode, name, qty, purchaseprice: price, totalprice: total });
             renderTable();
@@ -188,19 +188,54 @@
 
     // ==== 5. Finish & clear sessionStorage ====
     $('#btnFinish').click(function () {
+      
       if (items.length === 0) {
         alert('Add at least one item!');
         return;
       }
 
+      const supplier = $('#supplier').val();
+      const invoice = $('#invoice').val();
+      const totalsum = $('#totalsum').val();
+
+      if (!supplier) {
+        alert('Please select a supplier before finishing!');
+        return;
+      }
       $('<input>').attr({
         type: 'hidden',
         name: 'items',
         value: JSON.stringify(items)
+      }).appendTo('#finalizeForm');
+
+      //  Hidden input untuk supplier
+      $('<input>').attr({
+        type: 'hidden',
+        name: 'supplier',
+        value: supplier
+      }).appendTo('form');
+
+      // Hidden input untuk invoice
+      $('<input>').attr({
+        type: 'hidden',
+        name: 'invoice',
+        value: invoice
+      }).appendTo('form');
+
+      // Hidden input untuk totalsum
+      $('<input>').attr({
+        type: 'hidden',
+        name: 'totalsum',
+        value: totalsum
       }).appendTo('form');
 
       // setelah submit, invoice dihapus supaya bisa generate baru lagi
-      $('form').submit();
+      $('#purchaseForm').submit(function (e) {
+        e.preventDefault(); // supaya tidak langsung reload
+        console.log('Form data serialized:', $(this).serialize()); // cek data
+      });
+
+      $('#finalizeForm').submit();
 
     });
 
