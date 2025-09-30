@@ -15,9 +15,10 @@ module.exports = (requireLogin, db) => {
             const result = await db.query(`
              SELECT 
               p.invoice,
-              p.time,
+              to_char(p.time, 'YYYY-MM-DD HH24:MI:SS') as time,
               p.totalsum,
               p.supplier,
+              s.name AS suppliername,
               u.name AS operator
               FROM purchases p
               LEFT JOIN suppliers s ON p.supplier = s.supplierid
@@ -69,11 +70,10 @@ module.exports = (requireLogin, db) => {
             }
 
             const insert = await db.query(`
-            INSERT INTO purchases(invoice, time, totalsum, operator)
-            VALUES($1, NOW(), 0, $2)
-            RETURNING *`,
-                [invoice, operatorId]
-            );
+      INSERT INTO purchases(invoice, time, totalsum, operator)
+      VALUES($1, NOW(), 0, $2)
+      RETURNING invoice, to_char(time, 'YYYY-MM-DD HH24:MI:SS') as time, operator
+    `, [invoice, operatorId]);
 
             req.session.currentInvoice = insert.rows[0].invoice;
 
@@ -158,7 +158,7 @@ module.exports = (requireLogin, db) => {
     router.post(`/add`, requireLogin, async (req, res) => {
         try {
             const { invoice, operator, supplier, items } = req.body;
-            const time = new Date();
+
 
 
             const barcode = Date.now().toString().slice(-12);
@@ -219,7 +219,7 @@ module.exports = (requireLogin, db) => {
         try {
 
             const purchaseResult = await db.query(`
-      SELECT p.invoice, p.time, p.totalsum, p.supplier, u.name AS operator
+      SELECT p.invoice, to_char(p.time, 'YYYY-MM-DD HH24:MI:SS') as time, p.totalsum, p.supplier, u.name AS operator
       FROM purchases p
       LEFT JOIN users u ON p.operator = u.userid
       WHERE p.invoice = $1
@@ -269,7 +269,7 @@ module.exports = (requireLogin, db) => {
             res.redirect('/purchases')
         } catch (err) {
             console.error(err)
-            req.flash('error_msg', 'Failed to delete Goods')
+            req.flash('error_msg', 'Failed to delete Purchases')
             res.redirect('/purchases')
         }
     })

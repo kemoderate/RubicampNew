@@ -94,7 +94,10 @@
 <!-- script generate invoice -->
 <script>
 
-  let items = [];
+
+  let items = <% - JSON.stringify(typeof items !== 'undefined' ? items : []) %>;
+
+
   const isEdit = <%= JSON.stringify(typeof isEdit !== 'undefined' ? isEdit : false) %>;
 
 
@@ -113,7 +116,9 @@
           });
       } else {
         const invoice = sessionStorage.getItem('currentInvoice');
+        const time = sessionStorage.getItem('currentTime');
         $('#invoice').val(invoice);
+        $('#time').val(formatTime(time));
       }
     } else {
       sessionStorage.removeItem('currentInvoice');
@@ -167,7 +172,7 @@
           purchaseprice: price,
           totalprice: total,
           operator,
-          
+
         })
       })
         .done(function (response) {
@@ -188,7 +193,7 @@
 
     // ==== 5. Finish & clear sessionStorage ====
     $('#btnFinish').click(function () {
-      
+
       if (items.length === 0) {
         alert('Add at least one item!');
         return;
@@ -213,25 +218,25 @@
         type: 'hidden',
         name: 'supplier',
         value: supplier
-      }).appendTo('form');
+      }).appendTo('#finalizeForm');
 
       // Hidden input untuk invoice
       $('<input>').attr({
         type: 'hidden',
         name: 'invoice',
         value: invoice
-      }).appendTo('form');
+      }).appendTo('#finalizeForm');
 
       // Hidden input untuk totalsum
       $('<input>').attr({
         type: 'hidden',
         name: 'totalsum',
         value: totalsum
-      }).appendTo('form');
+      }).appendTo('#finalizeForm');
 
       // setelah submit, invoice dihapus supaya bisa generate baru lagi
-      $('#purchaseForm').submit(function (e) {
-        e.preventDefault(); // supaya tidak langsung reload
+      $('#finalizeForm').submit(function (e) {
+
         console.log('Form data serialized:', $(this).serialize()); // cek data
       });
 

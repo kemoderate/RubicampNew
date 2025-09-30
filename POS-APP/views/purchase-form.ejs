@@ -62,7 +62,7 @@
                                                                             <label>Time</label>
                                                                             <input type="text" id="time" name="time"
                                                                                 class="form-control"
-                                                                                value="<%= purchaseData.time ? purchaseData.time.toISOString().slice(0,19).replace('T',' ') : '' %>"
+                                                                                value="<%= purchaseData.time || '' %>"
                                                                                 readonly>
                                                                         </div>
                                                                         <div class="form-group col-md-4">

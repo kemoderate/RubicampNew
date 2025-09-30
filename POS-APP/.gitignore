@@ -9,7 +9,9 @@ test-db.js
 # SB Admin static files
 /public/vendor/
 /public/css/*
-/public/js/*
+/public/js/demo
+/public/js/sb-admin-2.js
+/public/js/sb-admin-2.min.js
 
 # Keep our custom static files
 !/public/css/custom.css
