@@ -23,6 +23,7 @@ var unitsRouter = require('./routes/units')(requireLogin, db);
 var goodsRouter = require('./routes/goods')(requireLogin, db);
 var suppliersRouter = require('./routes/suppliers')(requireLogin, db);
 var purchasesRouter = require('./routes/purchases')(requireLogin, db)
+var customersRouter = require('./routes/customers')(requireLogin, db)
  
 var app = express();
 
@@ -63,6 +64,7 @@ app.use('/units', requireLogin, unitsRouter);
 app.use('/goods', requireLogin, goodsRouter);
 app.use('/suppliers', requireLogin, suppliersRouter);
 app.use('/purchases', requireLogin, purchasesRouter);
+app.use('/customers', requireLogin, customersRouter);
 app.use('/', userloginRouter);
 
 
