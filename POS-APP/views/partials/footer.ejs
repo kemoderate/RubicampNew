@@ -95,7 +95,7 @@
 <script>
 
 
-  let items = <%- JSON.stringify(typeof items !== 'undefined' ? items : []) %>;
+  let items = <% - JSON.stringify(typeof items !== 'undefined' ? items : []) %>;
 
 
   const isEdit = <%= JSON.stringify(typeof isEdit !== 'undefined' ? isEdit : false) %>;
@@ -192,8 +192,8 @@
     });
 
     // ==== 5. Finish & clear sessionStorage ====
-    $('#btnFinish').click(function () {
-
+    $('#btnFinish').click(function (e) {
+      e.preventDefault()
       if (items.length === 0) {
         alert('Add at least one item!');
         return;
@@ -207,6 +207,13 @@
         alert('Please select a supplier before finishing!');
         return;
       }
+
+
+      // Clear previous hidden inputs
+      $('#finalizeForm input[name="supplier"]').remove();
+      $('#finalizeForm input[name="invoice"]').remove();
+      $('#finalizeForm input[name="totalsum"]').remove();
+
       $('<input>').attr({
         type: 'hidden',
         name: 'items',
@@ -276,11 +283,11 @@
           alert('Failed to delete item!');
         });
       };
-  });
+    });
 
 
-  // ==== Helper Functions ====
-  function renderTable() {
+    // ==== Helper Functions ====
+    function renderTable() {
       const tbody = $('#itemsTable');
       tbody.html('');
       if (items.length === 0) {
@@ -304,17 +311,17 @@
       });
     }
 
-  function updateTotalsum() {
+    function updateTotalsum() {
       let sum = items.reduce((a, b) => a + b.totalprice, 0);
       $('#totalsum').val(sum);
     }
 
-  function resetFields() {
+    function resetFields() {
       $('#barcode').val('');
       $('#goodsName, #stock, #purchasePrice, #qty, #totalPrice').val('');
     }
 
-  function formatTime(dateString) {
+    function formatTime(dateString) {
       const date = new Date(dateString);
       const y = date.getFullYear();
       const m = String(date.getMonth() + 1).padStart(2, '0');
