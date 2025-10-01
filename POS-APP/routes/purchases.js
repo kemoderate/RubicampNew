@@ -274,6 +274,18 @@ module.exports = (requireLogin, db) => {
         }
     })
 
+router.get('/delete-item/:id', requireLogin, async (req, res) => {
+  const { id } = req.params;
+  try {
+    await db.query('DELETE FROM purchaseitems WHERE id = $1', [id]);
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to delete item' });
+  }
+});
+
+
 
     return router;
 }

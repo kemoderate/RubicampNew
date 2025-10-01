@@ -95,7 +95,7 @@
 <script>
 
 
-  let items = <% - JSON.stringify(typeof items !== 'undefined' ? items : []) %>;
+  let items = <%- JSON.stringify(typeof items !== 'undefined' ? items : []) %>;
 
 
   const isEdit = <%= JSON.stringify(typeof isEdit !== 'undefined' ? isEdit : false) %>;
@@ -178,7 +178,7 @@
         .done(function (response) {
           console.log('Add Item Response:', response); // Debug
           if (response.success) {
-            items.push({ barcode, name, qty, purchaseprice: price, totalprice: total });
+            items.push({ id: response.id, barcode, name, qty, purchaseprice: price, totalprice: total });
             renderTable();
             updateTotalsum();
             resetFields();
@@ -244,8 +244,43 @@
 
     });
 
-    // ==== Helper Functions ====
-    function renderTable() {
+    // Delete item dari DB dan table
+    $(document).on('click', '.btn-delete', function (e) {
+      e.preventDefault();
+
+      const id = $(this).data('id');
+      const type = $(this).data('type');
+      if (type === 'purchase') {
+        $('#deletePurchaseModal').modal('show');
+        $('#confirmDeletePurchase').off('click').on('click', function () {
+          $.ajax({
+            url: `/purchases/delete-item/${id}`,
+            method: 'POST',
+          }).done(function () {
+            location.reload();
+          }).fail(function () {
+            alert('Failed to delete purchase!');
+          });
+        });
+
+      } else if (type === 'item') {
+        $.ajax({
+          url: `/purchases/delete-item/${id}`,
+          method: 'GET',
+        }).done(function () {
+          // hapus item dari array JS
+          items = items.filter(item => item.id !== id);
+          renderTable();
+          updateTotalsum();
+        }).fail(function () {
+          alert('Failed to delete item!');
+        });
+      };
+  });
+
+
+  // ==== Helper Functions ====
+  function renderTable() {
       const tbody = $('#itemsTable');
       tbody.html('');
       if (items.length === 0) {
@@ -261,22 +296,25 @@
             <td>${item.qty}</td>
             <td>${item.purchaseprice}</td>
             <td>${item.totalprice}</td>
+            <td>
+          <button class="btn btn-sm btn-danger btn-delete" data-id="${item.id}"><i class="fas fa-trash"></i></button>
+        </td>
           </tr>
         `);
       });
     }
 
-    function updateTotalsum() {
+  function updateTotalsum() {
       let sum = items.reduce((a, b) => a + b.totalprice, 0);
       $('#totalsum').val(sum);
     }
 
-    function resetFields() {
+  function resetFields() {
       $('#barcode').val('');
       $('#goodsName, #stock, #purchasePrice, #qty, #totalPrice').val('');
     }
 
-    function formatTime(dateString) {
+  function formatTime(dateString) {
       const date = new Date(dateString);
       const y = date.getFullYear();
       const m = String(date.getMonth() + 1).padStart(2, '0');

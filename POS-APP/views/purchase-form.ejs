@@ -39,226 +39,217 @@
                                             <% } %>
 
 
-                                                        <div class="card shadow mb-4">
-                                                            <div class="card-header">
-                                                                <h3 class="mb-0 text-secondary font-weight-bold">
-                                                                    <%= title %>
-                                                                </h3>
+                                                <div class="card shadow mb-4">
+                                                    <div class="card-header">
+                                                        <h3 class="mb-0 text-secondary font-weight-bold">
+                                                            <%= title %>
+                                                        </h3>
+                                                    </div>
+
+                                                    <div class="card-body">
+                                                        <!-- ======================== FORM HEADER ======================== -->
+                                                        <form id="purchaseForm" action="<%= action %>" method="POST">
+                                                            <div class="form-row mb-3">
+                                                                <div class="form-group col-md-4">
+                                                                    <label>Invoice</label>
+                                                                    <input type="text" id="invoice" name="invoice"
+                                                                        class="form-control"
+                                                                        value="<%= purchaseData.invoice || '' %>"
+                                                                        readonly>
+                                                                </div>
+                                                                <div class="form-group col-md-4">
+                                                                    <label>Time</label>
+                                                                    <input type="text" id="time" name="time"
+                                                                        class="form-control"
+                                                                        value="<%= purchaseData.time || '' %>" readonly>
+                                                                </div>
+                                                                <div class="form-group col-md-4">
+                                                                    <label>Operator</label>
+                                                                    <input type="text" class="form-control"
+                                                                        value="<%= operator.name %>" readonly>
+                                                                    <input type="hidden" name="operator"
+                                                                        value="<%= operator.userid %>">
+                                                                </div>
+                                                            </div>
+                                                        </form>
+
+                                                        <hr>
+
+                                                        <!-- ======================== FORM ADD ITEM ======================== -->
+                                                        <h5 class="text-primary font-weight-bold mb-3">Add Item
+                                                        </h5>
+                                                        <div class="form-row align-items-center mb-3">
+                                                            <div class="form-group col-md-4">
+                                                                <label>Goods Barcode</label>
+                                                                <select id="barcode" class="form-control">
+                                                                    <option value="">Select Goods</option>
+                                                                    <% goods.forEach(good=> { %>
+                                                                        <option value="<%= good.barcode %>">
+                                                                            <%= good.barcode %> - <%= good.name %>
+                                                                        </option>
+                                                                        <% }) %>
+                                                                </select>
                                                             </div>
 
-                                                            <div class="card-body">
-                                                                <!-- ======================== FORM HEADER ======================== -->
-                                                                <form id="purchaseForm" action="<%= action %>"
-                                                                    method="POST">
-                                                                    <div class="form-row mb-3">
-                                                                        <div class="form-group col-md-4">
-                                                                            <label>Invoice</label>
-                                                                            <input type="text" id="invoice"
-                                                                                name="invoice" class="form-control"
-                                                                                value="<%= purchaseData.invoice || '' %>"
-                                                                                readonly>
-                                                                        </div>
-                                                                        <div class="form-group col-md-4">
-                                                                            <label>Time</label>
-                                                                            <input type="text" id="time" name="time"
-                                                                                class="form-control"
-                                                                                value="<%= purchaseData.time || '' %>"
-                                                                                readonly>
-                                                                        </div>
-                                                                        <div class="form-group col-md-4">
-                                                                            <label>Operator</label>
-                                                                            <input type="text" class="form-control"
-                                                                                value="<%= operator.name %>" readonly>
-                                                                            <input type="hidden" name="operator"
-                                                                                value="<%= operator.userid %>">
-                                                                        </div>
-                                                                    </div>
-                                                                </form>
+                                                            <div class="form-group col-md-4">
+                                                                <label>Goods Name</label>
+                                                                <input type="text" id="goodsName" class="form-control"
+                                                                    readonly>
+                                                            </div>
 
-                                                                <hr>
-
-                                                                <!-- ======================== FORM ADD ITEM ======================== -->
-                                                                <h5 class="text-primary font-weight-bold mb-3">Add Item
-                                                                </h5>
-                                                                <div class="form-row align-items-center mb-3">
-                                                                    <div class="form-group col-md-4">
-                                                                        <label>Goods Barcode</label>
-                                                                        <select id="barcode" class="form-control">
-                                                                            <option value="">Select Goods</option>
-                                                                            <% goods.forEach(good=> { %>
-                                                                                <option value="<%= good.barcode %>">
-                                                                                    <%= good.barcode %> - <%= good.name
-                                                                                            %>
-                                                                                </option>
-                                                                                <% }) %>
-                                                                        </select>
-                                                                    </div>
-
-                                                                    <div class="form-group col-md-4">
-                                                                        <label>Goods Name</label>
-                                                                        <input type="text" id="goodsName"
-                                                                            class="form-control" readonly>
-                                                                    </div>
-
-                                                                    <div class="form-group col-md-4">
-                                                                        <label>Stock</label>
-                                                                        <input type="text" id="stock"
-                                                                            class="form-control" readonly>
-                                                                    </div>
-                                                                </div>
-
-                                                                <div class="form-row align-items-center">
-                                                                    <div class="form-group col-md-4">
-                                                                        <label for="purchaseprice">Purchase
-                                                                            Price</label>
-                                                                        <input type="text" id="purchasePrice"
-                                                                            class="form-control">
-                                                                    </div>
-
-                                                                    <div class="form-group col-md-4">
-                                                                        <label>QTY</label>
-                                                                        <input type="number" id="qty"
-                                                                            class="form-control">
-                                                                    </div>
-
-                                                                    <div class="form-group col-md-4">
-                                                                        <label>Total Price</label>
-                                                                        <input type="text" id="totalPrice"
-                                                                            class="form-control" readonly>
-                                                                    </div>
-                                                                </div>
-
-                                                                <div class="form-group col-md-2">
-                                                                    <button type="button"
-                                                                        class="btn btn-primary btn-icon-split"
-                                                                        id="addItem">
-                                                                        <span class="icon text-white-50"><i
-                                                                                class="fas fa-plus"></i></span>
-                                                                        <span class="text">Add</span>
-                                                                    </button>
-                                                                </div>
-
-                                                                <hr>
-
-                                                                <!-- ======================== ITEMS TABLE ======================== -->
-                                                                <div class="table-responsive">
-                                                                    <table class="table table-bordered">
-                                                                        <thead class="thead-light">
-                                                                            <tr>
-                                                                                <th>No.</th>
-                                                                                <th>Barcode</th>
-                                                                                <th>Name</th>
-                                                                                <th>Qty</th>
-                                                                                <th>Price</th>
-                                                                                <th>Total Price</th>
-                                                                                <th>Action</th>
-                                                                            </tr>
-                                                                        </thead>
-                                                                        <tbody id="itemsTable">
-                                                                            <% if (items.length===0) { %>
-                                                                                <tr>
-                                                                                    <td colspan="7" class="text-center">
-                                                                                        No items</td>
-                                                                                </tr>
-                                                                                <% } else { %>
-                                                                                    <% items.forEach((item, i)=> { %>
-                                                                                        <tr>
-                                                                                            <td>
-                                                                                                <%= i + 1 %>
-                                                                                            </td>
-                                                                                            <td>
-                                                                                                <%= item.itemcode %>
-                                                                                            </td>
-                                                                                            <td>
-                                                                                                <%= item.name %>
-                                                                                            </td>
-                                                                                            <td>
-                                                                                                <%= item.quantity %>
-                                                                                            </td>
-                                                                                            <td>
-                                                                                                <%= item.purchaseprice
-                                                                                                    %>
-                                                                                            </td>
-                                                                                            <td>
-                                                                                                <%= item.totalprice %>
-                                                                                            </td>
-                                                                                            <td>
-                                                                                                <a href="/purchases/delete/<%= item.itemcode %>"
-                                                                                                    onclick="return confirm('Are you sure to delete this purchase?')"
-                                                                                                    class="btn btn-sm btn-danger rounded-circle"
-                                                                                                    title="Delete">
-                                                                                                    <i
-                                                                                                        class="fas fa-trash"></i>
-                                                                                                </a>
-                                                                                            </td>
-                                                                                        </tr>
-                                                                                        <% }) %>
-                                                                                            <% } %>
-                                                                        </tbody>
-                                                                    </table>
-                                                                </div>
-
-                                                                <hr>
-
-                                                                <!-- ======================== FINALIZATION FORM ======================== -->
-                                                                <form id="finalizeForm" action="/purchases/finish"
-                                                                    method="POST">
-                                                                    <div class="form-group row mb-3">
-                                                                        <label for="totalsum"
-                                                                            class="col-sm-2 col-form-label">Total
-                                                                            Summary</label>
-                                                                        <div class="col-sm-10">
-                                                                            <input type="text" id="totalsum"
-                                                                                name="totalsum" class="form-control"
-                                                                                value="<%= purchaseData.totalsum || '' %>"
-                                                                                readonly>
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div class="form-group row mb-3">
-                                                                        <label for="supplier"
-                                                                            class="col-sm-2 col-form-label">Supplier</label>
-                                                                        <div class="col-sm-10">
-                                                                            <select name="supplier" id="supplier"
-                                                                                class="form-control" required>
-                                                                                <option value="">Select Supplier
-                                                                                </option>
-                                                                                <% suppliers.forEach(supplier=> { %>
-                                                                                    <option
-                                                                                        value="<%= supplier.supplierid %>"
-                                                                                        <%=purchaseData.supplier==supplier.supplierid
-                                                                                        ? 'selected' : '' %>>
-                                                                                        <%= supplier.name %>
-                                                                                    </option>
-                                                                                    <% }) %>
-                                                                            </select>
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <!-- Hidden Invoice -->
-                                                                    <input type="hidden" name="invoice"
-                                                                        value="<%= purchaseData.invoice || '' %>">
-
-                                                                    <!-- Finish & Back Buttons -->
-                                                                    <div class="d-flex justify-content-start mt-2">
-                                                                        <button id="btnFinish" type="submit"
-                                                                            class="btn btn-success btn-icon-split mr-2">
-                                                                            <span class="icon text-white-50"><i
-                                                                                    class="fas fa-check"></i></span>
-                                                                            <span class="text">Finish</span>
-                                                                        </button>
-
-                                                                        <a href="/purchases"
-                                                                            class="btn custom-btn btn-warning">
-                                                                            <span class="btn-icon"><i
-                                                                                    class="fas fa-undo-alt"></i></span>
-                                                                            <span class="btn-text">Back</span>
-                                                                        </a>
-                                                                    </div>
-                                                                </form>
-
+                                                            <div class="form-group col-md-4">
+                                                                <label>Stock</label>
+                                                                <input type="text" id="stock" class="form-control"
+                                                                    readonly>
                                                             </div>
                                                         </div>
+
+                                                        <div class="form-row align-items-center">
+                                                            <div class="form-group col-md-4">
+                                                                <label for="purchaseprice">Purchase
+                                                                    Price</label>
+                                                                <input type="text" id="purchasePrice"
+                                                                    class="form-control">
+                                                            </div>
+
+                                                            <div class="form-group col-md-4">
+                                                                <label>QTY</label>
+                                                                <input type="number" id="qty" class="form-control">
+                                                            </div>
+
+                                                            <div class="form-group col-md-4">
+                                                                <label>Total Price</label>
+                                                                <input type="text" id="totalPrice" class="form-control"
+                                                                    readonly>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="form-group col-md-2">
+                                                            <button type="button" class="btn btn-primary btn-icon-split"
+                                                                id="addItem">
+                                                                <span class="icon text-white-50"><i
+                                                                        class="fas fa-plus"></i></span>
+                                                                <span class="text">Add</span>
+                                                            </button>
+                                                        </div>
+
+                                                        <hr>
+
+                                                        <!-- ======================== ITEMS TABLE ======================== -->
+                                                        <div class="table-responsive">
+                                                            <table class="table table-bordered">
+                                                                <thead class="thead-light">
+                                                                    <tr>
+                                                                        <th>No.</th>
+                                                                        <th>Barcode</th>
+                                                                        <th>Name</th>
+                                                                        <th>Qty</th>
+                                                                        <th>Price</th>
+                                                                        <th>Total Price</th>
+                                                                        <th>Action</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody id="itemsTable">
+                                                                    <% if (items.length===0) { %>
+                                                                        <tr>
+                                                                            <td colspan="7" class="text-center">
+                                                                                No items</td>
+                                                                        </tr>
+                                                                        <% } else { %>
+                                                                            <% items.forEach((item, i)=> { %>
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        <%= i + 1 %>
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        <%= item.itemcode %>
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        <%= item.name %>
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        <%= item.quantity %>
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        <%= item.purchaseprice %>
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        <%= item.totalprice %>
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        <a class="btn btn-sm btn-danger btn-delete rounded-circle"
+                                                                                            data-id="<%= item.id %>"
+                                                                                            data-type="item" href="#"
+                                                                                            title="Delete">
+                                                                                            <i class="fas fa-trash"></i>
+                                                                                        </a>
+                                                                                    </td>
+                                                                                </tr>
+                                                                                <% }) %>
+                                                                                    <% } %>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+
+                                                        <hr>
+
+                                                        <!-- ======================== FINALIZATION FORM ======================== -->
+                                                        <form id="finalizeForm" action="/purchases/finish"
+                                                            method="POST">
+                                                            <div class="form-group row mb-3">
+                                                                <label for="totalsum"
+                                                                    class="col-sm-2 col-form-label">Total
+                                                                    Summary</label>
+                                                                <div class="col-sm-10">
+                                                                    <input type="text" id="totalsum" name="totalsum"
+                                                                        class="form-control"
+                                                                        value="<%= purchaseData.totalsum || '' %>"
+                                                                        readonly>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="form-group row mb-3">
+                                                                <label for="supplier"
+                                                                    class="col-sm-2 col-form-label">Supplier</label>
+                                                                <div class="col-sm-10">
+                                                                    <select name="supplier" id="supplier"
+                                                                        class="form-control" required>
+                                                                        <option value="">Select Supplier
+                                                                        </option>
+                                                                        <% suppliers.forEach(supplier=> { %>
+                                                                            <option value="<%= supplier.supplierid %>"
+                                                                                <%=purchaseData.supplier==supplier.supplierid
+                                                                                ? 'selected' : '' %>>
+                                                                                <%= supplier.name %>
+                                                                            </option>
+                                                                            <% }) %>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- Hidden Invoice -->
+                                                            <input type="hidden" name="invoice"
+                                                                value="<%= purchaseData.invoice || '' %>">
+
+                                                            <!-- Finish & Back Buttons -->
+                                                            <div class="d-flex justify-content-start mt-2">
+                                                                <button id="btnFinish" type="submit"
+                                                                    class="btn btn-success btn-icon-split mr-2">
+                                                                    <span class="icon text-white-50"><i
+                                                                            class="fas fa-check"></i></span>
+                                                                    <span class="text">Finish</span>
+                                                                </button>
+
+                                                                <a href="/purchases" class="btn custom-btn btn-warning">
+                                                                    <span class="btn-icon"><i
+                                                                            class="fas fa-undo-alt"></i></span>
+                                                                    <span class="btn-text">Back</span>
+                                                                </a>
+                                                            </div>
+                                                        </form>
+
+                                                    </div>
+                                                </div>
                             </div>
                     </div>
                 </div>
