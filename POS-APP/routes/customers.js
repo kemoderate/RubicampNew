@@ -33,7 +33,7 @@ module.exports = (requireLogin, db) => {
       title: 'Add customer',
       action: '/customers/add',
       user: req.session.user,
-      supplierData:{}
+      customerData:{}
     })
   })
   router.post('/add', requireLogin, async (req, res) => {
@@ -70,7 +70,7 @@ module.exports = (requireLogin, db) => {
       res.render('customer-form', {
         title: 'Edit customer',
         action: `/customers/edit/${customerid}`,
-        supplierData: rows[0],
+        customerData: rows[0],
         user: req.session.user
       })
     } catch (err) {
