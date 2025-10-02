@@ -164,6 +164,10 @@
             items.push({ barcode, name, qty, purchaseprice: price, totalprice: total });
             renderTable();
             resetFields();
+            $.get(`/purchases/totalsum/${invoice}`)
+              .done(function (data) {
+                $('#totalsum').val(data.totalsum);
+              })
           } else {
             alert('Failed to add item!');
           }

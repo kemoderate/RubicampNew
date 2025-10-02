@@ -91,9 +91,18 @@ module.exports = (requireLogin, db) => {
             const operatorId = req.session.user.id;
 
             await db.query(`
-            INSERT INTO purchases(invoice, time, totalsum, operator)
+            INSERT INTO purchases(invoice, time, totalsum, operator,supplier)
             VALUES($1, $2, 0, $3, NULL)
         `, [invoice, time, operatorId]);
+            const purchaseResult = await db.query(
+                `SELECT invoice, 
+                    to_char(time, 'YYYY-MM-DD HH24:MI:SS') as time, 
+                    totalsum 
+             FROM purchases 
+             WHERE invoice = $1`,
+                [invoice]
+            );
+            purchaseData = purchaseResult.rows[0];
 
             const operatorResult = await db.query(
                 'SELECT userid, name FROM users WHERE userid = $1',
@@ -110,7 +119,7 @@ module.exports = (requireLogin, db) => {
                 goods: goodsData.rows,
                 suppliers: suppliersData.rows,
                 operator: operator,
-                purchaseData: { invoice, time },
+                purchaseData: purchaseData,
                 success: [],
                 error: [],
                 user: req.session.user,
@@ -155,7 +164,20 @@ module.exports = (requireLogin, db) => {
         }
     });
 
-
+    router.get('/totalsum/:invoice', requireLogin, async (req, res) => {
+        try {
+            const { invoice } = req.params;
+            const result = await db.query(
+                'SELECT totalsum FROM purchases WHERE invoice = $1',
+                [invoice]
+            );
+            res.json({ totalsum: result.rows[0].totalsum });
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Failed to get totalsum' });
+        }
+    });
+    
     router.post(`/add`, requireLogin, async (req, res) => {
         try {
             const { invoice, operator, supplier, items } = req.body;
