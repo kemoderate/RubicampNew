@@ -196,6 +196,9 @@
                                                         <!-- ======================== FINALIZATION FORM ======================== -->
                                                         <form id="finalizeForm" action="/purchases/finish"
                                                             method="POST">
+
+                                                            <input type="hidden" name="invoice"
+                                                                value="<%= purchaseData.invoice || '' %>">
                                                             <div class="form-group row mb-3">
                                                                 <label for="totalsum"
                                                                     class="col-sm-2 col-form-label">Total

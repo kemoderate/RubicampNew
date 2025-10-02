@@ -57,7 +57,7 @@ module.exports = (requireLogin, db) => {
         }
     })
 
-     router.get('/generate-invoice',requireLogin, async (req, res) => {
+    router.get('/generate-invoice', requireLogin, async (req, res) => {
         try {
             const operatorId = req.session.user.id;
             const result = await db.query('SELECT generate_invoice_no() AS invoice_no');
@@ -68,14 +68,6 @@ module.exports = (requireLogin, db) => {
             if (check.rows.length > 0) {
                 return res.json({ invoice, message: 'Invoice already exists' });
             }
-
-            const insert = await db.query(`
-      INSERT INTO purchases(invoice, time, totalsum, operator)
-      VALUES($1, NOW(), 0, $2)
-      RETURNING invoice, to_char(time, 'YYYY-MM-DD HH24:MI:SS') as time, operator
-    `, [invoice, operatorId]);
-
-           
 
             res.json({
                 invoice: insert.rows[0].invoice,
@@ -93,13 +85,19 @@ module.exports = (requireLogin, db) => {
 
     router.get('/add', requireLogin, async (req, res) => {
         try {
-            const time = new Date().toISOString().slice(0,19).replace('T',' '); // YYYY-MM-DD HH:MM:SS
+            const time = new Date().toISOString().slice(0, 19).replace('T', ' '); // YYYY-MM-DD HH:MM:SS
             const invoiceResult = await db.query('SELECT generate_invoice_no() AS invoice_no');
             const invoice = invoiceResult.rows[0].invoice_no;
+            const operatorId = req.session.user.id;
+
+            await db.query(`
+            INSERT INTO purchases(invoice, time, totalsum, operator)
+            VALUES($1, $2, 0, $3, NULL)
+        `, [invoice, time, operatorId]);
 
             const operatorResult = await db.query(
                 'SELECT userid, name FROM users WHERE userid = $1',
-                [req.session.user.id]
+                [operatorId]
             );
 
             const operator = operatorResult.rows[0];
@@ -112,7 +110,7 @@ module.exports = (requireLogin, db) => {
                 goods: goodsData.rows,
                 suppliers: suppliersData.rows,
                 operator: operator,
-                purchaseData: {invoice,time},
+                purchaseData: { invoice, time },
                 success: [],
                 error: [],
                 user: req.session.user,
@@ -189,7 +187,7 @@ module.exports = (requireLogin, db) => {
     router.post('/finish', requireLogin, async (req, res) => {
         console.log('Finish Payload:', req.body);
         try {
-            const { invoice, supplier,  } = req.body;
+            const { invoice, supplier, } = req.body;
             const operator = req.session.user.id;
 
             await db.query(
