@@ -93,10 +93,7 @@
 
 <!-- script generate invoice -->
 <script>
-
-
-  let items = <% - JSON.stringify(typeof items !== 'undefined' ? items : []) %>;
-
+  let items = <%= JSON.stringify(typeof items !== 'undefined' ? items : []) %>;
 
   const isEdit = <%= JSON.stringify(typeof isEdit !== 'undefined' ? isEdit : false) %>;
 
@@ -104,24 +101,9 @@
   $(document).ready(function () {
     // ==== 1. Generate invoice sekali saja ====
     if (!isEdit) {
-      if (!sessionStorage.getItem('currentInvoice')) {
-        $.get('/purchases/generate-invoice')
-          .done(function (response) {
-            sessionStorage.setItem('currentInvoice', response.invoice);
-            $('#invoice').val(response.invoice);
-            $('#time').val(formatTime(response.time));
-          })
-          .fail(function () {
-            alert('Failed to generate invoice!');
-          });
-      } else {
-        const invoice = sessionStorage.getItem('currentInvoice');
-        const time = sessionStorage.getItem('currentTime');
-        $('#invoice').val(invoice);
-        $('#time').val(formatTime(time));
-      }
-    } else {
-      sessionStorage.removeItem('currentInvoice');
+    const storedInvoice = sessionStorage.getItem('currentInvoice');
+      const today = new Date().toISOString().slice(0,10).replace(/-/g,''); // YYYYMMDD
+
     }
 
     // ==== 2. Ketika barcode diisi ====
@@ -151,7 +133,7 @@
 
     // ==== 4. Tambah item ke table ====
     $('#addItem').click(function () {
-      const invoice = sessionStorage.getItem('currentInvoice');
+      const invoice = $('#invoice').val();
       const barcode = $('#barcode').val();
       const name = $('#goodsName').val();
       const qty = Number($('#qty').val());
@@ -178,9 +160,8 @@
         .done(function (response) {
           console.log('Add Item Response:', response); // Debug
           if (response.success) {
-            items.push({ id: response.id, barcode, name, qty, purchaseprice: price, totalprice: total });
+            items.push({ barcode, name, qty, purchaseprice: price, totalprice: total });
             renderTable();
-            updateTotalsum();
             resetFields();
           } else {
             alert('Failed to add item!');
@@ -192,8 +173,8 @@
     });
 
     // ==== 5. Finish & clear sessionStorage ====
-    $('#btnFinish').click(function (e) {
-      e.preventDefault()
+    $('#btnFinish').click(function () {
+
       if (items.length === 0) {
         alert('Add at least one item!');
         return;
@@ -201,19 +182,12 @@
 
       const supplier = $('#supplier').val();
       const invoice = $('#invoice').val();
-      const totalsum = $('#totalsum').val();
+
 
       if (!supplier) {
         alert('Please select a supplier before finishing!');
         return;
       }
-
-
-      // Clear previous hidden inputs
-      $('#finalizeForm input[name="supplier"]').remove();
-      $('#finalizeForm input[name="invoice"]').remove();
-      $('#finalizeForm input[name="totalsum"]').remove();
-
       $('<input>').attr({
         type: 'hidden',
         name: 'items',
@@ -234,12 +208,7 @@
         value: invoice
       }).appendTo('#finalizeForm');
 
-      // Hidden input untuk totalsum
-      $('<input>').attr({
-        type: 'hidden',
-        name: 'totalsum',
-        value: totalsum
-      }).appendTo('#finalizeForm');
+
 
       // setelah submit, invoice dihapus supaya bisa generate baru lagi
       $('#finalizeForm').submit(function (e) {
@@ -250,41 +219,6 @@
       $('#finalizeForm').submit();
 
     });
-
-    // Delete item dari DB dan table
-    $(document).on('click', '.btn-delete', function (e) {
-      e.preventDefault();
-
-      const id = $(this).data('id');
-      const type = $(this).data('type');
-      if (type === 'purchase') {
-        $('#deletePurchaseModal').modal('show');
-        $('#confirmDeletePurchase').off('click').on('click', function () {
-          $.ajax({
-            url: `/purchases/delete-item/${id}`,
-            method: 'POST',
-          }).done(function () {
-            location.reload();
-          }).fail(function () {
-            alert('Failed to delete purchase!');
-          });
-        });
-
-      } else if (type === 'item') {
-        $.ajax({
-          url: `/purchases/delete-item/${id}`,
-          method: 'GET',
-        }).done(function () {
-          // hapus item dari array JS
-          items = items.filter(item => item.id !== id);
-          renderTable();
-          updateTotalsum();
-        }).fail(function () {
-          alert('Failed to delete item!');
-        });
-      };
-    });
-
 
     // ==== Helper Functions ====
     function renderTable() {
@@ -303,18 +237,12 @@
             <td>${item.qty}</td>
             <td>${item.purchaseprice}</td>
             <td>${item.totalprice}</td>
-            <td>
-          <button class="btn btn-sm btn-danger btn-delete" data-id="${item.id}"><i class="fas fa-trash"></i></button>
-        </td>
           </tr>
         `);
       });
     }
 
-    function updateTotalsum() {
-      let sum = items.reduce((a, b) => a + b.totalprice, 0);
-      $('#totalsum').val(sum);
-    }
+
 
     function resetFields() {
       $('#barcode').val('');

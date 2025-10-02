@@ -57,7 +57,7 @@ module.exports = (requireLogin, db) => {
         }
     })
 
-    router.get('/generate-invoice', async (req, res) => {
+     router.get('/generate-invoice',requireLogin, async (req, res) => {
         try {
             const operatorId = req.session.user.id;
             const result = await db.query('SELECT generate_invoice_no() AS invoice_no');
@@ -75,7 +75,7 @@ module.exports = (requireLogin, db) => {
       RETURNING invoice, to_char(time, 'YYYY-MM-DD HH24:MI:SS') as time, operator
     `, [invoice, operatorId]);
 
-            req.session.currentInvoice = insert.rows[0].invoice;
+           
 
             res.json({
                 invoice: insert.rows[0].invoice,
@@ -90,26 +90,29 @@ module.exports = (requireLogin, db) => {
         }
     })
 
+
     router.get('/add', requireLogin, async (req, res) => {
         try {
+            const time = new Date().toISOString().slice(0,19).replace('T',' '); // YYYY-MM-DD HH:MM:SS
+            const invoiceResult = await db.query('SELECT generate_invoice_no() AS invoice_no');
+            const invoice = invoiceResult.rows[0].invoice_no;
+
             const operatorResult = await db.query(
                 'SELECT userid, name FROM users WHERE userid = $1',
                 [req.session.user.id]
             );
+
             const operator = operatorResult.rows[0];
-
             const goodsData = await db.query('SELECT barcode, name , stock, purchaseprice FROM goods ORDER BY name ASC')
-
             const suppliersData = await db.query('SELECT supplierid ,name FROM suppliers ORDER BY supplierid ASC')
+
             res.render('purchase-form', {
                 title: 'Transaction',
                 action: '/purchases/add',
                 goods: goodsData.rows,
                 suppliers: suppliersData.rows,
                 operator: operator,
-                purchaseData: {
-
-                },
+                purchaseData: {invoice,time},
                 success: [],
                 error: [],
                 user: req.session.user,
@@ -159,10 +162,6 @@ module.exports = (requireLogin, db) => {
         try {
             const { invoice, operator, supplier, items } = req.body;
 
-
-
-            const barcode = Date.now().toString().slice(-12);
-
             await db.query(
                 `UPDATE purchases 
        SET supplier = $1, time = $2 
@@ -190,13 +189,13 @@ module.exports = (requireLogin, db) => {
     router.post('/finish', requireLogin, async (req, res) => {
         console.log('Finish Payload:', req.body);
         try {
-            const { invoice, supplier, totalsum } = req.body;
+            const { invoice, supplier,  } = req.body;
             const operator = req.session.user.id;
 
             await db.query(
                 `UPDATE purchases
-            SET totalsum = $1, supplier = $2, operator =$3
-            WHERE invoice = $4`, [totalsum, supplier, operator, invoice]
+            SET supplier = $1, operator =$2
+            WHERE invoice = $3`, [supplier, operator, invoice]
             );
             req.flash('success_msg', 'Purchase has been completed!');
             res.redirect(`/purchases`)
@@ -274,16 +273,16 @@ module.exports = (requireLogin, db) => {
         }
     })
 
-router.get('/delete-item/:id', requireLogin, async (req, res) => {
-  const { id } = req.params;
-  try {
-    await db.query('DELETE FROM purchaseitems WHERE id = $1', [id]);
-    res.json({ success: true });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to delete item' });
-  }
-});
+    router.get('/delete-item/:id', requireLogin, async (req, res) => {
+        const { id } = req.params;
+        try {
+            await db.query('DELETE FROM purchaseitems WHERE id = $1', [id]);
+            res.json({ success: true });
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Failed to delete item' });
+        }
+    });
 
 
 
