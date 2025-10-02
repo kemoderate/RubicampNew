@@ -15,7 +15,7 @@
         </button>
       </div>
       <div class="modal-body">
-        Are you sure you want to delete this user?
+        Are you sure you want to delete this?
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
@@ -93,10 +93,11 @@
 
 <!-- script generate invoice -->
 <script>
-  let items = <%= JSON.stringify(typeof items !== 'undefined' ? items : []) %>;
+  let items = <%- JSON.stringify(typeof items !== 'undefined' ? items : []) %>;
 
   const isEdit = <%= JSON.stringify(typeof isEdit !== 'undefined' ? isEdit : false) %>;
 
+  let deleteId = null; // simpan id sementara
 
   $(document).ready(function () {
     // ==== 1. Generate invoice sekali saja ====
@@ -109,11 +110,13 @@
 
     // ==== 2. Ketika barcode diisi ====
     $('#barcode').change(function () {
+      console.log('barcode changed', $(this).val())
       const barcode = $(this).val();
       if (!barcode) return resetFields();
 
       $.get(`/purchases/goods/${barcode}`)
         .done(function (data) {
+          console.log('Goods data:', data);
           $('#goodsName').val(data.name);
           $('#stock').val(data.stock);
           $('#purchasePrice').val(data.purchaseprice);
@@ -161,7 +164,7 @@
         .done(function (response) {
           console.log('Add Item Response:', response); // Debug
           if (response.success) {
-            items.push({ barcode, name, qty, purchaseprice: price, totalprice: total });
+            items.push({   id: response.id, itemcode: barcode, name: name, quantity: qty, purchaseprice: price, totalprice: total });
             renderTable();
             resetFields();
             $.get(`/purchases/totalsum/${invoice}`)
@@ -212,6 +215,39 @@
 
     });
 
+    // delete itemTable
+
+    $(document).on('click', '.btn-deleteItem', function (e) {
+      e.preventDefault();
+
+      deleteId = $(this).data('id');
+      $('#deleteModal').modal('show');
+
+      $('#confirmDelete').off('click').on('click', function (e) {
+        e.preventDefault();
+
+        if (!deleteId) return;
+
+        $.ajax({
+          url: `/purchases/delete-item/${deleteId}`,
+          method: 'GET',
+          success: function (response) {
+            if (response.success) {
+              $('#deleteModal').modal('hide');
+
+              $(`a.btn-deleteItem[data-id="${deleteId}"]`).closest('tr').remove();
+            } else {
+              showError('failed to delete item!')
+            }
+          },
+          error: function () {
+            showError('server error while deleting item!');
+          }
+        })
+      })
+      $('#deleteModal').modal('hide');
+    });
+
     // ==== Helper Functions ====
     function renderTable() {
       const tbody = $('#itemsTable');
@@ -224,14 +260,32 @@
         tbody.append(`
           <tr>
             <td>${i + 1}</td>
-            <td>${item.barcode}</td>
+            <td>${item.itemcode}</td>
             <td>${item.name}</td>
             <td>${item.qty}</td>
             <td>${item.purchaseprice}</td>
             <td>${item.totalprice}</td>
+            <td>
+          <a href="#" 
+             class="btn btn-sm btn-danger btn-deleteItem rounded-circle" 
+             data-id="${item.id}">
+             <i class="fas fa-trash"></i>
+          </a>
+        </td>
           </tr>
         `);
       });
+    }
+
+    function showError(msg) {
+      $('.container-fluid').prepend(`
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      ${msg}
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+  `);
     }
 
 
