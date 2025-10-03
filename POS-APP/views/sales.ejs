@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/head') %>
+
+    <body id="page-top">
+        <div id="wrapper">
+            <%- include('partials/sidebar') %>
+
+                <div id="content-wrapper" class="d-flex flex-column">
+                    <div id="content">
+                        <%- include('partials/topbar') %>
+
+                            <!-- Begin Page Content -->
+                            <div class="container-fluid">
+                                <h1 class="h3 mb-4 text-gray-800">Sales</h1>
+                                <h2 class="h4 mb-4 text-gray-800">This is data sales </h2>
+                            </div>
+
+                            <div class="container-fluid">
+                                <!-- Tombol Add -->
+                                <div class="card-header py-3">
+                                    <a href="/sales/add" class="btn btn-primary btn-icon-split">
+                                        <span class="icon text-white-50">
+                                            <i class="fa fa-plus"></i>
+                                        </span>
+                                        <span class="text">Add </span>
+                                    </a>
+                                </div>
+
+                                <!-- Table -->
+                                <div class="card shadow mb-4">
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table id="myTable" class="table table-bordered" data-entity="sales">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Invoice</th>
+                                                        <th>Time</th>
+                                                        <th>Total Sum</th>
+                                                        <th>Supplier</th>
+                                                        <th>Operator</th>
+                                                        <th>Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tfoot>
+                                                    <tr>
+                                                        <th>Invoice</th>
+                                                        <th>Time</th>
+                                                        <th>Total Sum</th>
+                                                        <th>Supplier</th>
+                                                        <th>Operator</th>
+                                                        <th>Actions</th>
+                                                    </tr>
+                                                </tfoot>
+                                                <tbody>
+                                                    <% if (sales.length===0) { %>
+                                                        <tr>
+                                                            <td colspan="6" class="text-center">No sales found</td>
+                                                        </tr>
+                                                        <% } else { %>
+                                                            <% sales.forEach(sale=> { %>
+                                                                <tr>
+                                                                    <td>
+                                                                        <%= sale.invoice %>
+                                                                    </td>
+                                                                    <td>
+                                                                        <%= new
+                                                                            Date(sale.time).toLocaleString('id-ID')
+                                                                            %>
+                                                                    </td>
+                                                                    <td>
+                                                                        <%= new Intl.NumberFormat('id-ID', {
+                                                                            style: 'currency' , currency: 'IDR'
+                                                                            }).format(sale.totalsum) %>
+                                                                    </td>
+                                                                    <td>
+                                                                        <%= sale.suppliername || '-' %>
+                                                                    </td>
+                                                                    <td>
+                                                                        <%= sale.operator %>
+                                                                    </td>
+                                                                    <td>
+                                                                        <!-- Edit button -->
+                                                                        <a href="/sales/edit/<%= sale.invoice %>"
+                                                                            class="btn btn-sm btn-success rounded-circle"
+                                                                            title="View/Edit">
+                                                                            <i class="fas fa-info-circle"></i>
+                                                                        </a>
+
+                                                                        <!-- Delete button -->
+                                                                        <button
+                                                                            class="btn btn-sm btn-danger btn-delete rounded-circle  align-items-center justify-content-center"
+                                                                            data-id="<%= sale.invoice %>"
+                                                                            data-entity="sale">
+                                                                            <i class="fas fa-trash"></i>
+                                                                        </button>
+                                                                        
+                                                                    </td>
+                                                                </tr>
+                                                                <% }) %>
+                                                                    <% } %>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> <!-- End container -->
+
+                    </div>
+                </div>
+
+                <%- include('partials/footer') %>
+        </div>
+    </body>
+
+</html>
