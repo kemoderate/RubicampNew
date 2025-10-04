@@ -46,7 +46,7 @@ module.exports = (requireLogin, db) => {
     router.get('/goods/:barcode', requireLogin, async (req, res) => {
         try {
             const { barcode } = req.params;
-            const { rows } = await db.query('SELECT barcode, name, stock, saleprice FROM goods WHERE barcode = $1', [barcode]);
+            const { rows } = await db.query('SELECT barcode, name, stock, sellingprice FROM goods WHERE barcode = $1', [barcode]);
             if (rows.length === 0) return res.status(404).json({ error: 'Goods not found' });
             res.json(rows[0]);
         }
@@ -91,8 +91,8 @@ module.exports = (requireLogin, db) => {
             const operatorId = req.session.user.id;
 
             await db.query(`
-            INSERT INTO sales(invoice, time, totalsum, operator,customer)
-            VALUES($1, $2, 0, $3, NULL)
+            INSERT INTO sales(invoice, time, totalsum, pay, change, operator, customer)
+            VALUES($1, $2, 0, $3, $4, $5, NULL)
         `, [invoice, time, operatorId]);
             const saleResult = await db.query(
                 `SELECT invoice, 
@@ -110,7 +110,7 @@ module.exports = (requireLogin, db) => {
             );
 
             const operator = operatorResult.rows[0];
-            const goodsData = await db.query('SELECT barcode, name , stock, saleprice FROM goods ORDER BY name ASC')
+            const goodsData = await db.query('SELECT barcode, name , stock, sellingprice FROM goods ORDER BY name ASC')
             const customersData = await db.query('SELECT customerid ,name FROM customers ORDER BY customerid ASC')
 
             res.render('sale-form', {
@@ -142,7 +142,7 @@ module.exports = (requireLogin, db) => {
     // Tambah item langsung ke database
     router.post('/add-item', requireLogin, async (req, res) => {
         try {
-            const { invoice, barcode, qty, saleprice, totalprice } = req.body;
+            const { invoice, barcode, qty, sellingprice, totalprice } = req.body;
 
             if (!invoice || !barcode || qty <= 0) {
                 return res.status(400).json({ error: 'Invalid data' });
@@ -151,10 +151,10 @@ module.exports = (requireLogin, db) => {
 
             // Insert ke saleitems
             const result = await db.query(`
-      INSERT INTO saleitems(invoice, itemcode, quantity, saleprice, totalprice)
+      INSERT INTO saleitems(invoice, itemcode, quantity, sellingprice, totalprice)
       VALUES ($1, $2, $3, $4, $5)
       RETURNING id
-    `, [invoice, barcode, qty, saleprice, totalprice]
+    `, [invoice, barcode, qty, sellingprice, totalprice]
             );
 
             res.json({ success: true, id: result.rows[0].id });
@@ -192,8 +192,8 @@ module.exports = (requireLogin, db) => {
             // insert saleitems
             for (let item of JSON.parse(items)) {
                 await db.query(
-                    'INSERT INTO saleitems(invoice, itemcode, quantity, saleprice, totalprice) VALUES($1, $2, $3, $4, $5)',
-                    [invoice, item.barcode, item.qty, item.saleprice, item.totalprice]
+                    'INSERT INTO saleitems(invoice, itemcode, quantity, sellingprice, totalprice) VALUES($1, $2, $3, $4, $5)',
+                    [invoice, item.barcode, item.qty, item.sellingprice, item.totalprice]
                 );
             }
             req.flash('success_msg', 'sales has been added !')
@@ -233,7 +233,7 @@ module.exports = (requireLogin, db) => {
             [req.session.user.id]
         );
         const operator = operatorResult.rows[0];
-        const goodsData = await db.query('SELECT barcode, name , stock, saleprice FROM goods ORDER BY name ASC')
+        const goodsData = await db.query('SELECT barcode, name , stock, sellingprice FROM goods ORDER BY name ASC')
 
         try {
 
@@ -250,7 +250,7 @@ module.exports = (requireLogin, db) => {
             }
 
             const itemsResult = await db.query(`
-                SELECT pi.id,pi.itemcode, g.name ,pi.quantity, pi.saleprice, pi.totalprice
+                SELECT pi.id,pi.itemcode, g.name ,pi.quantity, pi.sellingprice, pi.totalprice
                 FROM saleitems pi
                 JOIN goods g ON pi.itemcode = g.barcode
                 WHERE pi.invoice = $1`, [invoice])

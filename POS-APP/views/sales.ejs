@@ -36,8 +36,10 @@
                                                     <tr>
                                                         <th>Invoice</th>
                                                         <th>Time</th>
-                                                        <th>Total Sum</th>
-                                                        <th>Supplier</th>
+                                                        <th>Total Summary</th>
+                                                        <th>Pay</th>
+                                                        <th>Change</th>
+                                                        <th>Customers</th>
                                                         <th>Operator</th>
                                                         <th>Actions</th>
                                                     </tr>
@@ -46,8 +48,10 @@
                                                     <tr>
                                                         <th>Invoice</th>
                                                         <th>Time</th>
-                                                        <th>Total Sum</th>
-                                                        <th>Supplier</th>
+                                                        <th>Total Summary</th>
+                                                        <th>Pay</th>
+                                                        <th>Change</th>
+                                                        <th>Customers</th>
                                                         <th>Operator</th>
                                                         <th>Actions</th>
                                                     </tr>
@@ -55,7 +59,14 @@
                                                 <tbody>
                                                     <% if (sales.length===0) { %>
                                                         <tr>
-                                                            <td colspan="6" class="text-center">No sales found</td>
+                                                            <td class="text-center">No sales found</td>
+                                                            <td></td>
+                                                            <td></td>
+                                                            <td></td>
+                                                            <td></td>
+                                                            <td></td>
+                                                            <td></td>
+                                                            <td></td>
                                                         </tr>
                                                         <% } else { %>
                                                             <% sales.forEach(sale=> { %>
@@ -64,8 +75,7 @@
                                                                         <%= sale.invoice %>
                                                                     </td>
                                                                     <td>
-                                                                        <%= new
-                                                                            Date(sale.time).toLocaleString('id-ID')
+                                                                        <%= new Date(sale.time).toLocaleString('id-ID')
                                                                             %>
                                                                     </td>
                                                                     <td>
@@ -74,7 +84,13 @@
                                                                             }).format(sale.totalsum) %>
                                                                     </td>
                                                                     <td>
-                                                                        <%= sale.suppliername || '-' %>
+                                                                        <%= sale.pay || '-' %>
+                                                                    </td>
+                                                                    <td>
+                                                                        <%= sale.change || '-' %>
+                                                                    </td>
+                                                                    <td>
+                                                                        <%= sale.customername || '-' %>
                                                                     </td>
                                                                     <td>
                                                                         <%= sale.operator %>
@@ -94,7 +110,7 @@
                                                                             data-entity="sale">
                                                                             <i class="fas fa-trash"></i>
                                                                         </button>
-                                                                        
+
                                                                     </td>
                                                                 </tr>
                                                                 <% }) %>
