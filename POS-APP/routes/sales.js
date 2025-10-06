@@ -60,7 +60,7 @@ module.exports = (requireLogin, db) => {
     router.get('/generate-invoice', requireLogin, async (req, res) => {
         try {
             const operatorId = req.session.user.id;
-            const result = await db.query('SELECT generate_invoice_no() AS invoice_no');
+            const result = await db.query('SELECT generate_sales_invoice() AS invoice_no');
             const invoice = result.rows[0].invoice_no;
 
 
@@ -85,15 +85,14 @@ module.exports = (requireLogin, db) => {
 
     router.get('/add', requireLogin, async (req, res) => {
         try {
-            const time = new Date().toISOString().slice(0, 19).replace('T', ' '); // YYYY-MM-DD HH:MM:SS
-            const invoiceResult = await db.query('SELECT generate_invoice_no() AS invoice_no');
+            const invoiceResult = await db.query('SELECT generate_sales_invoice() AS invoice_no');
             const invoice = invoiceResult.rows[0].invoice_no;
             const operatorId = req.session.user.id;
 
             await db.query(`
             INSERT INTO sales(invoice, time, totalsum, pay, change, operator, customer)
-            VALUES($1, $2, 0, $3, $4, $5, NULL)
-        `, [invoice, time, operatorId]);
+            VALUES($1, NOW(), 0, 0, 0, $2, NULL)
+        `, [invoice, operatorId]);
             const saleResult = await db.query(
                 `SELECT invoice, 
                     to_char(time, 'YYYY-MM-DD HH24:MI:SS') as time, 

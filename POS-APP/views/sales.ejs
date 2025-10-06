@@ -40,7 +40,6 @@
                                                         <th>Pay</th>
                                                         <th>Change</th>
                                                         <th>Customers</th>
-                                                        <th>Operator</th>
                                                         <th>Actions</th>
                                                     </tr>
                                                 </thead>
@@ -52,7 +51,6 @@
                                                         <th>Pay</th>
                                                         <th>Change</th>
                                                         <th>Customers</th>
-                                                        <th>Operator</th>
                                                         <th>Actions</th>
                                                     </tr>
                                                 </tfoot>
@@ -60,7 +58,6 @@
                                                     <% if (sales.length===0) { %>
                                                         <tr>
                                                             <td class="text-center">No sales found</td>
-                                                            <td></td>
                                                             <td></td>
                                                             <td></td>
                                                             <td></td>
@@ -92,9 +89,7 @@
                                                                     <td>
                                                                         <%= sale.customername || '-' %>
                                                                     </td>
-                                                                    <td>
-                                                                        <%= sale.operator %>
-                                                                    </td>
+                                                                
                                                                     <td>
                                                                         <!-- Edit button -->
                                                                         <a href="/sales/edit/<%= sale.invoice %>"

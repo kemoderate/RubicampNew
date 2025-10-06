@@ -92,8 +92,8 @@ module.exports = (requireLogin, db) => {
 
             await db.query(`
             INSERT INTO purchases(invoice, time, totalsum, operator,supplier)
-            VALUES($1, $2, 0, $3, NULL)
-        `, [invoice, time, operatorId]);
+            VALUES($1, NOW(), 0, $3, NULL)
+        `, [invoice, operatorId]);
             const purchaseResult = await db.query(
                 `SELECT invoice, 
                     to_char(time, 'YYYY-MM-DD HH24:MI:SS') as time, 
