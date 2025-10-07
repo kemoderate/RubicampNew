@@ -100,6 +100,14 @@
   let deleteId = null; // simpan id sementara
 
   $(document).ready(function () {
+
+    const entity = <%- JSON.stringify(typeof entity !== 'undefined' ? entity : '') %>;
+    if (!entity) {
+    console.log('No entity provided — goods fetch disabled.');
+      return;
+    }
+
+    const pricekey = entity === "purchases" ? "purchaseprice" : "saleprice";
     // ==== 1. Generate invoice sekali saja ====
     if (!isEdit) {
 
@@ -114,14 +122,16 @@
       const barcode = $(this).val();
       if (!barcode) return resetFields();
 
-      $.get(`/purchases/goods/${barcode}`)
+      $.get(`/${entity}/goods/${barcode}`)
         .done(function (data) {
           console.log('Goods data:', data);
-          $('#goodsName').val(data.name);
-          $('#stock').val(data.stock);
-          $('#purchasePrice').val(data.purchaseprice);
+          $('#goodsName').val(data.name || '');
+          $('#stock').val(data.stock || '');
+
+          const price = data[pricekey]
+          $('#price').val(price);
           $('#qty').val(1);
-          $('#totalPrice').val(data.purchaseprice);
+          $('#totalPrice').val(price);
         })
         .fail(function () {
           alert('Error fetching goods data!');
@@ -131,7 +141,7 @@
     // ==== 3. Kalkulasi total otomatis ====
     $('#qty').on('input', function () {
       const qty = Number($(this).val());
-      const price = Number($('#purchasePrice').val());
+      const price = Number($('#price').val());
       $('#totalPrice').val(qty * price);
     });
 
@@ -141,33 +151,44 @@
       const barcode = $('#barcode').val();
       const name = $('#goodsName').val();
       const qty = Number($('#qty').val());
-      const price = Number($('#purchasePrice').val());
+      const price = Number($('#price').val());
       const total = Number($('#totalPrice').val());
+        const payload = {
+        invoice, barcode, qty,totalprice: total
+      };
       const operator = $('input[name="operator"]').val();
 
       if (!barcode || qty <= 0) return alert('Select goods and enter qty');
+      if (entity === 'purchases') payload.purchaseprice = price;
+      else payload.sellingprice = price;
 
       $.ajax({
-        url: '/purchases/add-item',
+        url: `/${entity}/add-item`,
         method: 'POST',
         contentType: 'application/json',
         data: JSON.stringify({
           invoice,
           barcode,
           qty,
-          purchaseprice: price,
+          [pricekey]: price,
           totalprice: total,
-          operator,
+          operator
 
         })
       })
         .done(function (response) {
           console.log('Add Item Response:', response); // Debug
           if (response.success) {
-            items.push({   id: response.id, itemcode: barcode, name: name, quantity: qty, purchaseprice: price, totalprice: total });
+            items.push({
+              id: response.id,
+              itemcode: barcode,
+              name: name, quantity: qty,
+              [pricekey]: price,
+              totalprice: total
+            });
             renderTable();
             resetFields();
-            $.get(`/purchases/totalsum/${invoice}`)
+            $.get(`/${entity}/totalsum/${invoice}`)
               .done(function (data) {
                 $('#totalsum').val(data.totalsum);
               })
@@ -189,11 +210,11 @@
         return;
       }
 
-      const supplier = $('#supplier').val();
+      const partner = entity === "purchases" ? $('#supplier').val() : $('#customer').val();
       const invoice = $('#invoice').val();
 
 
-      if (!supplier) {
+      if (!partner) {
         alert('Please select a supplier before finishing!');
         return;
       }
@@ -229,7 +250,7 @@
         if (!deleteId) return;
 
         $.ajax({
-          url: `/purchases/delete-item/${deleteId}`,
+          url: `/${entity}/delete-item/${deleteId}`,
           method: 'GET',
           success: function (response) {
             if (response.success) {
@@ -263,7 +284,7 @@
             <td>${item.itemcode}</td>
             <td>${item.name}</td>
             <td>${item.quantity}</td>
-            <td>${item.purchaseprice}</td>
+            <td>${item[pricekey]}</td>
             <td>${item.totalprice}</td>
             <td>
           <a href="#" 
@@ -292,7 +313,7 @@
 
     function resetFields() {
       $('#barcode').val('');
-      $('#goodsName, #stock, #purchasePrice, #qty, #totalPrice').val('');
+      $('#goodsName, #stock, #price, #qty, #totalPrice').val('');
     }
 
     function formatTime(dateString) {

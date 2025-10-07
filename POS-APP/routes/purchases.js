@@ -92,7 +92,7 @@ module.exports = (requireLogin, db) => {
 
             await db.query(`
             INSERT INTO purchases(invoice, time, totalsum, operator,supplier)
-            VALUES($1, NOW(), 0, $3, NULL)
+            VALUES($1, NOW(), 0, $2, NULL)
         `, [invoice, operatorId]);
             const purchaseResult = await db.query(
                 `SELECT invoice, 
@@ -116,6 +116,7 @@ module.exports = (requireLogin, db) => {
             res.render('purchase-form', {
                 title: 'Transaction',
                 action: '/purchases/add',
+                entity: 'purchases',
                 goods: goodsData.rows,
                 suppliers: suppliersData.rows,
                 operator: operator,
@@ -131,6 +132,7 @@ module.exports = (requireLogin, db) => {
             res.render('purchase-form', {
                 title: 'Transaction',
                 action: '/purchases/add',
+                entity: 'purchases',
                 purchaseData: {},
                 success: [],
                 error: ['failed to generate invoice number'],
@@ -264,6 +266,7 @@ module.exports = (requireLogin, db) => {
             res.render('purchase-form', {
                 title: 'Edit purchases',
                 action: `/purchases/edit/${invoice}`,
+                entity: 'purchases',
                 purchaseData: purchaseResult.rows[0] || {},
                 isEdit: true,
                 items: itemsResult.rows,

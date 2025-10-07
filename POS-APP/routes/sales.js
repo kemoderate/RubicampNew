@@ -115,6 +115,7 @@ module.exports = (requireLogin, db) => {
             res.render('sale-form', {
                 title: 'Transaction',
                 action: '/sales/add',
+                entity: 'sales',
                 goods: goodsData.rows,
                 customers: customersData.rows,
                 operator: operator,
@@ -130,6 +131,7 @@ module.exports = (requireLogin, db) => {
             res.render('sale-form', {
                 title: 'Transaction',
                 action: '/sales/add',
+                entity: 'sales',
                 saleData: {},
                 success: [],
                 error: ['failed to generate invoice number'],
@@ -263,6 +265,7 @@ module.exports = (requireLogin, db) => {
             res.render('sale-form', {
                 title: 'Edit sales',
                 action: `/sales/edit/${invoice}`,
+                entity: 'sales',
                 saleData: saleResult.rows[0] || {},
                 isEdit: true,
                 items: itemsResult.rows,
