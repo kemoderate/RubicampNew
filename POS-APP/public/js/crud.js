@@ -94,3 +94,7 @@ $(document).ready(function () {
     })
 })
 
+
+$(document).ready(() => {
+    $('#dashboardTable').DataTable();
+});
