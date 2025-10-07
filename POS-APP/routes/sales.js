@@ -213,10 +213,14 @@ module.exports = (requireLogin, db) => {
             const { invoice, customer, } = req.body;
             const operator = req.session.user.id;
 
+            const {rows} = await db.query(`SELECT totalsum FROM sales WHERE invoice = $1`,[invoice]);
+            const totalsum = rows[0].totalsum;
+            const change = pay - totalsum;
+
             await db.query(
                 `UPDATE sales
-            SET customer = $1, operator =$2
-            WHERE invoice = $3`, [customer, operator, invoice]
+            SET customer = $1, operator =$2, pay = $3, change = $4,
+            WHERE invoice = $5`, [customer, operator, pay, change,  invoice]
             );
             req.flash('success_msg', 'sale has been completed!');
             res.redirect(`/sales`)

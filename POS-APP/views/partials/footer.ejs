@@ -107,7 +107,7 @@
       return;
     }
 
-    const pricekey = entity === "purchases" ? "purchaseprice" : "saleprice";
+    const pricekey = entity === "purchases" ? "purchaseprice" : "sellingprice";
     // ==== 1. Generate invoice sekali saja ====
     if (!isEdit) {
 
@@ -327,4 +327,13 @@
       return `${y}-${m}-${d} ${h}:${min}:${s}`;
     }
   });
+
+  // change event listener
+  document.getElementById('pay').addEventListener('input', function() {
+    const total = parseFloat(document.getElementById('totalsum').value) || 0;
+    const pay = parseFloat(this.value) || 0;
+    const change = pay - total;
+    document.getElementById('change').value = change >= 0 ? change : 0;
+  });
+
 </script>

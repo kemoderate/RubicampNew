@@ -54,8 +54,7 @@
                                                                     <label>Invoice</label>
                                                                     <input type="text" id="invoice" name="invoice"
                                                                         class="form-control"
-                                                                        value="<%= saleData.invoice || '' %>"
-                                                                        readonly>
+                                                                        value="<%= saleData.invoice || '' %>" readonly>
                                                                 </div>
                                                                 <div class="form-group col-md-4">
                                                                     <label>Time</label>
@@ -108,8 +107,7 @@
                                                             <div class="form-group col-md-4">
                                                                 <label for="saleprice">Sale
                                                                     Price</label>
-                                                                <input type="text" id="price"
-                                                                    class="form-control">
+                                                                <input type="text" id="price" class="form-control">
                                                             </div>
 
                                                             <div class="form-group col-md-4">
@@ -194,8 +192,7 @@
                                                         <hr>
 
                                                         <!-- ======================== FINALIZATION FORM ======================== -->
-                                                        <form id="finalizeForm" action="/sales/finish"
-                                                            method="POST">
+                                                        <form id="finalizeForm" action="/sales/finish" method="POST">
 
                                                             <input type="hidden" name="invoice"
                                                                 value="<%= saleData.invoice || '' %>">
@@ -204,12 +201,36 @@
                                                                     class="col-sm-2 col-form-label">Total
                                                                     Summary</label>
                                                                 <div class="col-sm-10">
-                                                                    <input type="text" id="totalsum" name="totalsum"
-                                                                        class="form-control"
-                                                                        value="<%= saleData.totalsum || '' %>"
-                                                                        readonly>
+                                                                    <div class="input-group">
+                                                                        <span class="input-group-text">Rp.</span>
+                                                                        <input type="text" id="totalsum" name="totalsum"
+                                                                            class="form-control"
+                                                                            value="<%= saleData.totalsum || '' %>"
+                                                                            readonly>
+                                                                    </div>
                                                                 </div>
                                                             </div>
+
+                                                            <div class="form-group row mb-3">
+                                                                <label for="pay" class="col-sm-2 col-form-label">Pay
+                                                                </label>
+                                                                <div class="col-sm-10">
+                                                                    <input type="text" id="pay" name="pay"
+                                                                        class="form-control">
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="form-group row mb-3">
+                                                                <label for="change"
+                                                                    class="col-sm-2 col-form-label">Change
+                                                                </label>
+                                                                <div class="col-sm-10">
+                                                                    <input type="text" id="change" name="change"
+                                                                        class="form-control" readonly>
+                                                                </div>
+                                                            </div>
+
+
 
                                                             <div class="form-group row mb-3">
                                                                 <label for="customer"
@@ -254,7 +275,7 @@
                             </div>
                     </div>
                 </div>
-               <%- include('partials/footer', { entity }) %>
+                <%- include('partials/footer', { entity }) %>
         </div>
     </body>
 
