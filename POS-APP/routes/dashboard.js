@@ -30,14 +30,14 @@ module.exports = (requireLogin, db) => {
         SELECT
         TO_CHAR(DATE_TRUNC('month', s.time), 'YYYY-MM') AS month,
         COALESCE(SUM(s.totalsum), 0) AS revenue,
-        COALESCE(SUM(p.totalsum)),0 AS expense,
-        COALESCE(SUM(s.totalsum), 0) - COALESCE(SUM(p.totalsum), 0)) AS earnings
+        COALESCE(SUM(p.totalsum),0) AS expense,
+        (COALESCE(SUM(s.totalsum), 0) - COALESCE(SUM(p.totalsum), 0)) AS earnings
         FROM sales s
-        LEFT JOIN purchases p ON DATE TRUNC('month' . s.time) =  DATE_TRUNC('month', p.time)
+        LEFT JOIN purchases p ON DATE_TRUNC('month' , s.time) =  DATE_TRUNC('month', p.time)
         ${whereClause ? whereClause : ''}
-        GROUP BY DATE_TRUNC('month', s,time)
+        GROUP BY DATE_TRUNC('month', s.time)
         ORDER BY month;
-        ,params`);
+        `,params);
     
         res.render('dashboard', {
       title: 'Dashboard',

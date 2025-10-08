@@ -18,6 +18,8 @@ module.exports = (requireLogin, db) => {
               to_char(s.time, 'YYYY-MM-DD HH24:MI:SS') as time,
               s.totalsum,
               s.customer,
+              s.pay,
+              s.change,
               c.name AS customername,
               u.name AS operator
               FROM sales s
@@ -210,7 +212,7 @@ module.exports = (requireLogin, db) => {
     router.post('/finish', requireLogin, async (req, res) => {
         console.log('Finish Payload:', req.body);
         try {
-            const { invoice, customer, } = req.body;
+            const { invoice, customer, pay } = req.body;
             const operator = req.session.user.id;
 
             const {rows} = await db.query(`SELECT totalsum FROM sales WHERE invoice = $1`,[invoice]);
@@ -219,7 +221,7 @@ module.exports = (requireLogin, db) => {
 
             await db.query(
                 `UPDATE sales
-            SET customer = $1, operator =$2, pay = $3, change = $4,
+            SET customer = $1, operator =$2, pay = $3, change = $4
             WHERE invoice = $5`, [customer, operator, pay, change,  invoice]
             );
             req.flash('success_msg', 'sale has been completed!');
