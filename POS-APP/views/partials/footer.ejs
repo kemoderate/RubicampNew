@@ -58,6 +58,7 @@
 
 <!-- data tables -->
 <script src="/js/crud.js"></script>
+<script src="/js/dashboard-charts.js"></script>
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
@@ -336,4 +337,14 @@
     document.getElementById('change').value = change >= 0 ? change : 0;
   });
 
+</script>
+
+<script>
+  // Pass monthly data for earnings chart
+  var monthlyData = <%- JSON.stringify(monthly) %>;
+  
+  // Pass revenue source data for pie chart
+  // You need to calculate these from your backend
+  var directRevenue = <%= directRevenue || 0 %>;
+  var customerRevenue = <%= customerRevenue || 0 %>;
 </script>
