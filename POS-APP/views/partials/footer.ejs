@@ -340,11 +340,8 @@
 </script>
 
 <script>
-  // Pass monthly data for earnings chart
-  var monthlyData = <%- JSON.stringify(monthly) %>;
-  
-  // Pass revenue source data for pie chart
-  // You need to calculate these from your backend
-  var directRevenue = <%= directRevenue || 0 %>;
-  var customerRevenue = <%= customerRevenue || 0 %>;
+  // Prevent ReferenceError if dashboard variables aren't defined
+  var monthlyData = <%- typeof monthly !== 'undefined' ? JSON.stringify(monthly) : '[]' %>;
+  var directRevenue = <%= typeof directRevenue !== 'undefined' ? directRevenue : 0 %>;
+  var customerRevenue = <%= typeof customerRevenue !== 'undefined' ? customerRevenue : 0 %>;
 </script>

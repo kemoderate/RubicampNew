@@ -175,3 +175,25 @@ $(document).ready(function() {
     initRevenueChart(directRevenue, customerRevenue);
   }
 });
+
+$(document).ready(function(){
+ let totalExpense = 0 , totalRevenue = 0 , totalEarnings = 0;
+
+  $('#dashboardTable tbody tr').each(function(){
+    const cells = $(this).find('td');
+    if(cells.length >= 4){
+      const expense = parseFloat($(cells[1]).text().replace(/[^\d.-]/g,'')) || 0;
+      const revenue = parseFloat($(cells[2]).text().replace(/[^\d.-]/g,'')) || 0;
+      const earnings = parseFloat($(cells[3]).text().replace(/[^\d.-]/g,'')) || 0;
+
+     totalExpense += expense;
+     totalRevenue += revenue;
+     totalEarnings += earnings;
+ 
+    }
+  })
+
+  $('#totalExpense').text('Rp '+ totalExpense.toLocaleString('id-ID'));
+  $('#totalRevenue').text('Rp '+ totalRevenue.toLocaleString('id-ID'));
+  $('#totalEarnings').text('Rp '+ totalEarnings.toLocaleString('id-ID'));
+})

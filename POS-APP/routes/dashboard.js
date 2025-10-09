@@ -13,7 +13,7 @@ module.exports = (requireLogin, db) => {
       const params = [];
 
       if (startdate && enddate) {
-        whereClause = `WHERE date BETWEEN $1 AND $2`;
+        whereClause = `WHERE time BETWEEN $1 AND $2`;
         params.push(startdate, enddate);
       }
       const expenseResult = await db.query(`SELECT COALESCE(SUM(totalsum),0) AS total FROM purchases ${whereClause}`, params);
@@ -21,10 +21,18 @@ module.exports = (requireLogin, db) => {
 
       const revenueResult = await db.query(`SELECT COALESCE(SUM(totalsum),0) AS total FROM sales ${whereClause}`, params);
       const revenue = Number(revenueResult.rows[0].total || 0);
-
       const earnings = revenue - expense;
+
       const totalSalesResult = await db.query(`SELECT COUNT(*) AS total FROM sales ${whereClause}`, params);
       const totalSales = Number(totalSalesResult.rows[0].total || 0);
+
+      let monthlyParams = [];
+      let monthlyFilter = '';
+
+      if (startdate && enddate){
+        monthlyFilter = 'WHERE s.time BETWEEN $1 AND $2';
+        monthlyParams.push(startdate, enddate);
+      }
 
       const monthlyResult = await db.query(`
         SELECT
@@ -34,7 +42,7 @@ module.exports = (requireLogin, db) => {
         (COALESCE(SUM(s.totalsum), 0) - COALESCE(SUM(p.totalsum), 0)) AS earnings
         FROM sales s
         LEFT JOIN purchases p ON DATE_TRUNC('month' , s.time) =  DATE_TRUNC('month', p.time)
-        ${whereClause ? whereClause : ''}
+        ${monthlyFilter}
         GROUP BY DATE_TRUNC('month', s.time)
         ORDER BY month;
         `, params);
@@ -73,6 +81,10 @@ module.exports = (requireLogin, db) => {
 
       const customerResult = await db.query(customerRevenueQuery, customerParams);
       const customerRevenue = Number(customerResult.rows[0].customer_revenue) || 0;
+      const totalExpense = monthly.reduce((sum, row) => sum + Number(row.expense || 0), 0);
+      const totalRevenue = monthly.reduce((sum, row) => sum + Number(row.revenue || 0), 0);
+      const totalEarnings = totalRevenue - totalExpense;
+
 
       res.render('dashboard', {
         title: 'Dashboard',
@@ -82,6 +94,9 @@ module.exports = (requireLogin, db) => {
         expense,
         earnings,
         totalSales,
+        totalExpense,
+        totalRevenue,
+        totalEarnings,
         monthly,
         directRevenue, // grafik render line chart
         customerRevenue, // grafik render pie chart
