@@ -26,12 +26,12 @@ module.exports = (requireLogin, db) => {
   router.get('/', requireLogin, async (req, res) => {
     try {
 
-      const {startdate, enddate} = req.query;
-    
-      const salesFilter = buildDateFilter(startdate, enddate);  
+      const { startdate, enddate } = req.query;
+
+      const salesFilter = buildDateFilter(startdate, enddate);
       const purchaseFilter = buildDateFilter(startdate, enddate);
 
-      
+
       const expenseResult = await db.query(`SELECT COALESCE(SUM(totalsum),0) AS total FROM purchases ${purchaseFilter.clause}`, purchaseFilter.params);
       const expense = Number(expenseResult.rows[0].total || 0);
 
@@ -60,14 +60,14 @@ module.exports = (requireLogin, db) => {
       const monthly = monthlyResult.rows;
 
 
-// Calculate Direct Revenue (sales without customer - NULL values)
+      // Calculate Direct Revenue (sales without customer - NULL values)
       let directRevenueQuery = `
         SELECT COALESCE(SUM(totalsum), 0) as direct_revenue
         FROM sales
         WHERE customer IS NULL
       `;
       const directParams = [];
-      
+
       if (startdate && enddate) {
         directRevenueQuery += ` AND time BETWEEN $1 AND $2`;
         directParams.push(startdate, enddate);
@@ -83,7 +83,7 @@ module.exports = (requireLogin, db) => {
         WHERE customer IS NOT NULL
       `;
       const customerParams = [];
-      
+
       if (startdate && enddate) {
         customerRevenueQuery += ` AND time BETWEEN $1 AND $2`;
         customerParams.push(startdate, enddate);
@@ -119,6 +119,50 @@ module.exports = (requireLogin, db) => {
     }
   });
 
+  router.get('/export-csv', requireLogin, async (req, res) => {
+    try {
+      const { startdate, enddate } = req.query;
+
+      let filter = '';
+      const params = [];
+
+      if (startdate && enddate) {
+        filter = 'WHERE s.time BETWEEN $1 AND $2';
+        params.push(startdate, enddate);
+      }
+
+      const result = await db.query(`
+      SELECT
+        TO_CHAR(DATE_TRUNC('month', s.time), 'YYYY-MM') AS month,
+        COALESCE(SUM(s.totalsum), 0) AS revenue,
+        COALESCE(SUM(p.totalsum), 0) AS expense,
+        (COALESCE(SUM(s.totalsum), 0) - COALESCE(SUM(p.totalsum), 0)) AS earnings
+      FROM sales s
+      LEFT JOIN purchases p 
+        ON DATE_TRUNC('month', s.time) = DATE_TRUNC('month', p.time)
+      ${filter}
+      GROUP BY DATE_TRUNC('month', s.time)
+      ORDER BY month;
+    `, params);
+
+      const monthly = result.rows;
+
+      // Generate CSV string
+      let csv = 'Month,Expense,Revenue,Earnings\n';
+      monthly.forEach(row => {
+        csv += `${row.month},${row.expense},${row.revenue},${row.earnings}\n`;
+      });
+
+      // Set headers and send CSV
+      res.header('Content-Type', 'text/csv');
+      res.attachment('report.csv');
+      res.send(csv);
+
+    } catch (err) {
+      console.error('Export CSV error:', err);
+      res.status(500).send('Error generating CSV');
+    }
+  });
 
 
 
