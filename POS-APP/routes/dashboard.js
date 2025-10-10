@@ -25,24 +25,24 @@ module.exports = (requireLogin, db) => {
 
   router.get('/', requireLogin, async (req, res) => {
     try {
+
+      const {startdate, enddate} = req.query;
     
-      const expenseResult = await db.query(`SELECT COALESCE(SUM(totalsum),0) AS total FROM purchases ${SQL}`, params);
+      const salesFilter = buildDateFilter(startdate, enddate);  
+      const purchaseFilter = buildDateFilter(startdate, enddate);
+
+      
+      const expenseResult = await db.query(`SELECT COALESCE(SUM(totalsum),0) AS total FROM purchases ${purchaseFilter.clause}`, purchaseFilter.params);
       const expense = Number(expenseResult.rows[0].total || 0);
 
-      const revenueResult = await db.query(`SELECT COALESCE(SUM(totalsum),0) AS total FROM sales ${SQL}`, params);
+      const revenueResult = await db.query(`SELECT COALESCE(SUM(totalsum),0) AS total FROM sales ${salesFilter.clause}`, salesFilter.params);
       const revenue = Number(revenueResult.rows[0].total || 0);
       const earnings = revenue - expense;
 
-      const totalSalesResult = await db.query(`SELECT COUNT(*) AS total FROM sales ${SQL}`, params);
+      const totalSalesResult = await db.query(`SELECT COUNT(*) AS total FROM sales ${salesFilter.clause}`, salesFilter.params);
       const totalSales = Number(totalSalesResult.rows[0].total || 0);
 
-      let monthlyParams = [];
-      let monthlyFilter = '';
-
-      if (startdate && enddate){
-        monthlyFilter = 'WHERE s.time BETWEEN $1 AND $2';
-        monthlyParams.push(startdate, enddate);
-      }
+      monthlyFilter = buildDateFilter(startdate, enddate, 's.');
 
       const monthlyResult = await db.query(`
         SELECT
@@ -52,10 +52,10 @@ module.exports = (requireLogin, db) => {
         (COALESCE(SUM(s.totalsum), 0) - COALESCE(SUM(p.totalsum), 0)) AS earnings
         FROM sales s
         LEFT JOIN purchases p ON DATE_TRUNC('month' , s.time) =  DATE_TRUNC('month', p.time)
-        ${monthlyFilter}
+        ${monthlyFilter.clause}
         GROUP BY DATE_TRUNC('month', s.time)
         ORDER BY month;
-        `, monthlyParams);
+        `, monthlyFilter.params);
 
       const monthly = monthlyResult.rows;
 
