@@ -2,28 +2,38 @@ var express = require('express');
 const db = require('../db')
 const router = express.Router();
 
+function buildDateFilter(startdate, enddate, alias = '') {
+  let clause = '';
+  const params = [];
+
+  if (startdate && enddate) {
+    clause = `WHERE ${alias}time BETWEEN $1 AND $2`;
+    params.push(startdate, enddate);
+  } else if (startdate) {
+    clause = `WHERE ${alias}time >= $1`;
+    params.push(startdate);
+  } else if (enddate) {
+    clause = `WHERE ${alias}time <= $1`;
+    params.push(enddate);
+  }
+
+  return { clause, params };
+}
+
 /* GET home page. */
 module.exports = (requireLogin, db) => {
 
   router.get('/', requireLogin, async (req, res) => {
     try {
-      const { startdate, enddate } = req.query;
-
-      let whereClause = '';
-      const params = [];
-
-      if (startdate && enddate) {
-        whereClause = `WHERE time BETWEEN $1 AND $2`;
-        params.push(startdate, enddate);
-      }
-      const expenseResult = await db.query(`SELECT COALESCE(SUM(totalsum),0) AS total FROM purchases ${whereClause}`, params);
+    
+      const expenseResult = await db.query(`SELECT COALESCE(SUM(totalsum),0) AS total FROM purchases ${SQL}`, params);
       const expense = Number(expenseResult.rows[0].total || 0);
 
-      const revenueResult = await db.query(`SELECT COALESCE(SUM(totalsum),0) AS total FROM sales ${whereClause}`, params);
+      const revenueResult = await db.query(`SELECT COALESCE(SUM(totalsum),0) AS total FROM sales ${SQL}`, params);
       const revenue = Number(revenueResult.rows[0].total || 0);
       const earnings = revenue - expense;
 
-      const totalSalesResult = await db.query(`SELECT COUNT(*) AS total FROM sales ${whereClause}`, params);
+      const totalSalesResult = await db.query(`SELECT COUNT(*) AS total FROM sales ${SQL}`, params);
       const totalSales = Number(totalSalesResult.rows[0].total || 0);
 
       let monthlyParams = [];
@@ -45,7 +55,7 @@ module.exports = (requireLogin, db) => {
         ${monthlyFilter}
         GROUP BY DATE_TRUNC('month', s.time)
         ORDER BY month;
-        `, params);
+        `, monthlyParams);
 
       const monthly = monthlyResult.rows;
 
