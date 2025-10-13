@@ -6,6 +6,7 @@ const bcrypt = require('bcrypt')
 /* GET home page. */
 module.exports = (requireLogin, db) => {
 
+
   const router = express.Router();
 
   router.get('/', requireLogin, async (req, res) => {
@@ -48,6 +49,7 @@ module.exports = (requireLogin, db) => {
         'INSERT INTO users (name,password,email,role) VALUES ($1,$2,$3,$4)',
         [name, password, email, role]
       );
+      req.flash('success_msg', 'user berhasil di tambahkan')
       res.redirect('/users')
     }
     catch (err) {
@@ -98,6 +100,56 @@ module.exports = (requireLogin, db) => {
     }
   })
 
+
+  router.get('/profile', requireLogin, async (req, res) => {
+
+    try {
+      const userSession = req.session.user;
+      const userid = userSession.id;
+      const { rows } = await db.query('SELECT * FROM users WHERE userid = $1', [userid]);
+
+      res.render('profile-form', {
+        title: 'Profile',
+        action: `/users/profile/${userid}`,
+        userData: rows[0],
+        user: userSession
+      })
+    } catch (err) {
+      console.error(err)
+      res.status(500).send('Error Showing Edit Form')
+    }
+  });
+
+  router.post('/profile', requireLogin, async (req, res) => {
+    const userSession = req.session.user; 
+    const userid = userSession.id;
+    const { name, email } = req.body;
+
+    try {
+      await db.query(
+        'UPDATE users SET name=$1, email=$2 WHERE userid=$3',
+        [name, email, userid]
+      );
+        req.flash('success_msg', 'profile berhasil di update')
+      res.redirect('/users/profile');
+    } catch (err) {
+      console.error(err);
+    req.flash('error_msg', 'profile ');
+    }
+  });
+
+
+  router.get('/changepassword', requireLogin , async (req, res) => {
+    const userSession = req.session.user
+    const userid = userSession.id
+    try{
+    await db.query('UPDATE users SET password = $1 WHERE userid = $2'),
+    [userid, password]
+    }catch(err){
+      console.error(err)
+       req.flash('error_msg', 'server error');
+    }
+  })
 
   return router;
 }
