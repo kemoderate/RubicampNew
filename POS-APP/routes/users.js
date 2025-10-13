@@ -45,9 +45,11 @@ module.exports = (requireLogin, db) => {
       return res.status(400).send('Semua field wajib diisi!');
     }
     try {
+        const hashedPassword = await bcrypt.hash(password, 10);
+
       await db.query(
         'INSERT INTO users (name,password,email,role) VALUES ($1,$2,$3,$4)',
-        [name, password, email, role]
+        [name, hashedPassword, email, role]
       );
       req.flash('success_msg', 'user berhasil di tambahkan')
       res.redirect('/users')
@@ -79,14 +81,25 @@ module.exports = (requireLogin, db) => {
     const { id } = req.params
     const { name, email, password, role } = req.body
     try {
-      await db.query('UPDATE users SET name=$1, email=$2, password=$3,role=$4 WHERE userid=$5',
-        [name, email, password, role, id]
-      )
-      res.redirect('/users')
-    } catch (err) {
-      console.error(err);
-      res.status(500).send('Failed to update user')
+      let query, params;
+
+    if (password && password.trim() !== '') {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      query = 'UPDATE users SET name=$1, email=$2, password=$3, role=$4 WHERE userid=$5';
+      params = [name, email, hashedPassword, role, id];
+    } else {
+      query = 'UPDATE users SET name=$1, email=$2, role=$3 WHERE userid=$4';
+      params = [name, email, role, id];
     }
+
+    await db.query(query, params);
+    req.flash('success_msg', 'User successfully updated!');
+    res.redirect('/users');
+  } catch (err) {
+    console.error(err);
+    req.flash('error_msg', 'Failed to update user.');
+    res.redirect(`/users/edit/${id}`);
+  }
   })
 
   router.get('/delete/:id', requireLogin, async (req, res) => {
@@ -130,6 +143,9 @@ module.exports = (requireLogin, db) => {
         'UPDATE users SET name=$1, email=$2 WHERE userid=$3',
         [name, email, id]
       );
+      const updatedUser = await db.query('SELECT * FROM users WHERE userid = $1', [id]);
+    req.session.user = updatedUser.rows[0];
+
       req.flash('success_msg', 'profile successfully updated')
       res.redirect('/users/profile');
     } catch (err) {
@@ -142,7 +158,7 @@ module.exports = (requireLogin, db) => {
   router.get('/changepassword', requireLogin, async (req, res) => {
     const userSession = req.session.user
     const userid = userSession.id
-    const password = userSession.password
+    
     try {
       await db.query('SELECT * FROM users WHERE userid = $1 ', [userid])
       res.render('changepassword-form', {
@@ -162,21 +178,22 @@ module.exports = (requireLogin, db) => {
   router.post('/changepassword/:id', requireLogin, async (req, res) => {
     const userSession = req.session.user;
     const userid = userSession.id;
-    const { oldPassword, newPassword, confirmPassword } = req.body;
+    const { oldPassword, newPassword, retypePassword } = req.body;
     try {
 
-      if (!oldPassword || !newPassword || !confirmPassword) {
+      if (!oldPassword || !newPassword || !retypePassword) {
         req.flash('error_msg', 'All password fields are required.');
-        return res.redirect('/users/profile');
+        return res.redirect('/users/changepassword');
       }
-      if (newPassword !== confirmPassword) {
-      req.flash('error_msg', 'New password and confirmation do not match.');
-      return res.redirect('/users/profile');
+      if (newPassword !== retypePassword) {
+      req.flash('error_msg', `Retype password  doesn't match`);
+      return res.redirect('/users/changepassword');
     }
+    
      const { rows } = await db.query('SELECT password FROM users WHERE userid = $1', [userid]);
     if (rows.length === 0) {
       req.flash('error_msg', 'User not found.');
-      return res.redirect('/users/profile');
+      return res.redirect('/users/changepassword');
     }
 
     const currentHashedPassword = rows[0].password;
@@ -185,7 +202,7 @@ module.exports = (requireLogin, db) => {
     const isMatch = await bcrypt.compare(oldPassword, currentHashedPassword);
     if (!isMatch) {
       req.flash('error_msg', 'Old password is incorrect.');
-      return res.redirect('/users/profile');
+      return res.redirect('/users/changepassword');
     }
 
     
@@ -193,6 +210,8 @@ module.exports = (requireLogin, db) => {
 
       await db.query('UPDATE users SET password = $1 WHERE userid = $2',
         [hashedPassword,userid])
+        req.flash('success_msg','your password has been updated')
+        res.redirect('/users/changepassword')
     } catch (err) {
       console.error(err)
       req.flash('error_msg', 'server error');
