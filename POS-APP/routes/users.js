@@ -112,7 +112,9 @@ module.exports = (requireLogin, db) => {
         title: 'Profile',
         action: `/users/profile/${userid}`,
         userData: rows[0],
-        user: userSession
+        users: userSession,
+        user: req.session.user,
+        layout: 'layout'
       })
     } catch (err) {
       console.error(err)
@@ -120,34 +122,80 @@ module.exports = (requireLogin, db) => {
     }
   });
 
-  router.post('/profile', requireLogin, async (req, res) => {
-    const userSession = req.session.user; 
-    const userid = userSession.id;
+  router.post('/profile/:id', requireLogin, async (req, res) => {
     const { name, email } = req.body;
-
+    const { id } = req.params;
     try {
       await db.query(
         'UPDATE users SET name=$1, email=$2 WHERE userid=$3',
-        [name, email, userid]
+        [name, email, id]
       );
-        req.flash('success_msg', 'profile berhasil di update')
+      req.flash('success_msg', 'profile successfully updated')
       res.redirect('/users/profile');
     } catch (err) {
       console.error(err);
-    req.flash('error_msg', 'profile ');
+      req.flash('error_msg', 'profile cannot be updated');
     }
   });
 
 
-  router.get('/changepassword', requireLogin , async (req, res) => {
+  router.get('/changepassword', requireLogin, async (req, res) => {
     const userSession = req.session.user
     const userid = userSession.id
-    try{
-    await db.query('UPDATE users SET password = $1 WHERE userid = $2'),
-    [userid, password]
-    }catch(err){
+    const password = userSession.password
+    try {
+      await db.query('SELECT * FROM users WHERE userid = $1 ', [userid])
+      res.render('changepassword-form', {
+        title: 'Change Password',
+        user: req.session.user,
+        action: `/users/changepassword/${userid}`,
+        layout: 'layout'
+      })
+    } catch (err) {
       console.error(err)
-       req.flash('error_msg', 'server error');
+      req.flash('error_msg', err)
+      res.redirect('/users/changepassword')
+    }
+  })
+
+
+  router.post('/changepassword/:id', requireLogin, async (req, res) => {
+    const userSession = req.session.user;
+    const userid = userSession.id;
+    const { oldPassword, newPassword, confirmPassword } = req.body;
+    try {
+
+      if (!oldPassword || !newPassword || !confirmPassword) {
+        req.flash('error_msg', 'All password fields are required.');
+        return res.redirect('/users/profile');
+      }
+      if (newPassword !== confirmPassword) {
+      req.flash('error_msg', 'New password and confirmation do not match.');
+      return res.redirect('/users/profile');
+    }
+     const { rows } = await db.query('SELECT password FROM users WHERE userid = $1', [userid]);
+    if (rows.length === 0) {
+      req.flash('error_msg', 'User not found.');
+      return res.redirect('/users/profile');
+    }
+
+    const currentHashedPassword = rows[0].password;
+
+    
+    const isMatch = await bcrypt.compare(oldPassword, currentHashedPassword);
+    if (!isMatch) {
+      req.flash('error_msg', 'Old password is incorrect.');
+      return res.redirect('/users/profile');
+    }
+
+    
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+      await db.query('UPDATE users SET password = $1 WHERE userid = $2'),
+        [hashedPassword,userid]
+    } catch (err) {
+      console.error(err)
+      req.flash('error_msg', 'server error');
     }
   })
 
