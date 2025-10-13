@@ -191,8 +191,8 @@ module.exports = (requireLogin, db) => {
     
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-      await db.query('UPDATE users SET password = $1 WHERE userid = $2'),
-        [hashedPassword,userid]
+      await db.query('UPDATE users SET password = $1 WHERE userid = $2',
+        [hashedPassword,userid])
     } catch (err) {
       console.error(err)
       req.flash('error_msg', 'server error');
