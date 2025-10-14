@@ -5,11 +5,11 @@ const upload = require('../upload')
 
 
 /* GET home page. */
-module.exports = (requireLogin, db) => {
+module.exports = (requireAdmin,requireLogin, db) => {
 
     const router = express.Router();
 
-    router.get('/', requireLogin, async (req, res) => {
+    router.get('/', requireAdmin,requireLogin, async (req, res) => {
         try {
             const result = await db.query(`SELECT 
         g.barcode,
@@ -41,7 +41,7 @@ module.exports = (requireLogin, db) => {
         }
     });
 
-    router.get('/add', requireLogin, async (req, res) => {
+    router.get('/add', requireAdmin,requireLogin, async (req, res) => {
 
         const units = await db.query('SELECT unit, name FROM units ORDER BY name ASC');
         res.render('good-form', {
@@ -52,7 +52,7 @@ module.exports = (requireLogin, db) => {
             user: req.session.user
         })
     })
-    router.post('/add', upload.single('picture'), requireLogin, async (req, res) => {
+    router.post('/add', upload.single('picture'), requireAdmin,requireLogin, async (req, res) => {
         try {
             const { name, stock, purchaseprice, sellingprice, unit } = req.body
             const picture = req.file ? req.file.filename : null;
@@ -78,7 +78,7 @@ module.exports = (requireLogin, db) => {
         }
     });
 
-    router.get('/edit/:barcode', requireLogin, async (req, res) => {
+    router.get('/edit/:barcode', requireAdmin,requireLogin, async (req, res) => {
         const { barcode } = req.params
         const units = await db.query('SELECT unit, name FROM units ORDER BY name ASC');
         try {
@@ -101,7 +101,7 @@ module.exports = (requireLogin, db) => {
         }
     });
 
-    router.post('/edit/:barcode',upload.single('picture'), requireLogin, async (req, res) => {
+    router.post('/edit/:barcode',upload.single('picture'), requireAdmin,requireLogin, async (req, res) => {
         const { barcode } = req.params
         const { name, stock, purchaseprice, sellingprice, unit, oldPicture } = req.body
         const picture = req.file ? req.file.filename : oldPicture;
@@ -124,7 +124,7 @@ module.exports = (requireLogin, db) => {
         }
     })
 
-    router.get('/delete/:barcode', requireLogin, async (req, res) => {
+    router.get('/delete/:barcode', requireAdmin,requireLogin, async (req, res) => {
         const { barcode } = req.params
         try {
             await db.query('DELETE FROM goods WHERE barcode = $1', [barcode])

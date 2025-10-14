@@ -38,7 +38,6 @@
                                                         <th>Time</th>
                                                         <th>Total Summary</th>
                                                         <th>Supplier</th>
-                                                        <th>Operator</th>
                                                         <th>Actions</th>
                                                     </tr>
                                                 </thead>
@@ -48,7 +47,6 @@
                                                         <th>Time</th>
                                                         <th>Total Summary</th>
                                                         <th>Supplier</th>
-                                                        <th>Operator</th>
                                                         <th>Actions</th>
                                                     </tr>
                                                 </tfoot>
@@ -77,19 +75,17 @@
                                                                         <%= purchase.suppliername || '-' %>
                                                                     </td>
                                                                     <td>
-                                                                        <%= purchase.operator %>
-                                                                    </td>
-                                                                    <td>
                                                                         <!-- Edit button -->
+                                                                          <% const isOwner = purchase.operator === user.name; %>
                                                                         <a href="/purchases/edit/<%= purchase.invoice %>"
-                                                                            class="btn btn-sm btn-success rounded-circle"
+                                                                          class="btn btn-sm btn-success rounded-circle <%= isOwner ? '' : 'disabled opacity-50 pointer-events-none' %>"
                                                                             title="View/Edit">
                                                                             <i class="fas fa-info-circle"></i>
                                                                         </a>
 
                                                                         <!-- Delete button -->
                                                                         <button
-                                                                            class="btn btn-sm btn-danger btn-delete rounded-circle  align-items-center justify-content-center"
+                                                                          class="btn btn-sm btn-danger btn-delete rounded-circle align-items-center justify-content-center <%= isOwner ? '' : 'disabled opacity-50 pointer-events-none' %>"
                                                                             data-id="<%= purchase.invoice %>"
                                                                             data-entity="purchase">
                                                                             <i class="fas fa-trash"></i>

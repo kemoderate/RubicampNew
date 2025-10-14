@@ -10,15 +10,21 @@
   <hr class="sidebar-divider my-0">
 
   <!-- Dashboard -->
+   <% if (user.role === 'admin') { %>
   <li class="nav-item">
     <a class="nav-link" href="/">
       <i class="fas fa-fw fa-tachometer-alt"></i>
       <span>Dashboard</span>
     </a>
   </li>
-
+    <% } %>
   <hr class="sidebar-divider">
 
+   <div class="sidebar-heading">
+        Master
+      </div>
+
+  <% if (user.role==='admin' ) { %>
   <li class="nav-item">
     <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true"
       aria-controls="collapseTwo">
@@ -33,7 +39,11 @@
       </div>
     </div>
   </li>
- 
+  <% } %>
+
+
+
+
 
 
   <!-- Supplier -->
@@ -44,44 +54,46 @@
     </a>
   </li>
 
-    <!-- Customer -->
+  <!-- Customer -->
   <li class="nav-item">
     <a class="nav-link" href="/customers">
       <i class="fas fa-fw fa-users"></i>
       <span>Customer</span>
     </a>
   </li>
-  
-
-   <!-- Users -->
-  <li class="nav-item">
-    <a class="nav-link" href="/users">
-      <i class="fas fa-fw fa-user"></i>
-      <span>Users</span>
-    </a>
-  </li>
-
-   <div class="sidebar-heading">
-                Transactions
-            </div>
-<li class="nav-item">
-    <a class="nav-link" href="/purchases">
-      <i class="fas fa-fw fa-table"></i>
-      <span>Purchases</span>
-    </a>
-  </li>
-
-  <li class="nav-item">
-    <a class="nav-link" href="/sales">
-      <i class="fas fa-fw fa-chart-area"></i>
-      <span>Sales</span>
-    </a>
-  </li>
 
 
-  <hr class="sidebar-divider d-none d-md-block">
+  <!-- Users -->
+  <% if (user.role==='admin' ) { %>
+    <li class="nav-item">
+      <a class="nav-link" href="/users">
+        <i class="fas fa-fw fa-user"></i>
+        <span>Users</span>
+      </a>
+    </li>
+    <% } %>
 
-  <div class="text-center d-none d-md-inline">
-    <button class="rounded-circle border-0" id="sidebarToggle"></button>
-  </div>
+      <div class="sidebar-heading">
+        Transactions
+      </div>
+      <li class="nav-item">
+        <a class="nav-link" href="/purchases">
+          <i class="fas fa-fw fa-table"></i>
+          <span>Purchases</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link" href="/sales">
+          <i class="fas fa-fw fa-chart-area"></i>
+          <span>Sales</span>
+        </a>
+      </li>
+
+
+      <hr class="sidebar-divider d-none d-md-block">
+
+      <div class="text-center d-none d-md-inline">
+        <button class="rounded-circle border-0" id="sidebarToggle"></button>
+      </div>
 </ul>

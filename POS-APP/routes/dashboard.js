@@ -21,9 +21,9 @@ function buildDateFilter(startdate, enddate, alias = '') {
 }
 
 /* GET home page. */
-module.exports = (requireLogin, db) => {
+module.exports = (requireAdmin,requireLogin, db) => {
 
-  router.get('/', requireLogin, async (req, res) => {
+  router.get('/', requireAdmin,requireLogin, async (req, res) => {
     try {
 
       const { startdate, enddate } = req.query;
@@ -119,7 +119,7 @@ module.exports = (requireLogin, db) => {
     }
   });
 
-  router.get('/export-csv', requireLogin, async (req, res) => {
+  router.get('/export-csv', requireAdmin,requireLogin, async (req, res) => {
     try {
       const { startdate, enddate } = req.query;
 

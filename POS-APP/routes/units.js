@@ -4,11 +4,11 @@ const db = require('../db')
 
 
 /* GET home page. */
-module.exports = (requireLogin, db) => {
+module.exports = (requireAdmin,requireLogin, db) => {
 
   const router = express.Router();
 
-  router.get('/', requireLogin, async (req, res) => {
+  router.get('/', requireAdmin,requireLogin, async (req, res) => {
     try {
       const result = await db.query('SELECT unit, name, note FROM units ORDER BY unit ASC');
 
@@ -28,7 +28,7 @@ module.exports = (requireLogin, db) => {
     }
   });
 
-  router.get('/add', requireLogin, async (req, res) => {
+  router.get('/add', requireAdmin,requireLogin, async (req, res) => {
     res.render('unit-form', {
       title: 'Add Unit',
       action: '/units/add',
@@ -36,7 +36,7 @@ module.exports = (requireLogin, db) => {
       user: req.session.user
     })
   })
-  router.post('/add', requireLogin, async (req, res) => {
+  router.post('/add', requireAdmin,requireLogin, async (req, res) => {
     const { unit, name, note } = req.body
 
     if (!unit) {
@@ -58,7 +58,7 @@ module.exports = (requireLogin, db) => {
     }
   });
 
-  router.get('/edit/:unit', requireLogin, async (req, res) => {
+  router.get('/edit/:unit', requireAdmin,requireLogin, async (req, res) => {
     const { unit } = req.params
     try {
       const { rows } = await db.query('SELECT * FROM units WHERE unit = $1', [unit]);
@@ -79,7 +79,7 @@ module.exports = (requireLogin, db) => {
     }
   });
 
-  router.post('/edit/:unit', requireLogin, async (req, res) => {
+  router.post('/edit/:unit', requireAdmin,requireLogin, async (req, res) => {
     const { unit } = req.params
     const { name, note } = req.body
 
@@ -101,7 +101,7 @@ module.exports = (requireLogin, db) => {
     }
   })
 
-  router.get('/delete/:unit', requireLogin, async (req, res) => {
+  router.get('/delete/:unit', requireAdmin,requireLogin, async (req, res) => {
     const { unit } = req.params
     try {
       await db.query('DELETE FROM units WHERE unit = $1', [unit])

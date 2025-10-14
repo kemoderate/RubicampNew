@@ -18,7 +18,7 @@ function requireLogin(req, res, next) {
 
 
 function requireAdmin(req, res, next){
-  if (!req.sesson.user || req.session.user.role !== 'admin'){
+  if (!req.session.user || req.session.user.role !== 'admin'){
     req.flash('error_msg','Access denied, Admins only')
     return res.redirect('/sales')
   }
