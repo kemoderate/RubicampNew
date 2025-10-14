@@ -4,12 +4,12 @@ const bcrypt = require('bcrypt')
 
 
 /* GET home page. */
-module.exports = (requireLogin, db) => {
+module.exports = (requireAdmin,requireLogin, db) => {
 
 
   const router = express.Router();
 
-  router.get('/', requireLogin, async (req, res) => {
+  router.get('/',requireAdmin, requireLogin, async (req, res) => {
     try {
       const result = await db.query('SELECT userid, name, email, role FROM users ORDER BY userid ASC');
 
@@ -45,7 +45,7 @@ module.exports = (requireLogin, db) => {
       return res.status(400).send('Semua field wajib diisi!');
     }
     try {
-        const hashedPassword = await bcrypt.hash(password, 10);
+      const hashedPassword = await bcrypt.hash(password, 10);
 
       await db.query(
         'INSERT INTO users (name,password,email,role) VALUES ($1,$2,$3,$4)',
@@ -83,23 +83,23 @@ module.exports = (requireLogin, db) => {
     try {
       let query, params;
 
-    if (password && password.trim() !== '') {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      query = 'UPDATE users SET name=$1, email=$2, password=$3, role=$4 WHERE userid=$5';
-      params = [name, email, hashedPassword, role, id];
-    } else {
-      query = 'UPDATE users SET name=$1, email=$2, role=$3 WHERE userid=$4';
-      params = [name, email, role, id];
-    }
+      if (password && password.trim() !== '') {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        query = 'UPDATE users SET name=$1, email=$2, password=$3, role=$4 WHERE userid=$5';
+        params = [name, email, hashedPassword, role, id];
+      } else {
+        query = 'UPDATE users SET name=$1, email=$2, role=$3 WHERE userid=$4';
+        params = [name, email, role, id];
+      }
 
-    await db.query(query, params);
-    req.flash('success_msg', 'User successfully updated!');
-    res.redirect('/users');
-  } catch (err) {
-    console.error(err);
-    req.flash('error_msg', 'Failed to update user.');
-    res.redirect(`/users/edit/${id}`);
-  }
+      await db.query(query, params);
+      req.flash('success_msg', 'User successfully updated!');
+      res.redirect('/users');
+    } catch (err) {
+      console.error(err);
+      req.flash('error_msg', 'Failed to update user.');
+      res.redirect(`/users/edit/${id}`);
+    }
   })
 
   router.get('/delete/:id', requireLogin, async (req, res) => {
@@ -144,7 +144,14 @@ module.exports = (requireLogin, db) => {
         [name, email, id]
       );
       const updatedUser = await db.query('SELECT * FROM users WHERE userid = $1', [id]);
-    req.session.user = updatedUser.rows[0];
+      const user = updatedUser.rows[0];
+      req.session.user = {
+        id: user.userid,          // ✅ consistent naming
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        avatar: user.avatar
+      };
 
       req.flash('success_msg', 'profile successfully updated')
       res.redirect('/users/profile');
@@ -158,7 +165,7 @@ module.exports = (requireLogin, db) => {
   router.get('/changepassword', requireLogin, async (req, res) => {
     const userSession = req.session.user
     const userid = userSession.id
-    
+
     try {
       await db.query('SELECT * FROM users WHERE userid = $1 ', [userid])
       res.render('changepassword-form', {
@@ -186,32 +193,32 @@ module.exports = (requireLogin, db) => {
         return res.redirect('/users/changepassword');
       }
       if (newPassword !== retypePassword) {
-      req.flash('error_msg', `Retype password  doesn't match`);
-      return res.redirect('/users/changepassword');
-    }
-    
-     const { rows } = await db.query('SELECT password FROM users WHERE userid = $1', [userid]);
-    if (rows.length === 0) {
-      req.flash('error_msg', 'User not found.');
-      return res.redirect('/users/changepassword');
-    }
+        req.flash('error_msg', `Retype password  doesn't match`);
+        return res.redirect('/users/changepassword');
+      }
 
-    const currentHashedPassword = rows[0].password;
+      const { rows } = await db.query('SELECT password FROM users WHERE userid = $1', [userid]);
+      if (rows.length === 0) {
+        req.flash('error_msg', 'User not found.');
+        return res.redirect('/users/changepassword');
+      }
 
-    
-    const isMatch = await bcrypt.compare(oldPassword, currentHashedPassword);
-    if (!isMatch) {
-      req.flash('error_msg', 'Old password is incorrect.');
-      return res.redirect('/users/changepassword');
-    }
+      const currentHashedPassword = rows[0].password;
 
-    
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+      const isMatch = await bcrypt.compare(oldPassword, currentHashedPassword);
+      if (!isMatch) {
+        req.flash('error_msg', 'Old password is incorrect.');
+        return res.redirect('/users/changepassword');
+      }
+
+
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
 
       await db.query('UPDATE users SET password = $1 WHERE userid = $2',
-        [hashedPassword,userid])
-        req.flash('success_msg','your password has been updated')
-        res.redirect('/users/changepassword')
+        [hashedPassword, userid])
+      req.flash('success_msg', 'your password has been updated')
+      res.redirect('/users/changepassword')
     } catch (err) {
       console.error(err)
       req.flash('error_msg', 'server error');

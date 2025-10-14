@@ -15,12 +15,22 @@ function requireLogin(req, res, next) {
   }
   next();
 }
+
+
+function requireAdmin(req, res, next){
+  if (!req.sesson.user || req.session.user.role !== 'admin'){
+    req.flash('error_msg','Access denied, Admins only')
+    return res.redirect('/sales')
+  }
+  next()
+}
+
 var forgetpasswordRouter = require('./routes/forgetpassword')(db)
 var userloginRouter = require('./routes/userlogin');
-var dashboardRouter = require('./routes/dashboard')(requireLogin, db);
-var usersRouter = require('./routes/users')(requireLogin, db);
-var unitsRouter = require('./routes/units')(requireLogin, db);
-var goodsRouter = require('./routes/goods')(requireLogin, db);
+var dashboardRouter = require('./routes/dashboard')(requireAdmin,requireLogin, db);
+var usersRouter = require('./routes/users')(requireAdmin,requireLogin, db);
+var unitsRouter = require('./routes/units')(requireAdmin,requireLogin, db);
+var goodsRouter = require('./routes/goods')(requireAdmin,requireLogin, db);
 var suppliersRouter = require('./routes/suppliers')(requireLogin, db);
 var purchasesRouter = require('./routes/purchases')(requireLogin, db);
 var customersRouter = require('./routes/customers')(requireLogin, db);
