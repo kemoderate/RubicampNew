@@ -15,7 +15,7 @@ function requireLogin(req, res, next) {
   }
   next();
 }
-
+var forgetpasswordRouter = require('./routes/forgetpassword')(db)
 var userloginRouter = require('./routes/userlogin');
 var dashboardRouter = require('./routes/dashboard')(requireLogin, db);
 var usersRouter = require('./routes/users')(requireLogin, db);
@@ -58,7 +58,7 @@ app.use((req, res, next) => {
 
 
 
-
+app.use('/forgetpassword', forgetpasswordRouter);
 app.use('/dashboard', requireLogin, dashboardRouter);
 app.use('/users', requireLogin, usersRouter);
 app.use('/units', requireLogin, unitsRouter);
