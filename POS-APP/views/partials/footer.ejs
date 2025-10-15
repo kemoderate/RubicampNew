@@ -59,6 +59,7 @@
 <!-- data tables -->
 <script src="/js/crud.js"></script>
 <script src="/js/dashboard-charts.js"></script>
+<script src="/socket.io/socket.io.js"></script>
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
@@ -344,4 +345,19 @@
   var monthlyData = <%- typeof monthly !== 'undefined' ? JSON.stringify(monthly) : '[]' %>;
   var directRevenue = <%= typeof directRevenue !== 'undefined' ? directRevenue : 0 %>;
   var customerRevenue = <%= typeof customerRevenue !== 'undefined' ? customerRevenue : 0 %>;
+</script>
+
+
+<script>
+  const socket = io();
+
+  socket.on('stockUpdate', () => {
+    // Reload part of the navbar (optional with AJAX)
+    fetch('/api/lowstock')
+      .then(res => res.json())
+      .then(data => {
+        // update alert badge or dropdown dynamically
+        console.log("Updated low stock items:", data);
+      });
+  });
 </script>

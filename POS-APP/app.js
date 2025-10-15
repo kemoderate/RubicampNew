@@ -7,6 +7,7 @@ const session = require('express-session');
 const bodyParser = require('body-parser')
 const flash = require('connect-flash')
 const db = require('./db')
+const socketIo = require('socket.io')
 
 
 function requireLogin(req, res, next) {
@@ -25,6 +26,9 @@ function requireAdmin(req, res, next){
   next()
 }
 
+
+var app = express();
+
 var forgetpasswordRouter = require('./routes/forgetpassword')(db)
 var userloginRouter = require('./routes/userlogin');
 var dashboardRouter = require('./routes/dashboard')(requireAdmin,requireLogin, db);
@@ -32,14 +36,15 @@ var usersRouter = require('./routes/users')(requireAdmin,requireLogin, db);
 var unitsRouter = require('./routes/units')(requireAdmin,requireLogin, db);
 var goodsRouter = require('./routes/goods')(requireAdmin,requireLogin, db);
 var suppliersRouter = require('./routes/suppliers')(requireLogin, db);
-var purchasesRouter = require('./routes/purchases')(requireLogin, db);
 var customersRouter = require('./routes/customers')(requireLogin, db);
-var salesRouter = require('./routes/sales')(requireLogin, db);
+var purchasesRouter = require('./routes/purchases')(requireLogin, db, app.get('io'));
+var salesRouter = require('./routes/sales')(requireLogin, db, app.get('io'));
  
-var app = express();
+
 
 
 // view engine setup
+
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
@@ -64,6 +69,21 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use(async (req, res, next) => {
+  try {
+    const result = await db.query(`
+      SELECT barcode, name, stock 
+      FROM goods 
+      WHERE stock < 10
+      ORDER BY stock ASC
+    `);
+    res.locals.lowStockGoods = result.rows; // available in all EJS
+  } catch (err) {
+    console.error("Low stock middleware error:", err);
+    res.locals.lowStockGoods = [];
+  }
+  next();
+});
 
 
 

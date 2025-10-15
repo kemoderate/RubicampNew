@@ -6,7 +6,7 @@ const suppliers = require('./suppliers');
 
 
 /* GET home page. */
-module.exports = (requireLogin, db) => {
+module.exports = (requireLogin, db, io) => {
 
     const router = express.Router();
 
@@ -112,6 +112,7 @@ module.exports = (requireLogin, db) => {
             const operator = operatorResult.rows[0];
             const goodsData = await db.query('SELECT barcode, name , stock, purchaseprice FROM goods ORDER BY name ASC')
             const suppliersData = await db.query('SELECT supplierid ,name FROM suppliers ORDER BY supplierid ASC')
+            
 
             res.render('purchase-form', {
                 title: 'Transaction',
@@ -198,6 +199,8 @@ module.exports = (requireLogin, db) => {
                     [invoice, item.barcode, item.qty, item.purchaseprice, item.totalprice]
                 );
             }
+            
+            io.emit('stockUpdate');
             req.flash('success_msg', 'purchases has been added !')
             res.redirect('/')
         }
@@ -285,8 +288,7 @@ module.exports = (requireLogin, db) => {
         const { invoice } = req.params
         try {
             await db.query('DELETE FROM purchases WHERE invoice = $1', [invoice])
-
-
+              io.emit('stockUpdate', { invoice, action: 'delete' });
             req.flash('success_msg', 'Purchase has been deleted!')
             res.redirect('/purchases')
         } catch (err) {

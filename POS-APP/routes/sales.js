@@ -6,7 +6,7 @@ const customers = require('./customers');
 
 
 /* GET home page. */
-module.exports = (requireLogin, db) => {
+module.exports = (requireLogin, db, io) => {
 
     const router = express.Router();
 
@@ -87,6 +87,7 @@ module.exports = (requireLogin, db) => {
 
     router.get('/add', requireLogin, async (req, res) => {
         try {
+            
             const invoiceResult = await db.query('SELECT generate_sales_invoice() AS invoice_no');
             const invoice = invoiceResult.rows[0].invoice_no;
             const operatorId = req.session.user.id;
@@ -199,6 +200,7 @@ module.exports = (requireLogin, db) => {
                     [invoice, item.barcode, item.qty, item.sellingprice, item.totalprice]
                 );
             }
+            io.emit('stockUpdate');
             req.flash('success_msg', 'sales has been added !')
             res.redirect('/')
         }
@@ -210,7 +212,7 @@ module.exports = (requireLogin, db) => {
     });
 
     router.post('/finish', requireLogin, async (req, res) => {
-        console.log('Finish Payload:', req.body);
+      
         try {
             const { invoice, customer, pay } = req.body;
             const operator = req.session.user.id;
@@ -305,6 +307,7 @@ module.exports = (requireLogin, db) => {
         const { id } = req.params;
         try {
             await db.query('DELETE FROM saleitems WHERE id = $1', [id]);
+            io.emit('stockUpdate', { action: 'delete-item', id });
             res.json({ success: true });
         } catch (err) {
             console.error(err);
