@@ -91,6 +91,11 @@ $(function () {
   // Pakai event delegation biar jalan walau DataTables re-render
   $('#myTable').on('click', '.btn-delete', function (e) {
     e.preventDefault();
+
+     if ($(this).hasClass('disabled')) {
+        return;
+    }
+
     deleteId = $(this).data('id');
     const entityFromButton = $(this).data('entity');
     

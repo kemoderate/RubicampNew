@@ -44,16 +44,16 @@ function requireAdmin(req, res, next){
     const dataOwner = rows[0].operator;
 
     // Compare
-    if (user.id !== dataOwner) {
+       if (user.id !== dataOwner) {
       req.flash('error_msg', 'Access denied, you are not owner of this data');
-      return res.redirect('/sales');
+      return res.status(403).redirect(redirectbase);
     }
 
-    next(); // user is the owner → proceed
+   return next(); // user is the owner → proceed
   } catch (err) {
     console.error(err);
     req.flash('error_msg', 'Internal server error');
-    res.redirect('/sales');
+    res.redirect(redirectbase);
   }
 }
 
