@@ -347,17 +347,47 @@
   var customerRevenue = <%= typeof customerRevenue !== 'undefined' ? customerRevenue : 0 %>;
 </script>
 
-
 <script>
   const socket = io();
 
+  socket.on('connect', () => console.log('Socket connected ✅'));
+
+  // When stock changes on the backend (emitted from sales or purchases)
   socket.on('stockUpdate', () => {
-    // Reload part of the navbar (optional with AJAX)
+    console.log('🔔 Stock update received');
+
+    // Fetch latest low-stock list
     fetch('/api/lowstock')
       .then(res => res.json())
-      .then(data => {
-        // update alert badge or dropdown dynamically
-        console.log("Updated low stock items:", data);
-      });
+      .then(items => updateLowStockUI(items))
+      .catch(err => console.error('Failed to refresh low stock:', err));
   });
+
+  function updateLowStockUI(items) {
+    const badge = document.querySelector('#alertsDropdown .badge-counter');
+    const dropdown = document.querySelector('#alertsDropdown + .dropdown-menu');
+
+    if (!badge || !dropdown) return;
+
+    // Update badge number
+    badge.textContent = items.length;
+
+    // Rebuild alert items
+    dropdown.innerHTML = `
+      <h6 class="dropdown-header">ALERTS CENTER</h6>
+      ${items.map(item => `
+        <a class="dropdown-item d-flex align-items-center" href="#">
+          <div class="mr-3">
+            <div class="icon-circle bg-warning">
+              <i class="fas fa-exclamation-triangle text-white"></i>
+            </div>
+          </div>
+          <div>
+            <div class="small text-gray-500">barcode: ${item.barcode}</div>
+            ${item.name} only has ${item.stock} left
+          </div>
+        </a>
+      `).join('')}
+    `;
+  }
 </script>

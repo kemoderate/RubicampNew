@@ -24,7 +24,9 @@ var server = http.createServer(app);
 const { Server } = require('socket.io');
 const io = new Server(server);
 
-// ✅ Make `io` accessible inside routes through `req.app.get('io')`
+
+
+//  Make `io` accessible inside routes through `req.app.get('io')`
 app.set('io', io);
 
 /**

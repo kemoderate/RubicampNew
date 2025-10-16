@@ -18,10 +18,14 @@ hashPasswords();
 
 
 router.get('/', (req, res) => {
-  if (req.session.user) {
+  const login = req.session.user;
+  if (login && login.role == 'admin') {
     return res.redirect('/dashboard');
+  } else if (login && login.role !== 'admin') {
+    return res.redirect('/sales')
+  } else {
+    res.render('login', { title: 'Login User', user: req.session.user });
   }
-  res.render('login', { title: 'Login User', user: req.session.user });
 });
 
 
@@ -57,11 +61,17 @@ router.post('/', async (req, res) => {
       req.flash('error_msg', 'password is wrong');
       return res.redirect('/');
     } else {
-      req.session.user = { id: user.userid, email: user.email, name: user.name,       // simpan nama
-        role: user.role, avatar: user.avatar };
+      req.session.user = {
+        id: user.userid, email: user.email, name: user.name,       // simpan nama
+        role: user.role, avatar: user.avatar
+      };
       req.session.loggedIn = true;
       req.flash('success_msg', 'Login Berhasil')
-      res.redirect('/dashboard')
+      if (user.role === 'admin') {
+        res.redirect('/dashboard');
+      } else {
+        res.redirect('/sales');
+      }
     }
   } catch (error) {
     console.error('Login error:', error);

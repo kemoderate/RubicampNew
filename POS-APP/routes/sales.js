@@ -6,9 +6,11 @@ const customers = require('./customers');
 
 
 /* GET home page. */
-module.exports = (requireLogin, db, io) => {
+module.exports = (requireOwner,requireLogin, db) => {
 
     const router = express.Router();
+    
+
 
     router.get('/', requireLogin, async (req, res) => {
         try {
@@ -25,7 +27,7 @@ module.exports = (requireLogin, db, io) => {
               FROM sales s
               LEFT JOIN customers c ON s.customer = c.customerid
               LEFT JOIN users u ON s.operator = u.userid
-              ORDER BY s.invoice ASC
+              ORDER BY s.invoice DESC
 `);
 
             const sales = result.rows;
@@ -200,6 +202,7 @@ module.exports = (requireLogin, db, io) => {
                     [invoice, item.barcode, item.qty, item.sellingprice, item.totalprice]
                 );
             }
+            const io = req.app.get('io');
             io.emit('stockUpdate');
             req.flash('success_msg', 'sales has been added !')
             res.redirect('/')
@@ -235,7 +238,7 @@ module.exports = (requireLogin, db, io) => {
         }
     })
 
-    router.get('/edit/:invoice', requireLogin, async (req, res) => {
+    router.get('/edit/:invoice', requireLogin,requireOwner, async (req, res) => {
         const { invoice } = req.params
         const operatorResult = await db.query(
             'SELECT userid, name FROM users WHERE userid = $1',
@@ -288,7 +291,7 @@ module.exports = (requireLogin, db, io) => {
         }
     });
 
-    router.get('/delete/:invoice', requireLogin, async (req, res) => {
+    router.get('/delete/:invoice', requireLogin,requireOwner, async (req, res) => {
         const { invoice } = req.params
         try {
             await db.query('DELETE FROM sales WHERE invoice = $1', [invoice])
@@ -303,10 +306,11 @@ module.exports = (requireLogin, db, io) => {
         }
     })
 
-    router.get('/delete-item/:id', requireLogin, async (req, res) => {
+    router.get('/delete-item/:id', requireLogin,requireOwner, async (req, res) => {
         const { id } = req.params;
         try {
             await db.query('DELETE FROM saleitems WHERE id = $1', [id]);
+            const io = req.app.get('io');
             io.emit('stockUpdate', { action: 'delete-item', id });
             res.json({ success: true });
         } catch (err) {

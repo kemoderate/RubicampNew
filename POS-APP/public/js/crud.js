@@ -25,12 +25,13 @@ $(document).ready(function () {
         }
       });
     }
-
-    $table.DataTable(dataTableOptions);
     entity = $table.data('entity');
     if (!entity) {
       console.error('Table belum memiliki data-entity');
+    }else if(entity === 'sales' || entity === 'purchases'){
+    dataTableOptions.order = [[0, 'desc']];
     }
+    $table.DataTable(dataTableOptions);
   }
 
   // Initialize monthlyTable (for dashboard)

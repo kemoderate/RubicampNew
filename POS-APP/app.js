@@ -26,6 +26,37 @@ function requireAdmin(req, res, next){
   next()
 }
 
+ async function requireOwner(req, res, next){
+   try {
+    const { invoice } = req.params; // e.g. /sales/edit/:id
+    const user = req.session.user; // logged in user info
+    const path = req.originalUrl;
+
+    const table = path.includes('/purchases') ? 'purchases' : 'sales';
+    const redirectbase = table === 'purchases' ? '/purchases' :'/sales';
+
+    const { rows } = await db.query(`SELECT operator FROM ${table} WHERE invoice = $1`, [invoice]);
+    if (rows.length === 0) {
+      req.flash('error_msg', 'Data not found');
+      return res.redirect(redirectbase);
+    }
+
+    const dataOwner = rows[0].operator;
+
+    // Compare
+    if (user.id !== dataOwner) {
+      req.flash('error_msg', 'Access denied, you are not owner of this data');
+      return res.redirect('/sales');
+    }
+
+    next(); // user is the owner → proceed
+  } catch (err) {
+    console.error(err);
+    req.flash('error_msg', 'Internal server error');
+    res.redirect('/sales');
+  }
+}
+
 
 var app = express();
 
@@ -37,8 +68,8 @@ var unitsRouter = require('./routes/units')(requireAdmin,requireLogin, db);
 var goodsRouter = require('./routes/goods')(requireAdmin,requireLogin, db);
 var suppliersRouter = require('./routes/suppliers')(requireLogin, db);
 var customersRouter = require('./routes/customers')(requireLogin, db);
-var purchasesRouter = require('./routes/purchases')(requireLogin, db, app.get('io'));
-var salesRouter = require('./routes/sales')(requireLogin, db, app.get('io'));
+var purchasesRouter = require('./routes/purchases')(requireOwner,requireLogin, db);
+var salesRouter = require('./routes/sales')(requireOwner,requireLogin, db);
  
 
 
@@ -67,6 +98,20 @@ app.use((req, res, next) => {
   res.locals.error = req.flash('error_msg');   // pesan error
   res.locals.success = req.flash('success_msg'); // pesan success
   next();
+});
+app.get('/api/lowstock', async (req, res) => {
+  try {
+    const { rows } = await db.query(`
+      SELECT barcode, name, stock 
+      FROM goods 
+      WHERE stock < 10
+      ORDER BY stock ASC
+    `);
+    res.json(rows);
+  } catch (err) {
+    console.error('Low stock API error:', err);
+    res.status(500).json([]);
+  }
 });
 
 app.use(async (req, res, next) => {

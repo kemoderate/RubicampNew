@@ -6,7 +6,7 @@ const suppliers = require('./suppliers');
 
 
 /* GET home page. */
-module.exports = (requireLogin, db, io) => {
+module.exports = (requireOwner,requireLogin, db, io) => {
 
     const router = express.Router();
 
@@ -23,7 +23,7 @@ module.exports = (requireLogin, db, io) => {
               FROM purchases p
               LEFT JOIN suppliers s ON p.supplier = s.supplierid
               LEFT JOIN users u ON p.operator = u.userid
-              ORDER BY p.invoice ASC
+              ORDER BY p.invoice DESC
 `);
 
             const purchases = result.rows;
@@ -199,7 +199,7 @@ module.exports = (requireLogin, db, io) => {
                     [invoice, item.barcode, item.qty, item.purchaseprice, item.totalprice]
                 );
             }
-            
+            const io = req.app.get('io');
             io.emit('stockUpdate');
             req.flash('success_msg', 'purchases has been added !')
             res.redirect('/')
@@ -231,7 +231,7 @@ module.exports = (requireLogin, db, io) => {
         }
     })
 
-    router.get('/edit/:invoice', requireLogin, async (req, res) => {
+    router.get('/edit/:invoice',requireLogin,requireOwner, async (req, res) => {
         const { invoice } = req.params
         const operatorResult = await db.query(
             'SELECT userid, name FROM users WHERE userid = $1',
@@ -284,10 +284,11 @@ module.exports = (requireLogin, db, io) => {
         }
     });
 
-    router.get('/delete/:invoice', requireLogin, async (req, res) => {
+    router.get('/delete/:invoice', requireLogin,requireOwner, async (req, res) => {
         const { invoice } = req.params
         try {
             await db.query('DELETE FROM purchases WHERE invoice = $1', [invoice])
+            const io = req.app.get('io');
               io.emit('stockUpdate', { invoice, action: 'delete' });
             req.flash('success_msg', 'Purchase has been deleted!')
             res.redirect('/purchases')
