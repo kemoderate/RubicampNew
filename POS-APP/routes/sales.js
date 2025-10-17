@@ -306,7 +306,7 @@ module.exports = (requireOwner,requireLogin, db) => {
         }
     })
 
-    router.get('/delete-item/:id', requireLogin,requireOwner, async (req, res) => {
+    router.get('/delete-item/:id', requireLogin, async (req, res) => {
         const { id } = req.params;
         try {
             await db.query('DELETE FROM saleitems WHERE id = $1', [id]);

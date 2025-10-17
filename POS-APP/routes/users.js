@@ -45,6 +45,13 @@ module.exports = (requireAdmin,requireLogin, db) => {
       return res.status(400).send('Semua field wajib diisi!');
     }
     try {
+
+       const { rows: existing } = await db.query('SELECT 1 FROM users WHERE email = $1', [email]);
+    if (existing.length > 0) {
+      req.flash('error_msg', 'Email already exists!');
+      return res.redirect('/users/add');
+    }
+
       const hashedPassword = await bcrypt.hash(password, 10);
 
       await db.query(
@@ -139,14 +146,33 @@ module.exports = (requireAdmin,requireLogin, db) => {
     const { name, email } = req.body;
     const { id } = req.params;
     try {
+
+      if (!name || !email) {
+      req.flash('error_msg', 'Name and email are required.');
+      return res.redirect('/users/profile');
+    }
+
+    const trimmedName = name.trim();
+    const trimmedEmail = email.trim().toLowerCase();
+
+    const { rows: emailCheck } = await db.query(
+      'SELECT userid FROM users WHERE email = $1 AND userid != $2',
+      [trimmedEmail, id]
+    );
+
+    if (emailCheck.length > 0) {
+      req.flash('error_msg', 'Email is already used by another account.');
+      return res.redirect('/users/profile');
+    }
+
       await db.query(
         'UPDATE users SET name=$1, email=$2 WHERE userid=$3',
-        [name, email, id]
+        [trimmedName, trimmedEmail, id]
       );
       const updatedUser = await db.query('SELECT * FROM users WHERE userid = $1', [id]);
       const user = updatedUser.rows[0];
       req.session.user = {
-        id: user.userid,          // ✅ consistent naming
+        id: user.userid,         
         email: user.email,
         name: user.name,
         role: user.role,
