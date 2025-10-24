@@ -3,10 +3,26 @@ const db = require('../db')
 const upload = require('../upload');
 const suppliers = require('./suppliers');
 
-
-
+async function updateStock(req, res, next) {
+    try {
+        const io = req.app.get('io');
+        
+        // Query the updated low stock goods
+        const { rows } = await db.query(`
+            SELECT barcode, name, stock 
+            FROM goods 
+            WHERE stock < 10
+            ORDER BY stock ASC
+        `);
+        
+        // Emit the actual data to all connected clients
+        io.emit('stockUpdate', rows);
+    } catch (err) {
+        console.error('Error updating stock:', err);
+    }
+}
 /* GET home page. */
-module.exports = (requireOwner,requireLogin, db, io) => {
+module.exports = (requireOwner,requireLogin, db) => {
 
     const router = express.Router();
 
@@ -159,7 +175,7 @@ module.exports = (requireOwner,requireLogin, db, io) => {
       RETURNING id
     `, [invoice, barcode, qty, purchaseprice, totalprice]
             );
-
+             await updateStock(req);
             res.json({ success: true, id: result.rows[0].id });
         } catch (err) {
             console.error('Error adding item:', err);
@@ -199,8 +215,7 @@ module.exports = (requireOwner,requireLogin, db, io) => {
                     [invoice, item.barcode, item.qty, item.purchaseprice, item.totalprice]
                 );
             }
-            const io = req.app.get('io');
-            io.emit('stockUpdate');
+             await updateStock(req);
             req.flash('success_msg', 'purchases has been added !')
             res.redirect('/')
         }
@@ -223,6 +238,7 @@ module.exports = (requireOwner,requireLogin, db, io) => {
             WHERE invoice = $3`, [supplier, operator, invoice]
             );
             req.flash('success_msg', 'Purchase has been completed!');
+               await updateStock(req);
             res.redirect(`/purchases`)
         } catch (err) {
             console.error(err);
@@ -288,8 +304,8 @@ module.exports = (requireOwner,requireLogin, db, io) => {
         const { invoice } = req.params
         try {
             await db.query('DELETE FROM purchases WHERE invoice = $1', [invoice])
-            const io = req.app.get('io');
-              io.emit('stockUpdate', { invoice, action: 'delete' });
+             await updateStock(req); 
+            ({ invoice, action: 'delete' });
             req.flash('success_msg', 'Purchase has been deleted!')
             res.redirect('/purchases')
         } catch (err) {
@@ -303,6 +319,7 @@ module.exports = (requireOwner,requireLogin, db, io) => {
         const { id } = req.params;
         try {
             await db.query('DELETE FROM purchaseitems WHERE id = $1', [id]);
+            await updateStock(req);
             res.json({ success: true });
         } catch (err) {
             console.error(err);

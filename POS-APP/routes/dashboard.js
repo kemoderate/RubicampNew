@@ -7,13 +7,13 @@ function buildDateFilter(startdate, enddate, alias = '') {
   const params = [];
 
   if (startdate && enddate) {
-    clause = `WHERE ${alias}time BETWEEN $1 AND $2`;
+    clause = `WHERE ${alias}time >= $1 AND ${alias}time < ($2::date + INTERVAL '1 day')`;
     params.push(startdate, enddate);
   } else if (startdate) {
     clause = `WHERE ${alias}time >= $1`;
     params.push(startdate);
   } else if (enddate) {
-    clause = `WHERE ${alias}time <= $1`;
+    clause = `WHERE ${alias}time < ($1::date + INTERVAL '1 day')`;
     params.push(enddate);
   }
 
@@ -43,34 +43,36 @@ module.exports = (requireAdmin, requireLogin, db) => {
       const totalSales = Number(totalSalesResult.rows[0].total || 0);
 
       monthlyFilter = buildDateFilter(startdate, enddate, 's.');
-
-      const monthlyResult = await db.query(`
-  WITH sales_monthly AS (
-    SELECT DATE_TRUNC('month', time) AS month, SUM(totalsum) AS revenue
+const monthlyResult = await db.query(`WITH sales_monthly AS (
+    SELECT DATE_TRUNC('month', time)::date AS month, SUM(totalsum) AS revenue
     FROM sales
     WHERE ($1::date IS NULL OR time >= $1)
-      AND ($2::date IS NULL OR time <= $2)
-    GROUP BY DATE_TRUNC('month', time)
+      AND ($2::date IS NULL OR time <= ($2 + INTERVAL '1 day'))
+    GROUP BY DATE_TRUNC('month', time)::date
   ),
   purchases_monthly AS (
-    SELECT DATE_TRUNC('month', time) AS month, SUM(totalsum) AS expense
+    SELECT DATE_TRUNC('month', time)::date AS month, SUM(totalsum) AS expense
     FROM purchases
     WHERE ($1::date IS NULL OR time >= $1)
-      AND ($2::date IS NULL OR time <= $2)
-    GROUP BY DATE_TRUNC('month', time)
+      AND ($2::date IS NULL OR time <= ($2 + INTERVAL '1 day'))
+    GROUP BY DATE_TRUNC('month', time)::date
   )
   SELECT
-    TO_CHAR(COALESCE(s.month, p.month), 'YYYY-MM') AS month,
+    TO_CHAR(COALESCE(s.month, p.month), 'YYYYMM') AS yearmonth,
+    COALESCE(s.month, p.month) AS month_raw,
+    TO_CHAR(COALESCE(s.month, p.month), 'Mon - YY') AS month,
     COALESCE(s.revenue, 0) AS revenue,
     COALESCE(p.expense, 0) AS expense,
     (COALESCE(s.revenue, 0) - COALESCE(p.expense, 0)) AS earnings
   FROM sales_monthly s
   FULL OUTER JOIN purchases_monthly p ON s.month = p.month
-  ORDER BY month;
+  ORDER BY yearmonth ASC;
 `, [startdate || null, enddate || null]);
 
 
+
       const monthly = monthlyResult.rows;
+      
 
 
       // Calculate Direct Revenue (sales without customer - NULL values)
@@ -141,8 +143,15 @@ module.exports = (requireAdmin, requireLogin, db) => {
       const params = [];
 
       if (startdate && enddate) {
-        filter = 'WHERE s.time BETWEEN $1 AND $2';
+        filter = `WHERE s.time >= $1 
+        AND s.time < ($2::date + INTERVAL '1 day')`;
         params.push(startdate, enddate);
+      }else if(startdate){
+        filter = `WHERE s.time >= $1`;
+        params.push(startdate);
+      }else if(enddate){
+        filter = `WHERE s.time < ($2::date + INTERVAL '1 day')`
+        params.push(enddate);
       }
 
       const result = await db.query(`

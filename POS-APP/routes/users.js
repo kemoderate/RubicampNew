@@ -238,7 +238,12 @@ module.exports = (requireAdmin,requireLogin, db) => {
         return res.redirect('/users/changepassword');
       }
 
-
+        const isSameAsOld = await bcrypt.compare(newPassword, currentHashedPassword);
+    if (isSameAsOld) {
+      req.flash('error_msg', 'New password cannot be the same as old password.');
+      return res.redirect('/users/changepassword');
+    }
+    
       const hashedPassword = await bcrypt.hash(newPassword, 10);
 
       await db.query('UPDATE users SET password = $1 WHERE userid = $2',

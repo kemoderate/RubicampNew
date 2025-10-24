@@ -34,39 +34,21 @@ $(document).ready(function () {
     $table.DataTable(dataTableOptions);
   }
 
-  // Initialize monthlyTable (for dashboard)
-  const $monthlyTable = $('#monthlyTable');
-  if ($monthlyTable.length) {
-    $monthlyTable.DataTable({
-      paging: true,
-      searching: true,
-      ordering: true,
-      order: [[0, "desc"]], // Sort by Month column descending
-      pageLength: 10,
-      lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
-      language: {
-        lengthMenu: "Show _MENU_ entries",
-        zeroRecords: "No matching records found",
-        info: "Showing _START_ to _END_ of _TOTAL_ entries",
-        infoEmpty: "Showing 0 to 0 of 0 entries",
-        infoFiltered: "(filtered from _TOTAL_ total entries)",
-        search: "Search:",
-        paginate: {
-          first: "First",
-          last: "Last",
-          next: "Next",
-          previous: "Previous"
-        }
-      }
-    });
-  }
-
   // Keep dashboardTable for backward compatibility
   const $dashboardTable = $('#dashboardTable');
   if ($dashboardTable.length) {
     $dashboardTable.DataTable({
+      paging: true,
+      searching: true,
+      ordering: true,             
+      order: [[0, 'desc']], 
       pageLength: 10,
-      lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]]
+      lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+       columnDefs: [{
+            targets: 0,
+            type: 'string',
+            orderDataType: 'dom-data-sort'
+        }]
     });
   }
 
@@ -130,3 +112,9 @@ $(function () {
     deleteId = null;
   });
 });
+
+$.fn.dataTable.ext.order['dom-data-sort'] = function (settings, col) {
+    return this.api().column(col, {order:'index'}).nodes().map(function (td, i) {
+        return $(td).parent().attr('data-sort');
+    });
+};

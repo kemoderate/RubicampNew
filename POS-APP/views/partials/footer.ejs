@@ -352,27 +352,35 @@
 
   socket.on('connect', () => console.log('Socket connected ✅'));
 
-  // When stock changes on the backend (emitted from sales or purchases)
-  socket.on('stockUpdate', () => {
+  socket.on('stockUpdate', async () => {
     console.log('🔔 Stock update received');
 
-    // Fetch latest low-stock list
-    fetch('/api/lowstock')
-      .then(res => res.json())
-      .then(items => updateLowStockUI(items))
-      .catch(err => console.error('Failed to refresh low stock:', err));
+    try {
+      // Add cache buster to ensure fresh data
+      const res = await fetch(`/api/lowstock?t=${Date.now()}`, { cache: 'no-store' });
+      const items = await res.json();
+      updateLowStockUI(items);
+    } catch (err) {
+      console.error('Failed to refresh low stock:', err);
+    }
   });
 
   function updateLowStockUI(items) {
+     const alertLi = document.querySelector('.nav-item.dropdown.no-arrow.mx-1');
     const badge = document.querySelector('#alertsDropdown .badge-counter');
     const dropdown = document.querySelector('#alertsDropdown + .dropdown-menu');
 
     if (!badge || !dropdown) return;
 
-    // Update badge number
+      if (items.length === 0) {
+      alertLi.style.display = 'none';
+      return;
+    } else {
+      alertLi.style.display = 'block';
+    }
+
     badge.textContent = items.length;
 
-    // Rebuild alert items
     dropdown.innerHTML = `
       <h6 class="dropdown-header">ALERTS CENTER</h6>
       ${items.map(item => `

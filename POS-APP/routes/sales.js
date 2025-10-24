@@ -3,7 +3,24 @@ const db = require('../db')
 const upload = require('../upload');
 const customers = require('./customers');
 
-
+async function updateStock(req, res, next) {
+    try {
+        const io = req.app.get('io');
+        
+        // Query the updated low stock goods
+        const { rows } = await db.query(`
+            SELECT barcode, name, stock 
+            FROM goods 
+            WHERE stock < 10
+            ORDER BY stock ASC
+        `);
+        
+        // Emit the actual data to all connected clients
+        io.emit('stockUpdate', rows);
+    } catch (err) {
+        console.error('Error updating stock:', err);
+    }
+}
 
 /* GET home page. */
 module.exports = (requireOwner,requireLogin, db) => {
@@ -162,7 +179,7 @@ module.exports = (requireOwner,requireLogin, db) => {
       RETURNING id
     `, [invoice, barcode, qty, sellingprice, totalprice]
             );
-
+             updateStock();
             res.json({ success: true, id: result.rows[0].id });
         } catch (err) {
             console.error('Error adding item:', err);
@@ -202,8 +219,7 @@ module.exports = (requireOwner,requireLogin, db) => {
                     [invoice, item.barcode, item.qty, item.sellingprice, item.totalprice]
                 );
             }
-            const io = req.app.get('io');
-            io.emit('stockUpdate');
+            updateStock();
             req.flash('success_msg', 'sales has been added !')
             res.redirect('/')
         }
@@ -229,6 +245,7 @@ module.exports = (requireOwner,requireLogin, db) => {
             SET customer = $1, operator =$2, pay = $3, change = $4
             WHERE invoice = $5`, [customer, operator, pay, change,  invoice]
             );
+             updateStock();
             req.flash('success_msg', 'sale has been completed!');
             res.redirect(`/sales`)
         } catch (err) {
@@ -296,7 +313,7 @@ module.exports = (requireOwner,requireLogin, db) => {
         try {
             await db.query('DELETE FROM sales WHERE invoice = $1', [invoice])
 
-
+            updateStock();
             req.flash('success_msg', 'sale has been deleted!')
             res.redirect('/sales')
         } catch (err) {
@@ -310,8 +327,8 @@ module.exports = (requireOwner,requireLogin, db) => {
         const { id } = req.params;
         try {
             await db.query('DELETE FROM saleitems WHERE id = $1', [id]);
-            const io = req.app.get('io');
-            io.emit('stockUpdate', { action: 'delete-item', id });
+            updateStock(); 
+            ({ action: 'delete-item', id });
             res.json({ success: true });
         } catch (err) {
             console.error(err);

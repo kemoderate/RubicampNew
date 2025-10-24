@@ -151,7 +151,7 @@
                                                 cellspacing="0">
                                                 <thead>
                                                     <tr>
-                                                        <th>Month</th>
+                                                        <th>Monthly</th>
                                                         <th>Expense</th>
                                                         <th>Revenue</th>
                                                         <th>Earnings</th>
@@ -175,7 +175,7 @@
                                                         </tr>
                                                         <% } else { %>
                                                             <% monthly.forEach(row=> { %>
-                                                                <tr>
+                                                                <tr data-sort="<%= row.yearmonth %>">
                                                                     <td>
                                                                         <%= row.month %>
                                                                     </td>

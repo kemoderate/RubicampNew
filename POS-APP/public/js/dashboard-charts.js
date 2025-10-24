@@ -26,6 +26,8 @@ function number_format(number, decimals, dec_point, thousands_sep) {
 
 // Earnings Line Chart
 function initEarningsChart(monthlyData) {
+  
+
   var ctx = document.getElementById("earningsChart");
   if (!ctx) return;
 
@@ -197,3 +199,4 @@ $(document).ready(function(){
   $('#totalRevenue').text('Rp '+ totalRevenue.toLocaleString('id-ID'));
   $('#totalEarnings').text('Rp '+ totalEarnings.toLocaleString('id-ID'));
 })
+
