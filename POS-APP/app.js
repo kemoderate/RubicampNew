@@ -64,9 +64,11 @@ const io = socketIo(server);
 app.set('io', io);
 
 io.on('connection', (socket) => {
-  console.log('🟢 Socket connected:', socket.id);
+  console.log(' Socket connected:', socket.id);
+
+
   socket.on('disconnect', (reason) => {
-    console.log('🔴 Socket disconnected:', socket.id, 'reason:', reason);
+    console.log(' Socket disconnected:', socket.id, 'reason:', reason);
   });
 });
 // ===== END SOCKET.IO SETUP =====
@@ -166,7 +168,7 @@ app.use(function (err, req, res, next) {
   res.render('error');
 });
 
-// ===== START SERVER WITH IIFE =====
+// START SERVER WITH IIFE 
 (function startServer() {
   const PORT = normalizePort(process.env.PORT || '3000');
   
@@ -174,7 +176,6 @@ app.use(function (err, req, res, next) {
     console.log(` Server running on: http://localhost:${PORT}`);
     console.log(` Socket.io ready for connections`);
     console.log(` Database connected`);
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   });
 
   server.on('error', (error) => {
@@ -186,11 +187,11 @@ app.use(function (err, req, res, next) {
 
     switch (error.code) {
       case 'EACCES':
-        console.error(`❌ ${bind} requires elevated privileges`);
+        console.error(` ${bind} requires elevated privileges`);
         process.exit(1);
         break;
       case 'EADDRINUSE':
-        console.error(`❌ ${bind} is already in use`);
+        console.error(` ${bind} is already in use`);
         process.exit(1);
         break;
       default:
@@ -212,7 +213,7 @@ app.use(function (err, req, res, next) {
     return false;
   }
 })();
-// ===== END SERVER STARTUP =====
+//  END SERVER STARTUP
 
 // Export for testing purposes (optional)
 module.exports = { app, server, io };

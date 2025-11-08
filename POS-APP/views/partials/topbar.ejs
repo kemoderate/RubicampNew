@@ -20,8 +20,8 @@
   <!-- Topbar Navbar -->
   <ul class="navbar-nav ml-auto">
     <!-- Nav Item - Alerts -->
-    <% if (user.role === 'admin' && lowStockGoods.length > 0) { %>
-<li class="nav-item dropdown no-arrow mx-1">
+<li class="nav-item dropdown no-arrow mx-1"
+style="<%= (user.role === 'admin' && lowStockGoods.length > 0) ? '' : 'display:none' %>">
   <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown"
     aria-haspopup="true" aria-expanded="false">
     <i class="fas fa-bell fa-fw"></i>
@@ -33,7 +33,7 @@
     <h6 class="dropdown-header">
       ALERTS CENTER
     </h6>
-
+     <% if (user.role === 'admin') { %>
     <% lowStockGoods.forEach(item => { %>
       <a class="dropdown-item d-flex align-items-center" href="#">
         <div class="mr-3">
@@ -47,8 +47,9 @@
         </div>
       </a>
     <% }) %>
+        <% } %> 
+    </div>
 </li>
-<% } %>
 
     <div class="topbar-divider d-none d-sm-block"></div>
     <li class="nav-item dropdown no-arrow">

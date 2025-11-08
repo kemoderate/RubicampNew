@@ -204,40 +204,41 @@
     });
 
     // ==== 5. Finish & clear sessionStorage ====
-    $('#btnFinish').click(function (e) {
-      e.preventDefault()
+$('#btnFinish').click(async function (e) {
+  e.preventDefault();
 
-      if (items.length === 0) {
-        alert('Add at least one item!');
-        return;
-      }
+  if (items.length === 0) {
+    alert('Add at least one item!');
+    return;
+  }
 
-      const partner = entity === "purchases" ? $('#supplier').val() : $('#customer').val();
-      const invoice = $('#invoice').val();
+  const partner = entity === "purchases" ? $('#supplier').val() : $('#customer').val();
+  const invoice = $('#invoice').val();
 
+  if (!partner) {
+    alert('Please select a supplier before finishing!');
+    return;
+  }
 
-      if (!partner) {
-        alert('Please select a supplier before finishing!');
-        return;
-      }
-      $('<input>').attr({
-        type: 'hidden',
-        name: 'items',
-        value: JSON.stringify(items)
-      }).appendTo('#finalizeForm');
-
-
-
-      // setelah submit, invoice dihapus supaya bisa generate baru lagi
-      $('#finalizeForm').submit(function (e) {
-
-        console.log('Form data serialized:', $(this).serialize()); // cek data
-      });
-
-      $('#finalizeForm').off('submit').submit();
-
+  try {
+    const res = await fetch(`/${entity}/finish`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ invoice, items, partner })
     });
 
+    const data = await res.json();
+    if (data.success) {
+      alert('Transaction Finished');
+      items = []; // reset your local array
+      $('#itemTable tbody').empty(); // clear UI
+      $('#invoice').val(''); // optionally clear invoice field
+    }
+  } catch (err) {
+    console.error(err);
+    alert('Failed to finish transaction');
+  }
+});
     // delete itemTable
 
     $(document).on('click', '.btn-deleteItem', function (e) {
@@ -350,11 +351,10 @@
 <script>
   const socket = io();
 
-  socket.on('connect', () => console.log('Socket connected ✅'));
+  socket.on('connect', () => console.log('Socket connected '));
 
   socket.on('stockUpdate', async () => {
-    console.log('🔔 Stock update received');
-
+    console.log(' Stock update received');
     try {
       // Add cache buster to ensure fresh data
       const res = await fetch(`/api/lowstock?t=${Date.now()}`, { cache: 'no-store' });
